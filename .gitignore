@@ -1,17 +1,28 @@
+# IDE
 .metadata/
-bin/
-.settings
-*.class
+.settings/
 .classpath
 .loadpath
+.factorypath
+.idea/
+*.iml
+
+# Build
+bin/
+build/
+*.class
+*.jar
+
+# Gradle
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Temp
 tmp/
 *.tmp
-.settings/
 *.swp
 *.bak
-*.jar
+
+# Other
 local.properties
-.factorypath
 src-gen/
-*.xml
-*.zip
