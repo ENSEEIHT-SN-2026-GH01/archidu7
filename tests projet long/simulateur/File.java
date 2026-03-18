@@ -2,7 +2,7 @@ package simulateur;
 
 public interface File {
 
-	public void Ajouter();
+	public void ajouter(Composant c);
 
-	public void Traiter();
+	public void traiter();
 }

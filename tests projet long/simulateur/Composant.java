@@ -4,10 +4,14 @@ public abstract class Composant {
 
 	private TableauLien entrees, sorties;
 
-	public Composant(int nb_entrees, int nb_sorties, String[] NomEntrees) {
-		entrees = new TableauLien(nb_entrees);
-		sorties = new TableauLien(nb_sorties);
-		sorties.initialiser(NomEntrees);
+	public Composant(int nb_entrees, int nb_sorties) {
+                entrees = new TableauLien(nb_entrees);
+                sorties = new TableauLien(nb_sorties);
+        }
+
+	public Composant(int nb_entrees, int nb_sorties, String[] NomSorties) {
+		this(nb_entrees, nb_sorties);
+		sorties.initialiser(NomSorties);
 	}
 
 	/*public Composant(int nb_entrees, int nb_sorties, TableauLien entrees) {
