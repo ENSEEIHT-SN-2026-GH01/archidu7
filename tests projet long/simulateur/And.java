@@ -4,7 +4,7 @@ public class And extends Composant {
 
 	private String[] NomSortieDefaut = { "S" };
 
-	public And(String[] NomSorties) {
+	public And(String[] NomSorties) throws ErreurIndex {
 		super(2,1, NomSorties);
 	}
 
@@ -12,7 +12,7 @@ public class And extends Composant {
 		super(1,2,this.NomSortieDefaut);
 	}*/
 
-	public And(Lien Entree1, Lien Entree2, String NomSortie) {
+	public And(Lien Entree1, Lien Entree2, String NomSortie) throws ErreurIndex {
 		super(2,1);
 		super.brancherEntree(Entree1,1);
 		super.brancherEntree(Entree2,2);
@@ -20,18 +20,18 @@ public class And extends Composant {
 		super.brancherSortie(s,1);
 	}
 
-	public And(Lien Entree1, Lien Entree2, Lien Sortie) {
+	public And(Lien Entree1, Lien Entree2, Lien Sortie) throws ErreurIndex {
                 super(2,1);
                 super.brancherEntree(Entree1,1);
                 super.brancherEntree(Entree2,2);
                 super.brancherSortie(Sortie,1);
         }
 
-	public Lien getLienSortie() {
+	public Lien getLienSortie() throws ErreurIndex {
 		return super.getLienSortie(1);
 	}
 
-	public void calculer() {
+	public void calculer() throws ErreurIndex {
 		if (super.getEntree(1) == Etat.DW || super.getEntree(2) == Etat.DW) {
 			super.setSortie(1,Etat.DW);
 		} else {
