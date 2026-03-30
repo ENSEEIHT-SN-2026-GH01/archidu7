@@ -7,6 +7,6 @@ import javafx.scene.layout.VBox;
 
 public class FenetrePrincipale extends Scene{
     public FenetrePrincipale(){
-        super(new FlowPane(new MenuPrincipale()));
+        super(new VBox(new MenuPrincipale(), new BoutonsPrincipale()));
     }
 }
