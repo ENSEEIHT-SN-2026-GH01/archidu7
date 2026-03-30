@@ -22,6 +22,7 @@ public class Bascule extends Composant {
         public void calculer() throws ErreurIndex{
                 O1.calculer();
                 O2.calculer();
+		O1.calculer();
         }
 
         public void afficherLiens() throws ErreurIndex {
