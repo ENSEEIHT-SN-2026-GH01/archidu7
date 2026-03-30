@@ -5,6 +5,9 @@ import javafx.scene.control.ButtonBar;
 public class BoutonsPrincipale extends ButtonBar{
     public BoutonsPrincipale(){
         super();
-        getButtons().addAll(new Button("1"), new Button("2"));
+        Button b1 = new Button("les boutons seront à");
+        Button b2 = new Button("mettre içi");
+
+        getButtons().addAll(b1,b2);
     }    
 }
