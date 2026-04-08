@@ -1,9 +1,9 @@
 package parser.automate;
 
-import java.util.Optional;
+import util.*;
 
 public interface Automate<T> {
 
-  Optional<T> exec(String t);
+  Pair<T, Integer> exec(String t);
 
 }

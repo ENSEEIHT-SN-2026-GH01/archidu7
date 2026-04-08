@@ -53,4 +53,7 @@ public class Transitions<Node, Label> {
     }
   }
 
+  public Set<Node> delta(Node depart, Label etiquette){
+    return transitions.getOrDefault(depart, EMPTY_MAP).getOrDefault(etiquette, EMPTY_SET);
+  }
 }

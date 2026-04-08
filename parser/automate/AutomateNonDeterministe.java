@@ -8,15 +8,15 @@ public abstract class AutomateNonDeterministe<T> implements Automate<T> {
 
   private Set<Integer> entryPoint;
   private Transitions<Integer, OptionalInt> delta = new Transitions<>();
-  private Set<Pair<Integer, T>> endPoint;
+  private Map<Integer, T> etatsTerminaux;
   private int nextId;
 
-  public AutomateNonDeterministe(Regex r, T lexeme) {
+  protected AutomateNonDeterministe(Regex r, T lexeme) {
     nextId = 2;
     entryPoint = new HashSet<>();
     entryPoint.add(0);
-    endPoint = new HashSet<>();
-    endPoint.add(pair(1, lexeme));
+    etatsTerminaux = new HashMap<>();
+    etatsTerminaux.put(1, lexeme);
     parseRegex(r, pair(0, 1));
   }
 
@@ -53,12 +53,12 @@ public abstract class AutomateNonDeterministe<T> implements Automate<T> {
     delta.add(etatDepart, etiquette, etatFin);
   }
 
-  public Set<Integer> getEntryPoint() {
+  protected Set<Integer> getEntryPoint() {
     return entryPoint;
   }
 
-  public Set<Pair<Integer, T>> getEndPoint() {
-    return endPoint;
+  protected Map<Integer, T> getEtatsTerminaux() {
+    return etatsTerminaux;
   }
 
   protected Transitions<Integer, OptionalInt> getDelta() {
