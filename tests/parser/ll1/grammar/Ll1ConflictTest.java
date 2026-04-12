@@ -44,13 +44,21 @@ public class Ll1ConflictTest {
         assertFalse(c.isEmpty());
     }
 
-    @Test public void grammaireShdlAUnConflitAttenduSurInstanceSeulement() {
-        // INSTANCE a un conflit FIRST/FIRST intentionnel sur IDENTIFIER (résolu par lookahead 2 dans le parser).
-        // Tous les autres non-terminaux doivent être propres.
+    @Test public void grammaireShdlAConflitsAttendusConnus() {
+        // Conflits INTENTIONNELS, résolus dans le code du parser :
+        //   - INSTANCE (FIRST/FIRST sur IDENTIFIER) : lookahead 2 pour distinguer
+        //     ModuleInstance (IDENTIFIER LPAREN) vs Assignment/MemoryPoint (IDENTIFIER non-LPAREN)
+        //   - TERM_REST (FIRST/FOLLOW sur STAR) : dans une règle FSM wildcard,
+        //     `when x * y` vs `* -> s2` sont ambigus. Résolution greedy dans parseTerm :
+        //     STAR continue toujours l'expression. Si l'utilisateur veut un wildcard
+        //     après un when, il doit terminer la règle par `;` ou `,`.
+        java.util.Set<NonTerminal> attendus = java.util.Set.of(
+            NonTerminal.INSTANCE,
+            NonTerminal.TERM_REST);
         List<Ll1Conflict> all = new Ll1ConflictChecker(Grammar.SHDL).findAllConflicts();
         for (Ll1Conflict c : all) {
-            assertEquals("conflit inattendu sur " + c.getNonTerminal() + " : " + c,
-                NonTerminal.INSTANCE, c.getNonTerminal());
+            assertTrue("conflit inattendu sur " + c.getNonTerminal() + " : " + c,
+                attendus.contains(c.getNonTerminal()));
         }
     }
 }
