@@ -266,9 +266,32 @@ public final class Parser {
         return new MemoryPoint(target.getPosition(), target, expr, clock, kind, cond, enable);
     }
 
-    // Stub — implémenté aux tâches suivantes
     private Module parseModule() {
-        throw new UnsupportedOperationException("parseModule implémenté à la Task 17");
+        return enterRule("Module", () -> {
+            Token mod = consume(TokenType.MODULE);
+            Position pos = new Position(mod.getLine(), mod.getColumn());
+            Token name = consume(TokenType.IDENTIFIER);
+            consume(TokenType.LPAREN);
+            if (peek(0).getType() == TokenType.RPAREN) {
+                throw error(ErrorCode.EMPTY_PARAM_LIST, Set.of(TokenType.IDENTIFIER));
+            }
+            List<Signal> params = new ArrayList<>();
+            params.add(enterRule("Signal", this::parseSignal));
+            while (peek(0).getType() == TokenType.COMMA || peek(0).getType() == TokenType.COLON) {
+                consume(peek(0).getType());
+                params.add(enterRule("Signal", this::parseSignal));
+            }
+            consume(TokenType.RPAREN);
+            List<Instance> instances = new ArrayList<>();
+            if (peek(0).getType() == TokenType.END) {
+                throw error(ErrorCode.EMPTY_INSTANCE_LIST, Set.of());
+            }
+            while (peek(0).getType() != TokenType.END) {
+                instances.add(enterRule("Instance", this::parseInstance));
+            }
+            consume(TokenType.END); consume(TokenType.MODULE);
+            return new Module(pos, name.getValue(), params, instances);
+        });
     }
 
     // --- Task 16 : ModuleInstance, Map, Fsm ---
