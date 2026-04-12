@@ -381,10 +381,12 @@ public final class Parser {
     }
 
     private FsmHeader parseFsmHeader() {
-        TokenType t = peek(0).getType();
+        Token startTok = peek(0);
+        TokenType t = startTok.getType();
+        Position hp = new Position(startTok.getLine(), startTok.getColumn());
         if (t == TokenType.ASYNCHRONOUS) {
             consume(TokenType.ASYNCHRONOUS);
-            return new FsmHeader(FsmHeader.Kind.ASYNCHRONOUS, null, null, null);
+            return new FsmHeader(hp, FsmHeader.Kind.ASYNCHRONOUS, null, null, null);
         }
         if (t == TokenType.SYNCHRONOUS) {
             consume(TokenType.SYNCHRONOUS);
@@ -394,7 +396,7 @@ public final class Parser {
             Token reset = consume(TokenType.IDENTIFIER);
             consume(TokenType.WHEN);
             SumOfTerms cond = enterRule("SumOfTerms", this::parseSumOfTerms);
-            return new FsmHeader(FsmHeader.Kind.SYNCHRONOUS_ON_RESET, clk, reset.getValue(), cond);
+            return new FsmHeader(hp, FsmHeader.Kind.SYNCHRONOUS_ON_RESET, clk, reset.getValue(), cond);
         }
         if (t == TokenType.IDENTIFIER) {
             Token reset = consume(TokenType.IDENTIFIER);
@@ -404,7 +406,7 @@ public final class Parser {
             consume(TokenType.SYNCHRONOUS);
             consume(TokenType.ON);
             SumOfTerms clk = enterRule("SumOfTerms", this::parseSumOfTerms);
-            return new FsmHeader(FsmHeader.Kind.RESET_WHEN_SYNC, clk, reset.getValue(), cond);
+            return new FsmHeader(hp, FsmHeader.Kind.RESET_WHEN_SYNC, clk, reset.getValue(), cond);
         }
         throw error(ErrorCode.UNEXPECTED_TOKEN,
             Set.of(TokenType.ASYNCHRONOUS, TokenType.SYNCHRONOUS, TokenType.IDENTIFIER));

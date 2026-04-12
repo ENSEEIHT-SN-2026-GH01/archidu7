@@ -7,6 +7,7 @@ public interface Visitor<R> {
     R visit(MemoryPoint m);
     R visit(ModuleInstance mi);
     R visit(Fsm f);
+    R visit(FsmHeader h);
     R visit(FsmRule r);
     R visit(MapNode m);
     R visit(MapEntry e);
