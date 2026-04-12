@@ -10,12 +10,16 @@
 # Build
 bin/
 build/
+out/
 *.class
 *.jar
 
 # Gradle
 .gradle/
 !gradle/wrapper/gradle-wrapper.jar
+
+# Libs versionnees (JUnit, Hamcrest)
+!lib/*.jar
 
 # Temp
 tmp/
