@@ -209,8 +209,76 @@ public final class Parser {
         return out;
     }
 
+    public Instance parseInstanceForTest() { return enterRule("Instance", this::parseInstance); }
+
+    private Instance parseInstance() {
+        TokenType t0 = peek(0).getType();
+        TokenType t1 = peek(1).getType();
+        if (t0 == TokenType.DOLLAR) return enterRule("ModuleInstance", this::parseModuleInstance);
+        if (t0 == TokenType.FSM || t0 == TokenType.STATEMACHINE) return enterRule("Fsm", this::parseFsm);
+        if (t0 == TokenType.MAP) return enterRule("Map", this::parseMap);
+        if (t0 == TokenType.IDENTIFIER && t1 == TokenType.LPAREN) {
+            return enterRule("ModuleInstance", this::parseModuleInstance);
+        }
+        if (t0 != TokenType.IDENTIFIER) {
+            throw error(ErrorCode.UNEXPECTED_TOKEN,
+                Set.of(TokenType.IDENTIFIER, TokenType.DOLLAR, TokenType.FSM, TokenType.STATEMACHINE, TokenType.MAP));
+        }
+        SignalCompound target = enterRule("SignalCompound", this::parseSignalCompound);
+        TokenType op = peek(0).getType();
+        if (op == TokenType.EQ) return parseAssignOrTri(target);
+        if (op == TokenType.ASSIGN) return parseMemoryPointTail(target);
+        throw error(ErrorCode.UNEXPECTED_TOKEN, Set.of(TokenType.EQ, TokenType.ASSIGN));
+    }
+
+    private Instance parseAssignOrTri(SignalCompound target) {
+        consume(TokenType.EQ);
+        List<SumOfTerms> expr = parseSumOfTermsCompound();
+        if (peek(0).getType() == TokenType.OUTPUT) {
+            consume(TokenType.OUTPUT); consume(TokenType.ENABLED); consume(TokenType.WHEN);
+            SumOfTerms enable = enterRule("SumOfTerms", this::parseSumOfTerms);
+            return new TriState(target.getPosition(), target, expr, enable);
+        }
+        return new Assignment(target.getPosition(), target, expr);
+    }
+
+    private Instance parseMemoryPointTail(SignalCompound target) {
+        consume(TokenType.ASSIGN);
+        List<SumOfTerms> expr = parseSumOfTermsCompound();
+        consume(TokenType.ON);
+        SumOfTerms clock = enterRule("SumOfTerms", this::parseSumOfTerms);
+        if (peek(0).getType() == TokenType.COMMA) consume(TokenType.COMMA);
+        MemoryPoint.Kind kind;
+        if (peek(0).getType() == TokenType.SET) { consume(TokenType.SET); kind = MemoryPoint.Kind.SET; }
+        else if (peek(0).getType() == TokenType.RESET) { consume(TokenType.RESET); kind = MemoryPoint.Kind.RESET; }
+        else throw error(ErrorCode.UNEXPECTED_TOKEN, Set.of(TokenType.SET, TokenType.RESET));
+        consume(TokenType.WHEN);
+        SumOfTerms cond = enterRule("SumOfTerms", this::parseSumOfTerms);
+        SumOfTerms enable = null;
+        if (peek(0).getType() == TokenType.COMMA || peek(0).getType() == TokenType.ENABLED) {
+            if (peek(0).getType() == TokenType.COMMA) consume(TokenType.COMMA);
+            if (peek(0).getType() == TokenType.ENABLED) {
+                consume(TokenType.ENABLED); consume(TokenType.WHEN);
+                enable = enterRule("SumOfTerms", this::parseSumOfTerms);
+            }
+        }
+        if (peek(0).getType() == TokenType.SEMICOLON) consume(TokenType.SEMICOLON);
+        return new MemoryPoint(target.getPosition(), target, expr, clock, kind, cond, enable);
+    }
+
     // Stub — implémenté aux tâches suivantes
     private Module parseModule() {
         throw new UnsupportedOperationException("parseModule implémenté à la Task 17");
+    }
+
+    // Stubs pour Task 16
+    private ModuleInstance parseModuleInstance() {
+        throw new UnsupportedOperationException("parseModuleInstance implémenté Task 16");
+    }
+    private Fsm parseFsm() {
+        throw new UnsupportedOperationException("parseFsm implémenté Task 16");
+    }
+    private MapNode parseMap() {
+        throw new UnsupportedOperationException("parseMap implémenté Task 16");
     }
 }
