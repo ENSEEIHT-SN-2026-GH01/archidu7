@@ -13,6 +13,40 @@ public final class Factor implements Node {
         this.position = Objects.requireNonNull(pos);
         this.kind = Objects.requireNonNull(kind);
         this.signal = s; this.bitField = b; this.inner = inner;
+        validateInvariants();
+    }
+
+    private void validateInvariants() {
+        switch (kind) {
+            case SIGNAL:
+            case NEG_SIGNAL:
+                if (signal == null || bitField != null || inner != null) {
+                    throw new IllegalArgumentException(
+                        "Factor " + kind + " : signal non-null requis, bitField/inner doivent être null");
+                }
+                break;
+            case BITFIELD:
+                if (bitField == null || signal != null || inner != null) {
+                    throw new IllegalArgumentException(
+                        "Factor BITFIELD : bitField non-null requis, signal/inner doivent être null");
+                }
+                break;
+            case PAREN:
+                if (inner == null || signal != null || bitField != null) {
+                    throw new IllegalArgumentException(
+                        "Factor PAREN : inner non-null requis, signal/bitField doivent être null");
+                }
+                break;
+            case LITERAL_0:
+            case LITERAL_1:
+                if (signal != null || bitField != null || inner != null) {
+                    throw new IllegalArgumentException(
+                        "Factor " + kind + " : signal/bitField/inner doivent tous être null");
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("kind inconnu : " + kind);
+        }
     }
     public static Factor signal(Position p, Signal s)    { return new Factor(p, Kind.SIGNAL, s, null, null); }
     public static Factor negSignal(Position p, Signal s) { return new Factor(p, Kind.NEG_SIGNAL, s, null, null); }
