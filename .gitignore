@@ -23,6 +23,12 @@ tmp/
 *.swp
 *.bak
 
+# Secrets
+.env
+
+# Notes personnelles
+QUESTIONS_EQUIPE.md
+
 # Other
 local.properties
 src-gen/
