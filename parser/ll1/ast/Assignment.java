@@ -14,6 +14,5 @@ public final class Assignment implements Instance {
     public Position getPosition() { return position; }
     public SignalCompound getTarget() { return target; }
     public List<SumOfTerms> getExprCompound() { return expr; }
-    public SumOfTerms getExpr() { return expr.get(0); }
     public <R> R accept(Visitor<R> v) { return v.visit(this); }
 }

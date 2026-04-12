@@ -22,7 +22,6 @@ public final class MemoryPoint implements Instance {
     }
     public Position getPosition() { return position; }
     public SignalCompound getTarget() { return target; }
-    public SumOfTerms getExpr() { return expr.get(0); }
     public List<SumOfTerms> getExprCompound() { return expr; }
     public SumOfTerms getClock() { return clock; }
     public Kind getSetOrReset() { return setOrReset; }
