@@ -271,14 +271,133 @@ public final class Parser {
         throw new UnsupportedOperationException("parseModule implémenté à la Task 17");
     }
 
-    // Stubs pour Task 16
+    // --- Task 16 : ModuleInstance, Map, Fsm ---
+
     private ModuleInstance parseModuleInstance() {
-        throw new UnsupportedOperationException("parseModuleInstance implémenté Task 16");
+        boolean predef = accept(TokenType.DOLLAR);
+        Token id = consume(TokenType.IDENTIFIER);
+        Position pos = new Position(id.getLine(), id.getColumn());
+        consume(TokenType.LPAREN);
+        List<Node> args = new ArrayList<>();
+        args.add(parseSignalOrLiteral());
+        while (peek(0).getType() == TokenType.COMMA || peek(0).getType() == TokenType.COLON) {
+            consume(peek(0).getType());
+            args.add(parseSignalOrLiteral());
+        }
+        consume(TokenType.RPAREN);
+        return new ModuleInstance(pos, id.getValue(), predef, args);
     }
-    private Fsm parseFsm() {
-        throw new UnsupportedOperationException("parseFsm implémenté Task 16");
+
+    private Node parseSignalOrLiteral() {
+        Token t = peek(0);
+        Position p = new Position(t.getLine(), t.getColumn());
+        if (t.getType() == TokenType.INTEGER) {
+            consume(TokenType.INTEGER);
+            if ("0".equals(t.getValue())) return Factor.lit0(p);
+            if ("1".equals(t.getValue())) return Factor.lit1(p);
+            throw new ParsingException(ErrorCode.BIT_OUT_OF_RANGE, t.getLine(), t.getColumn(),
+                Set.of(TokenType.INTEGER), TokenType.INTEGER, grammarStack, snippet(t),
+                "Argument littéral accepte uniquement 0 ou 1.");
+        }
+        if (t.getType() == TokenType.BITFIELD) {
+            consume(TokenType.BITFIELD);
+            return new BitField(p, t.getValue());
+        }
+        return enterRule("Signal", this::parseSignal);
     }
+
     private MapNode parseMap() {
-        throw new UnsupportedOperationException("parseMap implémenté Task 16");
+        Token mk = consume(TokenType.MAP);
+        Position p = new Position(mk.getLine(), mk.getColumn());
+        SignalCompound in = enterRule("SignalCompound", this::parseSignalCompound);
+        consume(TokenType.ARROW);
+        SignalCompound out = enterRule("SignalCompound", this::parseSignalCompound);
+        List<MapEntry> entries = new ArrayList<>();
+        while (peek(0).getType() == TokenType.BITFIELD) {
+            Token b1 = consume(TokenType.BITFIELD);
+            consume(TokenType.ARROW);
+            Token b2 = consume(TokenType.BITFIELD);
+            Position ep = new Position(b1.getLine(), b1.getColumn());
+            entries.add(new MapEntry(ep, new BitField(ep, b1.getValue()), new BitField(ep, b2.getValue())));
+        }
+        consume(TokenType.END);
+        consume(TokenType.MAP);
+        return new MapNode(p, in, out, entries);
+    }
+
+    private Fsm parseFsm() {
+        Token fk = peek(0);
+        TokenType kw = fk.getType(); // FSM ou STATEMACHINE
+        consume(kw);
+        Position p = new Position(fk.getLine(), fk.getColumn());
+        FsmHeader header = parseFsmHeader();
+        List<FsmRule> rules = new ArrayList<>();
+        while (peek(0).getType() == TokenType.STAR || peek(0).getType() == TokenType.IDENTIFIER) {
+            rules.add(parseFsmRule());
+        }
+        consume(TokenType.END);
+        if (peek(0).getType() != kw) {
+            throw error(ErrorCode.UNEXPECTED_TOKEN, Set.of(kw));
+        }
+        consume(kw);
+        return new Fsm(p, header, rules);
+    }
+
+    private FsmHeader parseFsmHeader() {
+        TokenType t = peek(0).getType();
+        if (t == TokenType.ASYNCHRONOUS) {
+            consume(TokenType.ASYNCHRONOUS);
+            return new FsmHeader(FsmHeader.Kind.ASYNCHRONOUS, null, null, null);
+        }
+        if (t == TokenType.SYNCHRONOUS) {
+            consume(TokenType.SYNCHRONOUS);
+            consume(TokenType.ON);
+            SumOfTerms clk = enterRule("SumOfTerms", this::parseSumOfTerms);
+            if (peek(0).getType() == TokenType.COMMA) consume(TokenType.COMMA);
+            Token reset = consume(TokenType.IDENTIFIER);
+            consume(TokenType.WHEN);
+            SumOfTerms cond = enterRule("SumOfTerms", this::parseSumOfTerms);
+            return new FsmHeader(FsmHeader.Kind.SYNCHRONOUS_ON_RESET, clk, reset.getValue(), cond);
+        }
+        if (t == TokenType.IDENTIFIER) {
+            Token reset = consume(TokenType.IDENTIFIER);
+            consume(TokenType.WHEN);
+            SumOfTerms cond = enterRule("SumOfTerms", this::parseSumOfTerms);
+            if (peek(0).getType() == TokenType.COMMA) consume(TokenType.COMMA);
+            consume(TokenType.SYNCHRONOUS);
+            consume(TokenType.ON);
+            SumOfTerms clk = enterRule("SumOfTerms", this::parseSumOfTerms);
+            return new FsmHeader(FsmHeader.Kind.RESET_WHEN_SYNC, clk, reset.getValue(), cond);
+        }
+        throw error(ErrorCode.UNEXPECTED_TOKEN,
+            Set.of(TokenType.ASYNCHRONOUS, TokenType.SYNCHRONOUS, TokenType.IDENTIFIER));
+    }
+
+    private FsmRule parseFsmRule() {
+        Token start = peek(0);
+        Position p = new Position(start.getLine(), start.getColumn());
+        boolean wild = false;
+        List<String> froms = new ArrayList<>();
+        if (peek(0).getType() == TokenType.STAR) {
+            consume(TokenType.STAR);
+            wild = true;
+        } else {
+            froms.add(consume(TokenType.IDENTIFIER).getValue());
+            while (peek(0).getType() == TokenType.COMMA) {
+                consume(TokenType.COMMA);
+                froms.add(consume(TokenType.IDENTIFIER).getValue());
+            }
+        }
+        consume(TokenType.ARROW);
+        String to = consume(TokenType.IDENTIFIER).getValue();
+        SumOfTerms when = null;
+        if (peek(0).getType() == TokenType.WHEN) {
+            consume(TokenType.WHEN);
+            when = enterRule("SumOfTerms", this::parseSumOfTerms);
+            if (peek(0).getType() == TokenType.SEMICOLON || peek(0).getType() == TokenType.COMMA) {
+                consume(peek(0).getType());
+            }
+        }
+        return new FsmRule(p, froms, wild, to, when);
     }
 }
