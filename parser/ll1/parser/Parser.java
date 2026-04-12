@@ -1,8 +1,10 @@
 package parser.ll1.parser;
 
 import parser.ll1.token.*;
+import parser.ll1.ast.*;
 import parser.ll1.ast.Module;
 import java.util.*;
+import java.util.ArrayList;
 
 public final class Parser {
     static final int MAX_DEPTH = 64;
@@ -92,6 +94,119 @@ public final class Parser {
         for (int i = 0; i < pad; i++) sb.append(' ');
         sb.append('^');
         return sb.toString();
+    }
+
+    // --- Methods exposés pour tests (package-public via "public" ici) ---
+    public Signal parseSignalForTest() { return enterRule("Signal", this::parseSignal); }
+    public Factor parseFactorForTest() { return enterRule("Factor", this::parseFactor); }
+    public Term   parseTermForTest()   { return enterRule("Term",   this::parseTerm); }
+    public SumOfTerms parseSumOfTermsForTest() { return enterRule("SumOfTerms", this::parseSumOfTerms); }
+    public SignalCompound parseSignalCompoundForTest() { return enterRule("SignalCompound", this::parseSignalCompound); }
+
+    // --- Signal ---
+    private Signal parseSignal() {
+        Token id = consume(TokenType.IDENTIFIER);
+        Position p = new Position(id.getLine(), id.getColumn());
+        if (peek(0).getType() == TokenType.LBRACKET) {
+            consume(TokenType.LBRACKET);
+            Token hi = consume(TokenType.INTEGER);
+            int hiV = Integer.parseInt(hi.getValue());
+            if (peek(0).getType() == TokenType.RBRACKET) {
+                consume(TokenType.RBRACKET);
+                return new Signal(p, id.getValue(), hiV, null);
+            }
+            TokenType sep = peek(0).getType();
+            if (sep != TokenType.DOTDOT && sep != TokenType.COLON) {
+                throw error(ErrorCode.UNEXPECTED_TOKEN, Set.of(TokenType.RBRACKET, TokenType.DOTDOT, TokenType.COLON));
+            }
+            consume(sep);
+            Token lo = consume(TokenType.INTEGER);
+            consume(TokenType.RBRACKET);
+            return new Signal(p, id.getValue(), hiV, Integer.parseInt(lo.getValue()));
+        }
+        return new Signal(p, id.getValue(), null, null);
+    }
+
+    private SignalCompound parseSignalCompound() {
+        Signal first = enterRule("Signal", this::parseSignal);
+        List<Signal> list = new ArrayList<>();
+        list.add(first);
+        while (peek(0).getType() == TokenType.AMPERSAND) {
+            consume(TokenType.AMPERSAND);
+            list.add(enterRule("Signal", this::parseSignal));
+        }
+        return new SignalCompound(first.getPosition(), list);
+    }
+
+    // --- Factor / Term / SumOfTerms ---
+    private Factor parseFactor() {
+        Token t = peek(0);
+        Position p = new Position(t.getLine(), t.getColumn());
+        switch (t.getType()) {
+            case LPAREN: {
+                consume(TokenType.LPAREN);
+                SumOfTerms inner = enterRule("SumOfTerms", this::parseSumOfTerms);
+                consume(TokenType.RPAREN);
+                return Factor.paren(p, inner);
+            }
+            case INTEGER: {
+                consume(TokenType.INTEGER);
+                String v = t.getValue();
+                if ("0".equals(v)) return Factor.lit0(p);
+                if ("1".equals(v)) return Factor.lit1(p);
+                throw new ParsingException(ErrorCode.BIT_OUT_OF_RANGE, t.getLine(), t.getColumn(),
+                    Set.of(TokenType.INTEGER), TokenType.INTEGER, grammarStack, snippet(t),
+                    "Factor accepte uniquement 0 ou 1.");
+            }
+            case BITFIELD: {
+                Token b = consume(TokenType.BITFIELD);
+                return Factor.bits(p, new BitField(p, b.getValue()));
+            }
+            case SLASH: {
+                consume(TokenType.SLASH);
+                Signal s = enterRule("Signal", this::parseSignal);
+                return Factor.negSignal(p, s);
+            }
+            case IDENTIFIER: {
+                Signal s = enterRule("Signal", this::parseSignal);
+                return Factor.signal(p, s);
+            }
+            default:
+                throw error(ErrorCode.UNEXPECTED_TOKEN,
+                    Set.of(TokenType.LPAREN, TokenType.INTEGER, TokenType.BITFIELD, TokenType.SLASH, TokenType.IDENTIFIER));
+        }
+    }
+
+    private Term parseTerm() {
+        Factor first = enterRule("Factor", this::parseFactor);
+        List<Factor> list = new ArrayList<>();
+        list.add(first);
+        while (peek(0).getType() == TokenType.STAR) {
+            consume(TokenType.STAR);
+            list.add(enterRule("Factor", this::parseFactor));
+        }
+        return new Term(first.getPosition(), list);
+    }
+
+    private SumOfTerms parseSumOfTerms() {
+        Term first = enterRule("Term", this::parseTerm);
+        List<Term> list = new ArrayList<>();
+        list.add(first);
+        while (peek(0).getType() == TokenType.PLUS) {
+            consume(TokenType.PLUS);
+            list.add(enterRule("Term", this::parseTerm));
+        }
+        return new SumOfTerms(first.getPosition(), list);
+    }
+
+    private List<SumOfTerms> parseSumOfTermsCompound() {
+        List<SumOfTerms> out = new ArrayList<>();
+        out.add(enterRule("SumOfTerms", this::parseSumOfTerms));
+        while (peek(0).getType() == TokenType.AMPERSAND) {
+            consume(TokenType.AMPERSAND);
+            out.add(enterRule("SumOfTerms", this::parseSumOfTerms));
+        }
+        return out;
     }
 
     // Stub — implémenté aux tâches suivantes
