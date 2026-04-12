@@ -6,6 +6,10 @@ import parser.ll1.ast.Module;
 import java.util.*;
 import java.util.ArrayList;
 
+/**
+ * Parser LL(1) avec lookahead 2 local sur Instance. Non thread-safe.
+ * Usage : {@code new Parser(tokens).parse()} une seule fois.
+ */
 public final class Parser {
     static final int MAX_DEPTH = 64;
 
@@ -31,6 +35,16 @@ public final class Parser {
         this.tokens = Collections.unmodifiableList(ts);
         this.source = source;
         this.sourceLines = source == null ? null : source.split("\n", -1);
+    }
+
+    /**
+     * Fabrique haut-niveau : tokenize puis parse. Pratique pour Mati / l'UI.
+     * Non thread-safe : ce Parser ne peut etre utilise que par un seul thread.
+     */
+    public static Module parseFrom(String shdl, Lexer lexer) {
+        Objects.requireNonNull(shdl, "shdl");
+        Objects.requireNonNull(lexer, "lexer");
+        return new Parser(lexer.tokenize(shdl), shdl).parse();
     }
 
     public Module parse() {
