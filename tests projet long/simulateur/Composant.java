@@ -9,7 +9,7 @@ public abstract class Composant {
                 sorties = new TableauLien(nb_sorties);
         }
 
-	public Composant(int nb_entrees, int nb_sorties, String[] NomSorties) {
+	public Composant(int nb_entrees, int nb_sorties, String[] NomSorties) throws ErreurIndex {
 		this(nb_entrees, nb_sorties);
 		sorties.initialiser(NomSorties);
 	}
@@ -19,7 +19,7 @@ public abstract class Composant {
 		//TODO
 	}*/
 
-	protected Etat getEntree(int i) {
+	protected Etat getEntree(int i) throws ErreurIndex {
 		return entrees.get(i);
 	}
 
@@ -27,19 +27,19 @@ public abstract class Composant {
 		return entrees.getTaille();
 	}
 
-	public Lien getLienSortie(int i) {
+	public Lien getLienSortie(int i) throws ErreurIndex {
 		return sorties.getLien(i);
 	}
 
-	public void brancherEntree(Lien l, int i) {
+	public void brancherEntree(Lien l, int i) throws ErreurIndex {
 		entrees.brancher(l,i);
 	}
 
-	public void brancherSortie(Lien l, int i) {
+	public void brancherSortie(Lien l, int i) throws ErreurIndex {
 		sorties.brancher(l,i);
 	}
 
-	protected void setSortie(int i, Etat b) {
+	protected void setSortie(int i, Etat b) throws ErreurIndex {
 		sorties.set(i,b);
 	}
 
@@ -47,6 +47,6 @@ public abstract class Composant {
 		return sorties.getTaille();
 	}
 	
-	public abstract void calculer();
+	public abstract void calculer() throws ErreurIndex ;
 
 }
