@@ -4,7 +4,7 @@ import javafx.application.Application;
 
 public class SimulationCarresRonds {
     public static void main(String[] args) {
-        Application.launch(Fenetre.class, args);
+        Application.launch(FenetreSimulation.class, args);
     }
     
 }
