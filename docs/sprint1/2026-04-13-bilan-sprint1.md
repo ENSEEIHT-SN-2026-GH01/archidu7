@@ -1,158 +1,147 @@
-# Bilan sprint 1 — état des branches
+# Bilan sprint 1
 
-Auteur : Alexis, 2026-04-13 (dernière nuit du sprint 1).
-Contexte : Erwan m'a demandé de rassembler les branches et de voir s'il est possible de construire quelque chose qui fonctionne au moins partiellement. Après lecture détaillée du code de chaque branche, le constat est qu'**aucune des branches n'est mergeable en l'état** sans travail de réparation ciblé. Cette note recense ce qui a été fait, ce qui pêche, et les questions à poser à chacun pour préparer le sprint 2.
-
-> Le ton est volontairement direct et factuel — l'objectif est de poser les vrais problèmes pour ne pas les traîner. Rien ici n'est un reproche personnel : on est tous sur un sprint serré avec des sujets nouveaux.
+Note rédigée le 2026-04-13 après lecture individuelle du code de chaque branche (pas de rassemblement effectif, cf. section dédiée plus bas). Certaines parties seront probablement dépassées dès demain quand les travaux du week-end seront poussés. L'objectif est de poser un état de référence pour la réunion, pas de figer un jugement : les bugs relevés sont tous corrigeables en quelques lignes, l'enjeu est qu'aucun ne reste caché avant le sprint 2.
 
 ---
 
-## Ce qui a été produit par branche
+## Alexis
 
-### `feature/skeleton-javafx` (Alexis, Mati)
+**Fait** : parser LL(1) SHDL complet (SCRUM-23) — grammaire déclarative, checker de conflits LL(1), AST immuable avec Visitor, erreurs riches. **107 tests JUnit verts**, revérifiés ce soir. Squelette JavaFX/Gradle (`src/main/java/fr/n7/shdl/...`). Spec et plan versionnés dans `docs/specs/` et `docs/plans/`.
 
-- Squelette JavaFX avec structure Gradle (`app/src/main/java/...`).
-- Parser LL(1) SHDL complet (SCRUM-23) : lexer absent mais interface `Lexer` prête, grammaire déclarative + checker de conflits LL(1), AST immuable avec Visitor générique, erreurs riches.
-- **107 tests JUnit verts** (grammaire, AST, parser expressions/instances/FSM/map/module, erreurs).
-- Spec et plan d'implémentation versionnés : `docs/specs/2026-04-12-ll1-parser-shdl-design.md` et `docs/plans/2026-04-13-ll1-parser-shdl.md`.
-- Review critique passée, 5 corrections HIGH/MEDIUM appliquées après audit (DefaultVisitor cassé, getExpr silencieux, tests FSM négatifs, invariants Factor/FsmHeader, AstImmutabilityTest robuste).
-- Limite connue : piège grammatical `TERM_REST` (wildcard FSM avec `when` + STAR de règle suivante) documenté par test, correction reportée au sprint 2.
-
-### `origin/chaptal` (Chaptal) — éditeur de texte
-
-1 commit, 2 fichiers.
-
-**Ce qui est bien** : `EditeurTexte` est une classe propre avec police monospace, wrap désactivé, Javadoc correcte.
-
-**Ce qui pêche** :
-- **La branche ne compile pas.** `src/FenetrePrincipale.java:13` écrit `BorderPane editeur = new EditeurTexte();` alors que `EditeurTexte extends TextArea`. `TextArea` n'est pas un `BorderPane`. Le code n'a jamais été passé à `javac`.
-- `super(...)` en 2e instruction du constructeur (pas la 1re) : compile aussi probablement pas sur un JDK standard (exception : JDK 22 avec preview des flexible constructor bodies).
-- Aucun test.
-- Pas de `package` déclaré (comme la plupart des autres fichiers racine du projet).
-
-**Questions pour Chaptal** :
-1. Tu as testé `javac` ou juste relu à l'œil ? Ça ne compile pas en l'état.
-2. Tu veux étendre `TextArea` ou composer ? Si tu prévois coloration syntaxique plus tard, `CodeArea` (RichTextFX) serait mieux adapté. Sinon `TextArea` reste correct pour le sprint 1.
-3. Police hardcodée `14pt` : on prévoit un zoom plus tard ?
+**Limite connue** : piège grammatical `TERM_REST` (wildcard FSM + `when` suivi d'un STAR de règle suivante) documenté par un test, correction reportée au sprint 2.
 
 ---
 
-### `origin/interpretation` (Erwan) — parser regex + automates
+## Chaptal
 
-4 commits, 42 fichiers, +1155/-573.
+**Fait** : `src/EditeurTexte.java` propre, police monospace, wrap désactivé, Javadoc correcte. Une modif dans `FenetrePrincipale.java` pour l'intégrer.
 
-**Ce qui est bien** :
-- Séparation `parser/regex` et `parser/automate` propre.
-- Abstraction `Transitions<Node, Label>` et `Automate<T>` bien pensée.
-- 20 tests JUnit sur le parsing de regex (Builder) avec cas variés (range, escape, groupes, or, plus).
-- Javadoc correcte sur les méthodes clé.
+**Ce qui bloque** :
+- **CRITIQUE** — la branche ne compile pas. `src/FenetrePrincipale.java:13` écrit `BorderPane editeur = new EditeurTexte();` alors que `EditeurTexte extends TextArea`. `TextArea` n'est pas assignable à `BorderPane`.
+- **CRITIQUE** — même fichier, `super(...)` en 2e instruction du constructeur (interdit sauf JDK 22 preview). Situation héritée de `main`, mais elle bloquera `javac` tant qu'elle n'est pas corrigée.
 
-**Ce qui pêche — CRITIQUE** :
-- **`Transitions.add(depart, etiquette, destination)` est cassé** : le paramètre `depart` n'est jamais utilisé, tout est inséré à la clé `destination`. Toutes les transitions pointent depuis la mauvaise source.
-- **`EMPTY_MAP` et `EMPTY_SET` sont des singletons mutables partagés** : `putIfAbsent(EMPTY_MAP)` puis `get().put(...)` mute le singleton pour tous les nœuds. État global catastrophique.
-- **`AutomateDeterministe`** : les champs `linTable` et `delinTable` ne sont **jamais initialisés**. `linTable.put(startNode, 1)` lève un NPE à la première exécution.
-- **`SyntaxError.java:8-11`** : `this.pos = pos; this.problem = problem; super(...);` — `super(...)` doit être la 1re instruction du constructeur. Compile error.
-- **`util.Pair extends javafx.util.Pair`** : pollue le package parser avec une dépendance JavaFX inutile (10 lignes pour refaire Pair sans héritage suffiraient).
-
-**Ce qui pêche — HIGH** :
-- Construction de Thompson pour `Or`, `Star`, `Plus` simplifiée (pas de nœuds intermédiaires) : acceptation correcte sur cas simples, résultat probablement faux sur `(a|b)*c` ou `a(bc)*d`. **Aucun test ne le valide** (0 test sur les automates, tous sur le parsing).
-- `AutomateDeterministe extends AutomateNonDeterministeSansEps extends AutomateNonDeterministe` : héritage à 3 niveaux avec masquage de champs. Trois copies du delta en mémoire, couplage structurel fort.
-- `exec()` retourne un `Pair<T, Integer>` dont le second est `lastIndexTerminal` — index absolu ou longueur consommée ? Pas documenté, risque d'off-by-one à l'intégration.
-- `SortedSet.getFirst()` nécessite Java 21+ (via `SequencedCollection`).
-- Tests `@Ignore` sur `epsilon3Test` et `or4Test` non levés.
-
-**Questions pour Erwan** :
-1. `Transitions.add` : tu as vérifié manuellement sur un NFA minimal `a` ? Le paramètre `depart` n'est pas utilisé, tout passe par `destination`.
-2. `EMPTY_MAP`/`EMPTY_SET` singletons : tu les voyais comme sentinelles ou valeurs par défaut ? Actuellement ils sont mutés.
-3. `AutomateDeterministe.linTable/delinTable` : tu as exécuté `exec()` au moins une fois ? NPE garanti.
-4. Thompson pour `Or`, `Star`, `Plus` : tu as validé sur papier avec `(a|b)*c` ? Tu peux écrire un test de reconnaissance sur quelques regex composées ?
-5. `util.Pair extends javafx.util.Pair` : on peut le remplacer par une classe autonome ? JavaFX n'a rien à faire dans le parser.
-6. `SyntaxError` : comment ça compile ? `super(...)` est en 3e instruction.
-7. JDK cible du projet ? (`getFirst()` = Java 21+)
-8. `exec` retourne index absolu ou longueur ? À documenter avant que Mati ou moi l'utilisions.
-9. `@Ignore` sur epsilon3Test et or4Test : bugs connus ou oublis ?
+**Questions** :
+1. La modif de `FenetrePrincipale` a-t-elle été passée à `javac` ?
+2. `TextArea` suffit-il pour le sprint 1, ou faut-il envisager `CodeArea` (RichTextFX) pour la coloration syntaxique plus tard ?
+3. Police hardcodée à 14pt : zoom prévu plus tard ?
 
 ---
 
-### `origin/simulation` (Mati) — portes logiques + bascules
+## Erwan
 
-3 commits, 37 fichiers, +1485/-158. Dernier message de commit : « on fait avec ce qu'on a… ». Mati a dit « j'ai fait compiler mais pas testé ».
+**Fait** : séparation `parser/regex` et `parser/automate` propre, abstraction `Transitions<Node,Label>` et `Automate<T>` bien pensée, 20 tests JUnit sur le parsing de regex (Builder) avec cas variés.
 
-**Ce qui est bien** :
-- Portes logiques de base fonctionnelles : `And`, `Or`, `Non`, `Duplicateur`, `Porte`. Tests JUnit corrects (assertions + cas ND/UP/DW combinés).
-- Modélisation des bascules SR et D construite avec les portes de base.
+Certains des points ci-dessous ont peut-être déjà été réparés dans la version qui sera poussée demain — à vérifier alors.
 
-**Ce qui pêche — CRITIQUE** :
-- **Deux répertoires avec `package simulateur;`** : `simulateur/` (nouveau, WIP, Composant/Connecteur) et `tests projet long/simulateur/` (ancien, Lien/TableauLien + bascules). **Classes `Composant` dupliquées** avec signatures différentes. Si les deux sont au classpath ensemble : `duplicate class`. Si seul le dossier `tests projet long/` compile, le nouveau code du simulateur est orphelin (personne ne l'utilise, les bascules sont dans l'ancien monde). Il faut choisir.
-- **`StructEntree.initialiserListe`** : commentaire `//TODO Attention ! ne converge pas en cas de rebouclage !!!`. Or c'est exactement le cas des bascules (boucles). Boucle infinie / OOM sur le cas d'usage principal.
-- **`FileSimulateur.nomEntree(i)`** : `Entrees` n'est jamais initialisé, NPE garanti. `i+1` douteux sur une liste 0-indexée.
-- **`StructSortie()`** : constructeur vide, tous les champs null. NPE sur tout getter.
+**Ce qui bloque — CRITIQUE** :
+- **`Transitions.add(depart, etiquette, destination)`** : le paramètre `destination` est utilisé à la place de `depart` dans les 3 lignes du corps. Toutes les transitions pointent depuis la mauvaise source.
+- **`EMPTY_MAP` et `EMPTY_SET`** : singletons `static final` mutables partagés par tous les nœuds (bug combiné au précédent).
+- **`AutomateDeterministe`** : `linTable` et `delinTable` jamais initialisés → NPE au premier appel de `exec()`.
+- **`SyntaxError.java:8-11`** : `this.pos = pos; this.problem = problem; super(...);` — `super(...)` doit être en 1re position, donc compile error.
+- **`util.Pair extends javafx.util.Pair`** : impose JavaFX au classpath du parser alors que le parser n'a rien à voir avec l'UI. 10 lignes à réécrire pour être autonome.
 
-**Ce qui pêche — HIGH** :
-- **`Bascule.calculer()` = `O1.calculer(); O2.calculer(); O1.calculer();`** — 3 itérations hardcodées. Pas de boucle de convergence vers le point fixe. `BasculeD.calculer()` = 9 appels hardcodés. Pour un SR partant de l'état métastable, rien ne garantit l'atteinte du point fixe.
-- **Aucun test automatisé sur les bascules.** Les fichiers `testBascule.java`, `testBasculeD.java`, `testBasculeClock.java` sont des **mains interactifs** avec `Scanner` et menus `System.out.println`, pas des tests JUnit. Pas d'assertion, pas d'automatisation.
+**HIGH** :
+- Thompson pour `Or`, `Star`, `Plus` simplifié (pas de nœuds intermédiaires) : probablement faux sur `(a|b)*c` et dérivés. Aucun test ne valide les automates (0 test sur DFA/NFA, tous sur le parsing regex).
+- `exec()` retourne `Pair<T, Integer>` dont le second est `lastIndexTerminal` — index absolu ou longueur consommée ? Non documenté.
+- `SortedSet.getFirst()` nécessite Java 21+.
+
+**Questions** :
+1. `Transitions.add` : le paramètre `depart` n'est pas utilisé, bug ou version intermédiaire ?
+2. `EMPTY_MAP`/`EMPTY_SET` : sentinelles ou valeurs par défaut ? (actuellement elles sont mutées)
+3. `AutomateDeterministe.exec()` a-t-il été exécuté au moins une fois ? Les maps non initialisées NPE immédiatement.
+4. Un test de reconnaissance sur `(a|b)*c` serait utile pour valider la construction Thompson.
+5. `util.Pair extends javafx.util.Pair` : peut-on retirer la dépendance JavaFX du parser ?
+6. `SyntaxError` : l'ordre `this.pos = pos; ... super(...);` compile chez toi ?
+7. Quel JDK cible pour l'équipe ?
+
+---
+
+## Mati
+
+**Fait** : portes logiques de base (`And`, `Or`, `Non`, `Duplicateur`, `Porte`) avec tests JUnit (assertions + cas ND/UP/DW combinés). Bascules SR et D construites. Esquisse d'un nouveau simulateur (`Composant` abstrait, `Connecteur`, `TableauConnecteur`, etc.) dans un second dossier.
+
+Note : une passe `javac` sur `tests projet long/simulateur/` tel quel ne passe pas — deux erreurs localisées (`FileListe.java:24` checked exception non gérée et `Module.java:3` méthode abstraite non implémentée). Possiblement un oubli de commit ou un conflit avec un code qui manquait.
+
+**Ce qui bloque — CRITIQUE** :
+- **Deux dossiers avec `package simulateur;`** : `simulateur/` (Connecteur-based) et `tests projet long/simulateur/` (Lien-based), avec des classes de même nom (`Composant`) aux signatures incompatibles. Vérifié à `javac` : 34 erreurs si on les compile ensemble. Une des deux versions doit être choisie comme référence pour le sprint 2.
+- **`StructEntree.initialiserListe`** : un TODO explicite indique que la traversée ne converge pas en cas de rebouclage — or c'est exactement le cas des bascules. Boucle infinie / OOM sur le cas d'usage principal.
+- **`FileSimulateur.nomEntree(i)`** : `Entrees` n'est jamais initialisé, NPE au premier appel. `i+1` douteux sur une liste 0-indexée.
+- **`StructSortie()`** : constructeur vide, tous les champs null, NPE sur tout getter.
+
+**HIGH** :
+- **`Bascule.calculer()` = `O1; O2; O1;`** (3 appels hardcodés). Pas de boucle de convergence vers le point fixe. Idem `BasculeD.calculer()` avec 9 appels hardcodés.
+- **Aucun test automatisé sur les bascules.** `testBascule.java`, `testBasculeD.java`, `testBasculeClock.java` sont des mains interactifs avec `Scanner` et menus. Démos, pas tests.
 - **`Multiplicateur.ajouter(Connecteur c)`** : construit un tableau de sorties mais appelle `super.setE(Tc2)` (entrées) au lieu de `setS(Tc2)`.
-- **`ErreurIndex extends Exception`** (checked) : pollue toutes les signatures du code avec `throws ErreurIndex`. Devrait être une `RuntimeException` (c'est un bug de programmation, pas une erreur récupérable).
-- `Non extends Lien` : un inverseur modélisé comme un fil, pas comme un composant. Mati lui-même le reconnaît dans un commit antérieur.
-- Environ 150 lignes de code commenté (`/*private class Bascule extends Composant { ... }*/`) en tête de chaque `testBasculeX.java`.
+- `ErreurIndex extends Exception` (checked) pollue toutes les signatures avec `throws ErreurIndex`. Typiquement `RuntimeException` pour un bug de programmation.
+- `Non extends Lien` : inverseur modélisé comme un fil, pas comme un composant. À reprendre.
 
-**Ce qui pêche — MEDIUM** :
-- `ArbreConnecteur.java` est une classe complètement vide.
-- `DicoConnecteur.supprimer(s)` fait `dico.put(s, null)` au lieu de `dico.remove(s)` (laisse la clé).
-- `assertEquals` avec `expected` et `actual` inversés dans les tests (messages d'erreur inversés).
-- `FileSimulateur` n'implémente pas l'interface `Simulateur` alors qu'on s'y attendrait.
+**MEDIUM** :
+- `ArbreConnecteur.java` est vide.
+- `DicoConnecteur.supprimer(s)` fait `dico.put(s, null)` au lieu de `dico.remove(s)`.
+- `assertEquals(expected, actual)` inversés dans plusieurs tests (messages d'erreur peu clairs).
 
-**Questions pour Mati** :
-1. Deux dossiers `simulateur/` avec même package : tu compiles lequel ? L'ancien (`tests projet long/`) ou le nouveau (`simulateur/`) ? On garde lequel pour le sprint 2 ?
-2. `Bascule.calculer()` fait 3 appels hardcodés (O1-O2-O1). Tu as vérifié la convergence sur les 4 transitions SR (00→00, 01→10, 10→01, 11→métastable) ? Même chose pour les 9 appels de `BasculeD`.
-3. As-tu **un test automatisé** qui exerce `BasculeD` avec front descendant, front montant, reset pendant set ? Si non, les bascules n'ont **aucune validation fonctionnelle** (sauf regards oculaires sur les menus Scanner).
-4. `StructEntree.initialiserListe` : le `//TODO ne converge pas en cas de rebouclage` — c'est précisément le cas des bascules. Quelle stratégie (BFS + set de visités) ?
-5. `Multiplicateur.ajouter` : tu voulais `setS(Tc2)` ou `setE(Tc2)` ?
-6. `Non extends Lien` : tu refactores en `Composant` pour le sprint 2 ?
-7. `ErreurIndex` checked : on passe en `RuntimeException` pour arrêter de polluer toutes les signatures ?
-8. `FileSimulateur`, `StructSortie` : constructeurs incomplets (NPE garantis). WIP ou oublis ?
+**Questions** :
+1. Lequel des deux `package simulateur;` est la version de référence pour le sprint 2 ? On supprime l'autre ?
+2. `Bascule.calculer()` hardcode 3 appels, `BasculeD` en hardcode 9 — la convergence a-t-elle été vérifiée sur les 4 cas SR et sur les fronts descendants ?
+3. Existe-t-il un test automatisé sur les bascules (front descendant, reset pendant set) ?
+4. `StructEntree.initialiserListe` rebouclage : stratégie prévue (BFS + set de visités) ?
+5. `Multiplicateur.ajouter` : `setS(Tc2)` plutôt que `setE(Tc2)` ?
+6. `Non extends Lien` → refactor en `Composant` au sprint 2 ?
+7. `ErreurIndex` checked → passage en `RuntimeException` ?
+8. `FileSimulateur`, `StructSortie` : WIP ou oublis ?
 9. `ArbreConnecteur` vide : à supprimer ?
-10. Les `testBasculeX.java` sont des démos interactives. Tu comptes écrire de vrais tests JUnit pour les bascules ou on considère ça comme ma tâche pour le sprint 2 ?
+10. Les `testBasculeX.java` : conversion en tests JUnit prévue ?
 
 ---
 
-### `origin/evaluations`
+## Rassemblement
 
-0 commit vs `main`. Branche vide — à supprimer ou à documenter.
+Une tentative de merge des trois branches (chaptal + interpretation + simulation) dans une branche `feature/integration-sprint1` a été faite localement pour évaluer la faisabilité d'un rassemblement bout-en-bout. Branche non poussée et probablement jetée, documentée ici pour information.
 
----
+Les contenus s'empilent sans conflit git, mais la compilation échoue. Les blocages identifiés à `javac` :
 
-## Rassemblement temporaire — verdict
+1. Éditeur (erreur de type sur `BorderPane`/`TextArea`).
+2. `super()` mal placé dans `FenetrePrincipale.java` et `SyntaxError.java`.
+3. `Transitions.add` bugué.
+4. `AutomateDeterministe` NPE.
+5. `EMPTY_MAP`/`EMPTY_SET` singletons mutés.
+6. `util.Pair` dépend de JavaFX.
+7. Deux `package simulateur;` incompatibles (34 erreurs).
+8. `tests projet long/simulateur/` ne compile pas seul (`FileListe`, `Module`).
+9. Structure `src/` : fichiers plats vs arborescence `src/main/java/fr/n7/shdl/` — Gradle ignore les plats, `module-info.java` interdit le package par défaut.
 
-Erwan, pour répondre directement à ta demande : **je n'ai pas merge les branches ce soir**. Raison : aucune des trois branches (chaptal, interpretation, simulation) ne compile seule telle quelle. Merger du code qui ne compile pas dans une branche d'intégration n'apporte rien, sinon un faux sentiment de progression.
-
-### Frictions structurelles
-
-| Aspect | `chaptal` | `interpretation` | `simulation` | `feature/skeleton-javafx` |
-|---|---|---|---|---|
-| Structure | `src/` plat | `parser/`, `util/` racine | `simulateur/` + `tests projet long/simulateur/` (doublon) | `app/src/main/java/...` (Gradle) |
-| Build | javac manuel | javac + junit4 classpath | javac + junit4 classpath | Gradle |
-| JavaFX requis | oui (TextArea) | oui (via `util.Pair`) | non | oui (conf Gradle) |
-| Compile seule ? | **non** | **non** | **incertain** (selon classpath) | oui |
-| Tests | 0 | 20 sur regex, 0 sur automates | ~30 sur portes, 0 sur bascules | 107 |
-
-### Propositions pour le sprint 2
-
-1. **Réparer chaque branche individuellement avant tout merge.** Chaque auteur corrige les bugs CRITICAL de sa branche sur sa propre branche, avec au moins un passage à `javac` et exécution des tests JUnit s'il y en a. Tant qu'une branche ne compile pas, elle ne rentre pas.
-2. **Unifier la structure de fichiers.** Deux options :
-   - Garder Gradle (mon choix initial), porter manuellement chaque fichier utile dans `app/src/main/java/<package>/...` avec `package ...;` ajouté partout.
-   - Revenir à une structure plate `src/`, `parser/`, `simulateur/` en laissant tomber Gradle — plus proche du code existant d'Erwan et Mati, mais on perd la gestion propre de JUnit et JavaFX.
-
-   **Je pencherais pour l'option 1** maintenant que le parser LL(1) est investi dans la structure Gradle, mais je m'aligne sur ce que décide le groupe.
-3. **Supprimer la dépendance JavaFX dans `util.Pair`.** 10 lignes à réécrire, impact nul.
-4. **Choisir quelle hiérarchie `simulateur` garder** (Lien-based ou Connecteur-based) et supprimer l'autre.
-5. **Objectif démo partielle** accessible fin sprint 2 : une FenetrePrincipale qui contient l'EditeurTexte de Chaptal, un bouton qui appelle le parser d'Erwan (regex → automate) OU le parser SHDL LL(1) (mon travail), et la simulation d'une bascule D de Mati. Rien de complet, mais quelque chose qui tourne bout-en-bout.
+Sur les 9 points, **les 8 premiers sont indépendants de la question Gradle**. Le point 9 est spécifique à la coexistence d'un squelette Gradle avec du code plat.
 
 ---
 
-## TL;DR pour le groupe
+## Structure du projet — à trancher collectivement
 
-- **Ce qui tourne aujourd'hui** : parser LL(1) SHDL (107 tests verts), tests des portes logiques de base, parser de regex (20 tests verts).
-- **Ce qui ne tourne pas** : éditeur de texte (ne compile pas), automates déterministes (NPE), bascules (aucun test automatisé, convergence non garantie), simulateur nouvelle version (WIP inachevé).
-- **Rassemblement bout-en-bout** : pas possible ce soir. Plan pour le sprint 2 : réparation individuelle de chaque branche, unification de la structure, puis intégration ciblée sur une démo minimale (éditeur → parser → simulation d'une bascule).
-- **Réunion à caler** : discuter de la structure (Gradle ou plat ?), du choix entre les deux hiérarchies `simulateur`, et de qui répare quoi avant le sprint 2.
+Deux chemins possibles.
+
+**Chemin A — garder Gradle** (structure `src/main/java/fr/n7/shdl/...`)
+- Avantage : build reproductible, JavaFX et JUnit auto-gérés, CI possible plus tard.
+- Coût : chaque fichier `.java` plat (éditeur, ancien `src/`, `parser/`, `util/`, `simulateur/`) doit recevoir un `package ...;` et migrer sous `src/main/java/<chemin>/`. `module-info.java` peut rester ou être supprimé selon les préférences.
+
+**Chemin B — abandonner Gradle** (retour structure plate, `lib/*.jar` + `JAVAFX_LIB` en variable d'environnement)
+- Avantage : cohérent avec le code existant de la majorité de l'équipe, pas de migration de fichiers.
+- Coût : installation manuelle de JavaFX chez chacun, pas de gestion des dépendances, compilation par `javac -cp "lib/*" ...`. Le parser LL(1) reste compatible (il est déjà indépendant de Gradle).
+
+Dans les deux cas, les 8 blocages du code individuel restent à corriger. Le choix A/B ne change que la 9e friction.
+
+---
+
+## Questions pour la réunion
+
+1. **Structure** : chemin A (Gradle) ou chemin B (plat) ?
+2. **Simulateur** : hiérarchie Connecteur-based ou Lien-based ?
+3. **JDK cible** : quelle version (impact sur `SortedSet.getFirst()` et les flexible constructor bodies) ?
+4. **Priorités sprint 2** : répartition des correctifs CRITIQUE (1 côté Chaptal, 3 côté Erwan, 2 côté Mati, plus le doublon simulateur).
+
+---
+
+## TL;DR
+
+- Tourne : parser LL(1) SHDL (107 tests), parser regex (20 tests), portes logiques (tests présents mais code attenant qui ne compile pas).
+- Ne tourne pas : éditeur (compile error), automates (NPE + bugs logiques), bascules (pas de tests auto, convergence non garantie), nouveau simulateur (WIP).
+- Démo bout-en-bout : atteignable sprint 2 si les blocages CRITIQUE sont corrigés.
+- Réunion à caler : structure projet, choix hiérarchie simulateur, priorités correctifs.
