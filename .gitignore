@@ -36,3 +36,6 @@ QUESTIONS_EQUIPE.md
 # Other
 local.properties
 src-gen/
+
+# Outils volumineux telecharges (plantuml.jar ~22M)
+tools/*.jar
