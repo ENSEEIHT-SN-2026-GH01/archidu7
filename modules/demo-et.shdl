@@ -1,0 +1,6 @@
+-- Demo MVP sprint 1 : porte ET a 2 entrees.
+-- Essaie : a=UP, b=UP -> c=UP. a=DW, b=UP -> c=DW.
+-- Modifie c = a * b en c = a + b et relance pour voir le OU.
+module ET(a, b : c)
+  c = a * b
+end module

@@ -39,6 +39,12 @@ src-gen/
 # Outils volumineux telecharges (plantuml.jar ~22M)
 tools/*.jar
 
+# JavaFX SDK (120M) telecharge localement par build.sh
+lib/javafx-sdk-*/
+
+# Sortie de compilation
+bin/
+
 # IDE / OS
 .vscode
 *.xml
