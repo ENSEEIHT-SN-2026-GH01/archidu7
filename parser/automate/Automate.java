@@ -1,9 +1,9 @@
 package parser.automate;
 
-import util.*;
+import java.util.*;
 
 public interface Automate<T> {
 
-  Pair<T, Integer> exec(String t);
+  List<T> exec(String t) throws LexingException;
 
 }

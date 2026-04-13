@@ -88,8 +88,8 @@ public class AutomateNonDeterministeSansEps<T> implements Automate<T> {
   }
 
   @Override
-  public Pair<T, Integer> exec(String t) {
-    return null;
+  public List<T> exec(String t) {
+    throw new NotExecutableError();
   }
 
   @Override
