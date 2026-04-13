@@ -20,7 +20,7 @@ public class FileListe implements File {
                 	}
         	}
 
-		private void traiter() {
+		private void traiter() throws ErreurIndex {
                 	c.calculer();
                 	if (suivant != null) suivant.traiter();
         	}
@@ -41,7 +41,7 @@ public class FileListe implements File {
 		this.Tete.ajouter(c);
 	}
 
-	public void traiter() {
+	public void traiter() throws ErreurIndex {
 		this.Tete.traiter();
 	}
 }
