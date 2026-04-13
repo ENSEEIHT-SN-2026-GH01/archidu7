@@ -10,8 +10,8 @@ public class FenetrePrincipale extends Scene{
     public FenetrePrincipale(){
         VBox outils = new VBox(new MenuPrincipale(), new BoutonsPrincipale());
 
-        BorderPane environnement = new BorderPane();
-        BorderPane editeur = new EditeurTexte();
+        Parent environnement = new ListeModulePrincipale();
+        Parent editeur = new EditeurTexte();
 
         super(new BorderPane(editeur, outils, null, null, environnement), 1000, 500);
     }
