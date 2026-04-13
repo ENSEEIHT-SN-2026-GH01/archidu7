@@ -16,7 +16,7 @@ public interface Simulateur {
 
 	String nomSortie(int i);
 
-	Connecteur getEntrees(int i, int j);
+	BouttonEntree getEntrees(int i, int j);
 
 	Connecteur getSorties(int i, int j);
 
