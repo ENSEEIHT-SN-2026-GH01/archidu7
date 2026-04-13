@@ -51,7 +51,7 @@ public final class PanneauPipeline extends VBox {
 
     private void construireEtapes() {
         Etape[] etapes = {
-            new Etape("SHDL",     "source",       "Chaptal",       "EditeurTexte",        "#89b4fa"),
+            new Etape("SHDL",     "source",       "Arthur+Chaptal","Fenetre+EditeurTexte","#89b4fa"),
             new Etape("Tokens",   "lex",          "Alexis",        "SimpleLexer",         "#a6e3a1"),
             new Etape("AST",      "LL(1)",        "Alexis",        "parser.ll1.Parser",   "#a6e3a1"),
             new Etape("Circuit",  "interpr.",     "Mati",          "And/Or/Lien",         "#cba6f7"),
@@ -133,6 +133,7 @@ public final class PanneauPipeline extends VBox {
         h.setAlignment(Pos.CENTER);
         h.setPadding(new Insets(8, 4, 4, 4));
         h.getChildren().addAll(
+            puce("Arthur",   "#89b4fa", "cadre UI"),
             puce("Chaptal",  "#89b4fa", "editeur"),
             puce("Alexis",   "#a6e3a1", "parser LL(1)"),
             puce("Mati",     "#cba6f7", "simulateur Lien"),

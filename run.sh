@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Lancement de la demo MVP sprint 1.
-#   ./run.sh           -> lance l'UI JavaFX (mvp.AppMvp)
+#   ./run.sh           -> lance l'UI JavaFX (AppMvp)
 #   ./run.sh test      -> execute toute la batterie JUnit
 #   ./run.sh editeur   -> lance la fenetre Chaptal seule (TestFenetrePrincipale)
 #   ./run.sh lm        -> lance le prototype Louis-Marie (SimulationCarresRonds)
@@ -19,7 +19,7 @@ fi
 mode="${1:-app}"
 case "$mode" in
   app)
-    java $JFX_OPTS -cp "$CP" mvp.AppMvp
+    java $JFX_OPTS -cp "$CP" AppMvp
     ;;
   test)
     if [ ! -f bin/tests/parser/ll1/SanityTest.class ]; then ./build.sh test; fi

@@ -21,16 +21,18 @@ exécution (~120 Mo dans `lib/javafx-sdk-21/`, gitignoré).
 
 ## Qui fait quoi (visible dans l'UI)
 
-| Étape pipeline | Auteur     | Code source                                 |
-|---             |---         |---                                          |
-| Éditeur SHDL   | Chaptal    | `src/EditeurTexte.java`, `src/FenetrePrincipale.java` |
-| Lexer (MVP)    | Alexis     | `mvp/SimpleLexer.java`                      |
-| Parser LL(1)   | Alexis     | `parser/ll1/parser/Parser.java` (107 tests) |
-| AST            | Alexis     | `parser/ll1/ast/*`                          |
-| Interpréteur   | (nouveau)  | `mvp/Interpreteur.java` *(glue MVP)*        |
-| Simulateur     | Mati       | `simulateur/{And,Or,Lien,Etat,...}.java`    |
-| Regex/Automate | Erwan      | `parser/regex/*`, `parser/automate/*`       |
-| Esquisse UI    | Louis-Marie| `LM/FenetreSimulation.java`                 |
+| Étape pipeline            | Auteur      | Code source                                     |
+|---                        |---          |---                                              |
+| Cadre fenêtre / menu / boutons | Arthur | `src/{FenetrePrincipale,MenuPrincipale,BoutonsPrincipale}.java` |
+| Liste modules (sidebar)   | Arthur      | `src/{ListeModulePrincipale,FichierModuleBouton}.java` |
+| Éditeur SHDL              | Chaptal     | `src/EditeurTexte.java`                         |
+| Lexer (MVP)               | Alexis      | `mvp/SimpleLexer.java`                          |
+| Parser LL(1)              | Alexis      | `parser/ll1/parser/Parser.java` (107 tests)     |
+| AST                       | Alexis      | `parser/ll1/ast/*`                              |
+| Interpréteur              | (nouveau)   | `mvp/Interpreteur.java` *(glue MVP)*            |
+| Simulateur                | Mati        | `simulateur/{And,Or,Lien,Etat,...}.java`        |
+| Regex/Automate (moteur)   | Erwan       | `parser/regex/*`, `parser/automate/*`           |
+| Esquisse UI               | Louis-Marie | `LM/FenetreSimulation.java`                     |
 
 ## Sous-ensemble SHDL supporté
 
@@ -45,14 +47,22 @@ exécution (~120 Mo dans `lib/javafx-sdk-21/`, gitignoré).
 Ces fichiers n'existent dans aucune branche d'équipe — ils sont la **glue**
 sans laquelle les autres briques ne se parlent pas :
 
-- `mvp/SimpleLexer.java` : lexer minimal SHDL (l'interface `Lexer` du parser
-  LL(1) attendait l'implémentation d'Erwan, indisponible pour cette démo).
+- `mvp/SimpleLexer.java` : lexer minimal SHDL. Le moteur regex→automate
+  déterministe d'Erwan (`parser/regex/*`, `parser/automate/*`) est
+  **générique** et fonctionne, mais aucune configuration concrète des
+  tokens SHDL n'a encore été écrite par-dessus ; ce scan à la main joue
+  ce rôle pour le MVP (sprint 2 : brancher le moteur d'Erwan).
 - `mvp/Interpreteur.java` : transforme un AST SHDL en circuit Lien-based.
 - `mvp/Pilote.java` : orchestrateur lexer→parser→interpréteur→simulation
   avec convergence (max 50 cycles).
 - `mvp/PanneauPipeline.java` : visualisation animée du pipeline (JavaFX SVG).
 - `mvp/PanneauResultat.java` : table des liens avec code couleur UP/DW/ND.
-- `mvp/AppMvp.java` : entrée JavaFX, intègre l'éditeur de Chaptal + pipeline.
+- `AppMvp.java` *(default package, pour pouvoir importer les classes UI
+  d'Arthur et Chaptal)* : entrée JavaFX, réutilise `MenuPrincipale`,
+  `BoutonsPrincipale`, `ListeModulePrincipale` (Arthur) et `EditeurTexte`
+  (Chaptal). La structure reprend celle de `FenetrePrincipale` d'Arthur ;
+  elle est dupliquée plutôt qu'étendue car `FenetrePrincipale` construit
+  tout dans `super(...)` et n'expose pas ses slots.
 - `mvp/SmokeTest.java` : test bout-en-bout sans UI (7 cas, tous verts).
 
 ## Correctifs appliqués sur le code existant pour faire compiler

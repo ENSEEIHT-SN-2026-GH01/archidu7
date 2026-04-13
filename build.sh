@@ -36,6 +36,7 @@ trap 'rm -f "$SRC_LIST"' EXIT
   find src -maxdepth 1 -name "*.java"
   find mvp -name "*.java"
   find LM -name "*.java"
+  find . -maxdepth 1 -name "*.java"
 } > "$SRC_LIST"
 javac -d bin $JFX_OPTS -cp "$CP" @"$SRC_LIST"
 

@@ -1,19 +1,19 @@
-package mvp;
-
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
+
+import mvp.PanneauPipeline;
+import mvp.PanneauResultat;
+import mvp.Pilote;
 import simulateur.Etat;
 
 import java.io.IOException;
@@ -23,15 +23,27 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Entree principale de la demo MVP sprint 1.
+ * Entree JavaFX de la demo MVP sprint 1.
  *
- * Lecture conseillee : voir README-demo.md a la racine.
+ * Au default package pour pouvoir importer directement les classes UI
+ * des coequipiers (Arthur et Chaptal ont mis leur code dans le default
+ * package ; Java interdit l'import du default package depuis un package
+ * nomme, donc cette classe y vit aussi).
+ *
+ * Cadre reutilise :
+ *  - {@link MenuPrincipale}, {@link BoutonsPrincipale},
+ *    {@link ListeModulePrincipale} (Arthur)
+ *  - {@link EditeurTexte} (Chaptal)
+ * La structure reprend celle de {@link FenetrePrincipale} d'Arthur (menu
+ * + boutons en haut, liste modules a gauche, editeur au centre) avec en
+ * plus un bandeau droite pour le pipeline MVP et un bandeau bas pour le
+ * bouton Simuler.
  */
 public final class AppMvp extends Application {
 
     private static final String DEFAULT_MODULE = "modules/demo-et.shdl";
 
-    private final TextArea editeur = new TextArea();
+    private final EditeurTexte editeur = new EditeurTexte();
     private final TextField entreesField = new TextField("a=UP, b=UP");
     private final Label statut = new Label("Pret");
     private final PanneauResultat resultat = new PanneauResultat();
@@ -39,50 +51,50 @@ public final class AppMvp extends Application {
     private final Pilote pilote = new Pilote();
 
     @Override
-    public void start(Stage scene) {
-        editeur.setFont(Font.font("monospace", 13));
-        editeur.setPrefRowCount(14);
+    public void start(Stage stage) {
         chargerExempleParDefaut();
+
+        MenuPrincipale menu = new MenuPrincipale();
+        BoutonsPrincipale boutons = new BoutonsPrincipale();
+        ListeModulePrincipale liste = new ListeModulePrincipale();
 
         Button simuler = new Button("Simuler");
         simuler.setStyle("-fx-base: #89b4fa; -fx-text-fill: #11111b; -fx-font-weight: bold;");
         simuler.setOnAction(ev -> lancer());
 
-        Label aide = new Label("Entrees (ex: a=UP, b=DW) :");
-        aide.setStyle("-fx-text-fill: #cdd6f4;");
-
-        VBox gauche = new VBox(8,
-            sectionTitre("Editeur SHDL  --  Chaptal"),
-            editeur,
-            aide,
+        HBox bandeauBas = new HBox(10,
+            new Label("Entrees (ex : a=UP, b=DW) :"),
             entreesField,
             simuler,
             statut
         );
-        gauche.setPadding(new Insets(12));
-        gauche.setStyle("-fx-background-color: #1e1e2e;");
-        gauche.setPrefWidth(420);
+        bandeauBas.setAlignment(Pos.CENTER_LEFT);
+        bandeauBas.setPadding(new Insets(8, 12, 8, 12));
+        bandeauBas.setStyle("-fx-background-color: #1e1e2e;");
         statut.setStyle("-fx-text-fill: #f9e2af;");
+        HBox.setHgrow(entreesField, Priority.ALWAYS);
 
-        BorderPane racine = new BorderPane();
-        racine.setLeft(gauche);
-        racine.setCenter(centreScene());
+        VBox droite = new VBox(10, pipeline, resultat, esquisseLm());
+        droite.setPadding(new Insets(12));
+        droite.setStyle("-fx-background-color: #11111b;");
+        VBox.setVgrow(pipeline, Priority.ALWAYS);
+        droite.setPrefWidth(720);
+
+        BorderPane racine = new BorderPane(
+            editeur,
+            new VBox(menu, boutons),
+            droite,
+            bandeauBas,
+            liste
+        );
         racine.setStyle("-fx-background-color: #11111b;");
 
-        Scene s = new Scene(racine, 1280, 800);
-        scene.setTitle("MVP Demo Sprint 1 -- SHDL");
-        scene.setScene(s);
-        scene.show();
+        Scene s = new Scene(racine, 1400, 820);
+        stage.setTitle("MVP Demo Sprint 1 -- SHDL");
+        stage.setScene(s);
+        stage.show();
     }
 
-    private VBox centreScene() {
-        VBox v = new VBox(12, pipeline, resultat, esquisseLm());
-        v.setPadding(new Insets(12));
-        VBox.setVgrow(pipeline, Priority.ALWAYS);
-        return v;
-    }
-
-    /** Mini-bandeau decoratif rappelant la branche LM (sans relancer une 2e Application). */
     private HBox esquisseLm() {
         HBox h = new HBox(10);
         h.setPadding(new Insets(8, 12, 8, 12));
@@ -98,12 +110,6 @@ public final class AppMvp extends Application {
         }
         h.getChildren().add(l);
         return h;
-    }
-
-    private Label sectionTitre(String t) {
-        Label l = new Label(t);
-        l.setStyle("-fx-text-fill: #89b4fa; -fx-font-weight: bold; -fx-font-size: 13;");
-        return l;
     }
 
     private void chargerExempleParDefaut() {
