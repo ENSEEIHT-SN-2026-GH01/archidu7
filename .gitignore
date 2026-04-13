@@ -1,17 +1,41 @@
+# IDE
 .metadata/
-bin/
-.settings
-*.class
+.settings/
 .classpath
 .loadpath
+.factorypath
+.idea/
+*.iml
+
+# Build
+bin/
+build/
+out/
+*.class
+*.jar
+
+# Gradle
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Libs versionnees (JUnit, Hamcrest)
+!lib/*.jar
+
+# Temp
 tmp/
 *.tmp
-.settings/
 *.swp
 *.bak
-*.jar
+
+# Secrets
+.env
+
+# Notes personnelles
+QUESTIONS_EQUIPE.md
+
+# Other
 local.properties
-.factorypath
 src-gen/
-*.xml
-*.zip
+
+# Outils volumineux telecharges (plantuml.jar ~22M)
+tools/*.jar
