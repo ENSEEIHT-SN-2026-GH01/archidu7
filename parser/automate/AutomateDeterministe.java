@@ -4,21 +4,23 @@ import java.util.*;
 import parser.regex.*;
 import util.*;
 
-public class AutomateDeterministe<T> extends AutomateNonDeterministeSansEps<T> {
+public class AutomateDeterministe<T> implements Automate<T> {
 
   private TransitionsDeterministe<Integer, Integer> delta;
-  private Map<Set<Integer>, Integer> linTable;
-  private Map<Integer, Set<Integer>> delinTable;
-  private Map<Integer, T> etatsTerminaux;
+  private Map<Set<Integer>, Integer> linTable = new HashMap<>();
+  private Map<Integer, Set<Integer>> delinTable = new HashMap<>();
+  private Map<Integer, T> etatsTerminaux = new HashMap<>();
   private int start = 1;
-  private int nextID = 2; 
+  private int nextID = 2;
 
-  private final static Set<Integer> EMPTY_SET = new HashSet<>();
 
-  public AutomateDeterministe(Regex r, T lexeme) {
-    super(r, lexeme);
+  protected static <T> AutomateDeterministe<T> fromList(List<Pair<Regex, T>> l) {
+    return new AutomateDeterministe<T>(AutomateNonDeterministeSansEps.fromList(l));
+  }
 
-    Transitions<Integer, Integer> superDelta = super.getDeltaSansEps();
+  private AutomateDeterministe(AutomateNonDeterministeSansEps<T> super_) {
+
+    Transitions<Integer, Integer> superDelta = super_.getDeltaSansEps();
     delta = new TransitionsDeterministe<>();
 
     /*
@@ -37,7 +39,7 @@ public class AutomateDeterministe<T> extends AutomateNonDeterministeSansEps<T> {
     Deque<Set<Integer>> todo = new LinkedList<>();
     Set<Set<Integer>> seen = new HashSet<>();
 
-    Set<Integer> startNode = new HashSet<>(getEntryPoints());
+    Set<Integer> startNode = new HashSet<>(super_.getEntryPoints());
     linTable.put(startNode, 1);
     delinTable.put(1, startNode);
     seen.add(startNode);
@@ -50,7 +52,7 @@ public class AutomateDeterministe<T> extends AutomateNonDeterministeSansEps<T> {
     superDelta.forEach((transition) -> {
       int depart = transition.first;
       int etiquette = transition.middle;
-      letters.putIfAbsent(depart, EMPTY_SET);
+      letters.putIfAbsent(depart, new HashSet<>());
       letters.get(depart).add(etiquette);
     });
 
@@ -60,7 +62,7 @@ public class AutomateDeterministe<T> extends AutomateNonDeterministeSansEps<T> {
       
       // get all the letters that are used from this node
       node.forEach((state) -> {
-        next.addAll(letters.get(state));
+        next.addAll(letters.getOrDefault(state, new HashSet<>()));
       });
       
       // add all the next nodes as all the nodes reachable from the current node with
@@ -86,12 +88,25 @@ public class AutomateDeterministe<T> extends AutomateNonDeterministeSansEps<T> {
           linTable.put(nextNode, nextID);
           delinTable.put(nextID, nextNode);
           nextID++;
+
+          // add it to the final states if possible
+          nextNode.forEach((currNode) -> {
+            if (super_.getEtatsTerminaux().containsKey(currNode)){
+              if (etatsTerminaux.containsKey(linTable.get(nextNode))){
+                throw new LexingException("The grammar given is non deterministic");
+              }
+
+              etatsTerminaux.put(linTable.get(nextNode), super_.getEtatsTerminaux().get(currNode));
+            }
+          });
         }
 
         // add the transition
         delta.add(linTable.get(node), letter, linTable.get(nextNode));
       });      
     }
+
+    System.out.println(this);
   }
 
   @Override
@@ -122,6 +137,11 @@ public class AutomateDeterministe<T> extends AutomateNonDeterministeSansEps<T> {
     }
 
     return Pair.pair(lastTerminal, lastIndexTerminal);
+  }
+
+  @Override
+  public String toString() {
+    return "Automate déterministe:\n\tInitiaux: " + start + "\n\tFinaux: " + etatsTerminaux + "\n\tTransitions: \n" + delta;
   }
 
 }

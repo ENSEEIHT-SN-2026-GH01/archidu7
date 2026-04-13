@@ -1,20 +1,26 @@
 package parser.automate;
 
 import java.util.*;
+import util.*;
 
 import parser.regex.Regex;
 
-public abstract class AutomateNonDeterministeSansEps<T> extends AutomateNonDeterministe<T> {
+public class AutomateNonDeterministeSansEps<T> implements Automate<T> {
   private Transitions<Integer, Integer> delta = new Transitions<>();
   private Set<Integer> entryPoints;
+  private Map<Integer, T> etatsTerminaux;
   private Transitions<Integer, OptionalInt> superDelta;
 
-  public AutomateNonDeterministeSansEps(Regex r, T lexeme) {
-    super(r, lexeme);
+  public static <T> AutomateNonDeterministeSansEps<T> fromList(List<Pair<Regex, T>> l) {
+    return new AutomateNonDeterministeSansEps<T>(AutomateNonDeterministe.fromList(l));
+  }
 
-    entryPoints = getEntryPoint();
+  private AutomateNonDeterministeSansEps(AutomateNonDeterministe<T> super_){
 
-    superDelta = super.getDelta();
+    entryPoints = super_.getEntryPoints();
+    etatsTerminaux = super_.getEtatsTerminaux();
+
+    superDelta = super_.getDelta();
 
     // supprimmer les boucles d'epsilon-transitions
     for (int v : superDelta.keySet()) {
@@ -66,6 +72,7 @@ public abstract class AutomateNonDeterministeSansEps<T> extends AutomateNonDeter
     });
 
     // TODO Supprimer les etats non atteignables
+    // TODO ajouter les sortants si besoin
   }
 
   protected Transitions<Integer, Integer> getDeltaSansEps() {
@@ -74,6 +81,20 @@ public abstract class AutomateNonDeterministeSansEps<T> extends AutomateNonDeter
 
   public Set<Integer> getEntryPoints() {
     return entryPoints;
+  }
+
+  public Map<Integer, T> getEtatsTerminaux(){
+    return etatsTerminaux;
+  }
+
+  @Override
+  public Pair<T, Integer> exec(String t) {
+    return null;
+  }
+
+  @Override
+  public String toString() {
+    return "Automate non déterministe sans epsilon-transitions:\n\tInitiaux: " + entryPoints + "\n\tFinaux: " + etatsTerminaux + "\n\tTransitions: \n" + delta;
   }
 
 }

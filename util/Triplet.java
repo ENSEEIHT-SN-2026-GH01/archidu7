@@ -15,4 +15,8 @@ public class Triplet<S, T, U> {
     return new Triplet<>(first, middle, last);
   }
 
+  @Override
+  public String toString() {
+    return "("+ first +", "+ middle +", "+ last +")";
+  }
 }
