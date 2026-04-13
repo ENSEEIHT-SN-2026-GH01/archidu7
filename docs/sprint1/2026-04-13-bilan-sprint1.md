@@ -31,28 +31,21 @@ Note rédigée le 2026-04-13 après lecture individuelle du code de chaque branc
 
 **Fait** : séparation `parser/regex` et `parser/automate` propre, abstraction `Transitions<Node,Label>` et `Automate<T>` bien pensée, 20 tests JUnit sur le parsing de regex (Builder) avec cas variés.
 
-Certains des points ci-dessous ont peut-être déjà été réparés dans la version qui sera poussée demain — à vérifier alors.
+**Mise à jour après push du 2026-04-13 matin** (commits `79a8c88` et `7632c14` sur `origin/interpretation`) — les 5 blocages CRITIQUE relevés la veille ont été corrigés, vérification faite par diff sur la branche distante :
 
-**Ce qui bloque — CRITIQUE** :
-- **`Transitions.add(depart, etiquette, destination)`** : le paramètre `destination` est utilisé à la place de `depart` dans les 3 lignes du corps. Toutes les transitions pointent depuis la mauvaise source.
-- **`EMPTY_MAP` et `EMPTY_SET`** : singletons `static final` mutables partagés par tous les nœuds (bug combiné au précédent).
-- **`AutomateDeterministe`** : `linTable` et `delinTable` jamais initialisés → NPE au premier appel de `exec()`.
-- **`SyntaxError.java:8-11`** : `this.pos = pos; this.problem = problem; super(...);` — `super(...)` doit être en 1re position, donc compile error.
-- **`util.Pair extends javafx.util.Pair`** : impose JavaFX au classpath du parser alors que le parser n'a rien à voir avec l'UI. 10 lignes à réécrire pour être autonome.
+- ✅ **`Transitions.add`** utilise bien `depart` comme clé.
+- ✅ **`EMPTY_MAP`/`EMPTY_SET`** : remplacés par des `new HashMap<>()` / `new HashSet<>()` à chaque appel.
+- ✅ **`AutomateDeterministe`** : `linTable` et `delinTable` initialisés au constructeur.
+- ✅ **`SyntaxError`** : `super(...)` remis en 1re ligne.
+- ✅ **`util.Pair`** autonome, plus d'`extends javafx.util.Pair`.
 
-**HIGH** :
-- Thompson pour `Or`, `Star`, `Plus` simplifié (pas de nœuds intermédiaires) : probablement faux sur `(a|b)*c` et dérivés. Aucun test ne valide les automates (0 test sur DFA/NFA, tous sur le parsing regex).
-- `exec()` retourne `Pair<T, Integer>` dont le second est `lastIndexTerminal` — index absolu ou longueur consommée ? Non documenté.
-- `SortedSet.getFirst()` nécessite Java 21+.
+Un fichier `ExecutionAutomateTest.java` a été ajouté, ce qui répond partiellement au point HIGH sur l'absence de tests DFA/NFA.
 
-**Questions** :
-1. `Transitions.add` : le paramètre `depart` n'est pas utilisé, bug ou version intermédiaire ?
-2. `EMPTY_MAP`/`EMPTY_SET` : sentinelles ou valeurs par défaut ? (actuellement elles sont mutées)
-3. `AutomateDeterministe.exec()` a-t-il été exécuté au moins une fois ? Les maps non initialisées NPE immédiatement.
-4. Un test de reconnaissance sur `(a|b)*c` serait utile pour valider la construction Thompson.
-5. `util.Pair extends javafx.util.Pair` : peut-on retirer la dépendance JavaFX du parser ?
-6. `SyntaxError` : l'ordre `this.pos = pos; ... super(...);` compile chez toi ?
-7. Quel JDK cible pour l'équipe ?
+**HIGH restants pour sprint 2** :
+- Thompson pour `Or`, `Star`, `Plus` toujours simplifié (pas de nœuds intermédiaires). À valider par un test ciblé sur `(a|b)*c` et dérivés.
+- `exec()` retourne `Pair<T, Integer>` sans Javadoc : sémantique de l'index (absolu vs longueur consommée) à documenter.
+
+**Question résiduelle** : quel JDK cible pour l'équipe ? (impact général sur les API Java 21+ éventuelles)
 
 ---
 
@@ -101,16 +94,16 @@ Une tentative de merge des trois branches (chaptal + interpretation + simulation
 Les contenus s'empilent sans conflit git, mais la compilation échoue. Les blocages identifiés à `javac` :
 
 1. Éditeur (erreur de type sur `BorderPane`/`TextArea`).
-2. `super()` mal placé dans `FenetrePrincipale.java` et `SyntaxError.java`.
-3. `Transitions.add` bugué.
-4. `AutomateDeterministe` NPE.
-5. `EMPTY_MAP`/`EMPTY_SET` singletons mutés.
-6. `util.Pair` dépend de JavaFX.
+2. `super()` mal placé dans `FenetrePrincipale.java` (celui de `SyntaxError.java` a été corrigé dans le push Erwan du matin).
+3. ~~`Transitions.add` bugué.~~ Corrigé côté Erwan.
+4. ~~`AutomateDeterministe` NPE.~~ Corrigé côté Erwan.
+5. ~~`EMPTY_MAP`/`EMPTY_SET` singletons mutés.~~ Corrigé côté Erwan.
+6. ~~`util.Pair` dépend de JavaFX.~~ Corrigé côté Erwan.
 7. Deux `package simulateur;` incompatibles (34 erreurs).
 8. `tests projet long/simulateur/` ne compile pas seul (`FileListe`, `Module`).
 9. Structure `src/` : fichiers plats vs arborescence `src/main/java/fr/n7/shdl/` — Gradle ignore les plats, `module-info.java` interdit le package par défaut.
 
-Sur les 9 points, **les 8 premiers sont indépendants de la question Gradle**. Le point 9 est spécifique à la coexistence d'un squelette Gradle avec du code plat.
+Après la mise à jour Erwan, il reste **4 blocages de code + 1 question structurelle** : éditeur (type + `super()`), doublon simulateur, `tests projet long/simulateur/`, Gradle vs plat.
 
 ---
 
@@ -135,13 +128,13 @@ Dans les deux cas, les 8 blocages du code individuel restent à corriger. Le cho
 1. **Structure** : chemin A (Gradle) ou chemin B (plat) ?
 2. **Simulateur** : hiérarchie Connecteur-based ou Lien-based ?
 3. **JDK cible** : quelle version (impact sur `SortedSet.getFirst()` et les flexible constructor bodies) ?
-4. **Priorités sprint 2** : répartition des correctifs CRITIQUE (1 côté Chaptal, 3 côté Erwan, 2 côté Mati, plus le doublon simulateur).
+4. **Priorités sprint 2** : répartition des correctifs CRITIQUE restants (1 côté Chaptal, 2 côté Mati, plus le doublon simulateur). Les 5 CRITIQUE côté Erwan ont été résolus dans le push du matin.
 
 ---
 
 ## TL;DR
 
-- Tourne : parser LL(1) SHDL (107 tests), parser regex (20 tests), portes logiques (tests présents mais code attenant qui ne compile pas).
-- Ne tourne pas : éditeur (compile error), automates (NPE + bugs logiques), bascules (pas de tests auto, convergence non garantie), nouveau simulateur (WIP).
+- Tourne : parser LL(1) SHDL (107 tests), parser regex + automates (20 tests + test d'exécution ajouté au push du matin), portes logiques (tests présents mais code attenant qui ne compile pas).
+- Ne tourne pas : éditeur (compile error), bascules (pas de tests auto, convergence non garantie), nouveau simulateur (WIP).
 - Démo bout-en-bout : atteignable sprint 2 si les blocages CRITIQUE sont corrigés.
 - Réunion à caler : structure projet, choix hiérarchie simulateur, priorités correctifs.
