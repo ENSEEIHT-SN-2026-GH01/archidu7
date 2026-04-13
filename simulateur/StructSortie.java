@@ -16,11 +16,11 @@ public class StructSortie {
 		return T.getTaille();
 	}
 
-	public Etat getValeur(int i) throws ErreurIndex {
+	public Etat getValeur(int i)  {
 		return T.get(i);
 	}
 
-	public Connecteur getConnecteur(int i) throws ErreurIndex {
+	public Connecteur getConnecteur(int i)  {
 		return T.getConnecteur(i);
 	}
 

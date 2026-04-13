@@ -37,11 +37,11 @@ public class FileSimulateur {
 		return Sorties.get(i+1).getNombre(); //TODO
 	}
 
-	public Connecteur getEntrees(int i, int j) throws ErreurIndex {
+	public Connecteur getEntrees(int i, int j)  {
 		return Entrees.get(i+1).getConnecteur(j); //TODO
 	}
 
-	public Connecteur getSorties(int i, int j) throws ErreurIndex {
+	public Connecteur getSorties(int i, int j)  {
 		return Sorties.get(i+1).getConnecteur(j); //TODO
 	}
 

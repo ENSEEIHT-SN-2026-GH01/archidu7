@@ -10,10 +10,10 @@ public interface Connecteur {
 
 	public Composant getComposant();
 
-        public void setComposant(Composant c) throws ErreurIndex ;
+        public void setComposant(Composant c)  ;
 
         public Composant getOrigine();
 
-        public void setOrigine(Composant c) throws ErreurIndex ; 
+        public void setOrigine(Composant c)  ; 
 
 }

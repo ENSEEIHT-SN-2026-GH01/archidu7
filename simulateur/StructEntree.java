@@ -7,7 +7,7 @@ public class StructEntree {
 	private TableauConnecteur T;
 	private Map<Integer,List<Composant>> D;
 
-	public StructEntree(String nom, TableauConnecteur T) throws ErreurIndex {
+	public StructEntree(String nom, TableauConnecteur T)  {
 		this.nom = nom;
 		this.T = T;
 		this.D = new HashMap<>();
@@ -16,7 +16,7 @@ public class StructEntree {
 		}
 	}
 
-	private void initialiserListe(int j) throws ErreurIndex { //TODO Attention ! ne converge pas en cas de rebouclage !!!
+	private void initialiserListe(int j)  { //TODO Attention ! ne converge pas en cas de rebouclage !!!
 		Connecteur C = T.getConnecteur(j);
 		List<Composant> Suivant = new ArrayList<>();
 		List<Composant> Calcul = new ArrayList<>();
@@ -36,7 +36,7 @@ public class StructEntree {
 		D.put(j,Calcul);
 	}
 
-	private static void calculer(List<Composant> L) throws ErreurIndex {
+	private static void calculer(List<Composant> L)  {
 		for (Composant C : L) {
 			C.calculer();
 		}
@@ -50,15 +50,15 @@ public class StructEntree {
 		return T.getTaille();
 	}
 
-	public Etat getValeur(int i) throws ErreurIndex {
+	public Etat getValeur(int i)  {
 		return T.get(i);
 	}
 
-	public Connecteur getConnecteur(int i) throws ErreurIndex {
+	public Connecteur getConnecteur(int i)  {
 		return T.getConnecteur(i);
 	}
 
-	public void setValeur(int i, Etat e) throws ErreurIndex {
+	public void setValeur(int i, Etat e)  {
 		T.set(i,e);
 		calculer(D.get(i));
 	}

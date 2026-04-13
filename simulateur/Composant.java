@@ -29,7 +29,7 @@ public abstract class Composant implements Structure {
                 sorties = new TableauConnecteur(nb_sorties);
         }
 
-	public Composant(int nb_entrees, int nb_sorties, String[] NomSorties) throws ErreurIndex {
+	public Composant(int nb_entrees, int nb_sorties, String[] NomSorties)  {
 		this(nb_entrees, nb_sorties);
 		sorties.initialiser(NomSorties);
 	}
@@ -39,7 +39,7 @@ public abstract class Composant implements Structure {
 		//TODO
 	}*/
 
-	protected Etat getEntree(int i) throws ErreurIndex {
+	protected Etat getEntree(int i)  {
 		return entrees.get(i);
 	}
 
@@ -47,31 +47,31 @@ public abstract class Composant implements Structure {
 		return entrees.getTaille();
 	}
 
-	public Connecteur getConnecteurSortie(int i) throws ErreurIndex {
+	public Connecteur getConnecteurSortie(int i)  {
 		return sorties.getConnecteur(i);
 	}
 
-	public void brancherEntree(Connecteur l, int i) throws ErreurIndex {
+	public void brancherEntree(Connecteur l, int i)  {
 		entrees.brancher(l,i);
 		l.setComposant(this);
 	}
 
-	public void brancherSortie(Connecteur l, int i) throws ErreurIndex {
+	public void brancherSortie(Connecteur l, int i)  {
 		sorties.brancher(l,i);
 		l.setOrigine(this);
 	}
 
-	public void debrancherEntree(Connecteur l) throws ErreurIndex {
+	public void debrancherEntree(Connecteur l)  {
                 entrees.debrancher(l);
 		l.setComposant(null);
         }
 
-        public void debrancherSortie(Connecteur l) throws ErreurIndex {
+        public void debrancherSortie(Connecteur l)  {
                 sorties.debrancher(l);
 		l.setOrigine(null);
         }
 
-	protected void setSortie(int i, Etat b) throws ErreurIndex {
+	protected void setSortie(int i, Etat b)  {
 		sorties.set(i,b);
 	}
 
@@ -79,13 +79,13 @@ public abstract class Composant implements Structure {
 		return sorties.getTaille();
 	}
 	
-	public abstract void calculer() throws ErreurIndex ;
+	public abstract void calculer()  ;
 
 	public Structure getStructure() {
 		return pere;
 	}
 
-	public void ajouter(List<Composant> L) throws ErreurIndex {
+	public void ajouter(List<Composant> L)  {
 		L.add(this);
 	}
 

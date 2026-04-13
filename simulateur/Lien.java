@@ -32,7 +32,7 @@ public class Lien implements Connecteur {
 		return composantSuivant;
 	}
 
-	public void setComposant(Composant c) throws ErreurIndex {
+	public void setComposant(Composant c)  {
 		if (composantSuivant != null) {
 			composantSuivant.debrancherEntree(this);
 		}
@@ -43,7 +43,7 @@ public class Lien implements Connecteur {
                 return origine;
         }
 
-        public void setOrigine(Composant c) throws ErreurIndex{
+        public void setOrigine(Composant c) {
 		if (origine != null) {
 			origine.debrancherSortie(this);
 		}
