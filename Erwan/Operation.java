@@ -3,7 +3,8 @@ public enum Operation {
 	AND,
 	OR,
 	NOT,
-	COPIE,
-	LITTERAL;
-	RANGE; //Plusieurs Copies
+	LITTERAL,
+	RANGE, //Plusieurs Copies
+	CONSTANTE,
+	MODULE;
 }

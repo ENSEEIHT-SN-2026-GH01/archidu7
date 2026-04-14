@@ -48,4 +48,36 @@ public class FileSimulateur {
 		return Sorties.get(i+1).getConnecteur(j); //TODO
 	}
 
+
+
+	//TODO ------------- ATTENTION ZONE CHANTIER !!! ------------- TODO//
+	//								   //
+	//TODO ---- INTERDITE A TOUTE PERSONNE NON AUTHORISEE !!! ---- TODO//
+	//								   //
+	//TODO ------------  PORT DU CASQUE OBLIGATOIRE : ------------ TODO//
+	//								   //
+	//TODO PETAGE DE CABLE ET CHUTE DE NEURONNES PREVUS A LA METEO TODO//
+
+	
+	
+	private void AND() {
+	}
+
+	private void OR() {
+	}
+
+	private void NOT() {
+	}
+
+	private void RANGE() { // Correspond a plusieur assignation avec des liensVecteurs. Peux/doit appeller LITTERAL/CONSTANTE
+	}
+
+	private void LITTERAL() { //Permet de faire reference à une entree, ou un signal généré et nommé par l'utilisateur
+	}
+
+	private void CONSTANTE() {
+	}
+
+	private void MODULE() {
+	}
 }
