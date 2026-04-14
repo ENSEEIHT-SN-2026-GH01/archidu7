@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Arbre de dérivation — module ET(a, b : c) c = a * b</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 24px;
+    margin: 0;
+  }
+  h1 { color: #89b4fa; font-size: 20px; margin-bottom: 4px; }
+  h2 { color: #a6e3a1; font-size: 15px; margin-top: 24px; }
+  .source {
+    background: #181825;
+    border-left: 3px solid #f9e2af;
+    padding: 10px 14px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 14px;
+    margin: 12px 0;
+    white-space: pre;
+  }
+  .tree, .tree ul {
+    list-style: none;
+    padding-left: 20px;
+    margin: 0;
+    position: relative;
+  }
+  .tree li {
+    position: relative;
+    padding: 2px 0 2px 18px;
+    line-height: 1.55;
+    font-family: "JetBrains Mono", "Consolas", monospace;
+    font-size: 13px;
+  }
+  .tree li::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-left: 1px solid #45475a;
+    height: 100%;
+  }
+  .tree li::after {
+    content: "";
+    position: absolute;
+    top: 13px;
+    left: 0;
+    width: 14px;
+    border-top: 1px solid #45475a;
+  }
+  .tree > li:first-child::before { top: 13px; }
+  .tree > li:last-child::before  { height: 13px; }
+
+  .nt   { color: #89b4fa; font-weight: 600; }
+  .tok  { color: #f9e2af; }
+  .ident{ color: #a6e3a1; }
+  .op   { color: #f38ba8; }
+  .eps  { color: #6c7086; font-style: italic; }
+  .kw   { color: #cba6f7; font-weight: 600; }
+  .legend {
+    font-size: 12px;
+    color: #bac2de;
+    background: #181825;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-top: 8px;
+  }
+  .legend span { margin-right: 14px; }
+  .prod {
+    font-size: 11px;
+    color: #6c7086;
+    font-style: italic;
+    margin-left: 8px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Arbre de dérivation LL(1) — <code>module ET(a, b : c) c = a * b end module</code></h1>
+
+<div class="source">module ET(a, b : c)
+  c = a * b
+end module</div>
+
+<div class="legend">
+  <span><span class="nt">NonTerminal</span></span>
+  <span><span class="kw">MOT-CLE</span></span>
+  <span><span class="tok">ponctuation</span></span>
+  <span><span class="ident">identifiant</span></span>
+  <span><span class="op">opérateur</span></span>
+  <span><span class="eps">ε</span> (production vide)</span>
+</div>
+
+<h2>Arbre complet</h2>
+
+<ul class="tree">
+  <li>
+    <span class="nt">Module</span> <span class="prod">→ MODULE IDENT '(' PL ')' IL END MODULE</span>
+    <ul>
+      <li><span class="kw">module</span></li>
+      <li><span class="ident">ET</span> <span class="prod">IDENT</span></li>
+      <li><span class="tok">(</span></li>
+      <li>
+        <span class="nt">ParamList</span> <span class="prod">→ Param PLR</span>
+        <ul>
+          <li>
+            <span class="nt">Param</span> <span class="prod">→ Signal</span>
+            <ul>
+              <li>
+                <span class="nt">Signal</span> <span class="prod">→ IDENT ST</span>
+                <ul>
+                  <li><span class="ident">a</span> <span class="prod">IDENT</span></li>
+                  <li><span class="nt">SignalTail</span> → <span class="eps">ε</span></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <span class="nt">PLR</span> <span class="prod">→ Separ Param PLR</span>
+            <ul>
+              <li><span class="nt">Separ</span> → <span class="tok">,</span></li>
+              <li>
+                <span class="nt">Param</span> → <span class="nt">Signal</span>
+                <ul>
+                  <li>
+                    <span class="nt">Signal</span> → IDENT ST
+                    <ul>
+                      <li><span class="ident">b</span></li>
+                      <li><span class="nt">SignalTail</span> → <span class="eps">ε</span></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <span class="nt">PLR</span> <span class="prod">→ Separ Param PLR</span>
+                <ul>
+                  <li><span class="nt">Separ</span> → <span class="tok">:</span></li>
+                  <li>
+                    <span class="nt">Param</span> → <span class="nt">Signal</span>
+                    <ul>
+                      <li>
+                        <span class="nt">Signal</span> → IDENT ST
+                        <ul>
+                          <li><span class="ident">c</span></li>
+                          <li><span class="nt">SignalTail</span> → <span class="eps">ε</span></li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                  <li><span class="nt">PLR</span> → <span class="eps">ε</span></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><span class="tok">)</span></li>
+      <li>
+        <span class="nt">InstanceList</span> <span class="prod">→ Instance ILR</span>
+        <ul>
+          <li>
+            <span class="nt">Instance</span> <span class="prod">→ AssignOrTri (lookahead-2 : IDENT suivi de '=')</span>
+            <ul>
+              <li>
+                <span class="nt">AssignOrTri</span> <span class="prod">→ SC '=' SOTC TST</span>
+                <ul>
+                  <li>
+                    <span class="nt">SignalCompound</span> <span class="prod">→ Signal SCR</span>
+                    <ul>
+                      <li>
+                        <span class="nt">Signal</span> → IDENT ST
+                        <ul>
+                          <li><span class="ident">c</span></li>
+                          <li><span class="nt">SignalTail</span> → <span class="eps">ε</span></li>
+                        </ul>
+                      </li>
+                      <li><span class="nt">SCR</span> → <span class="eps">ε</span></li>
+                    </ul>
+                  </li>
+                  <li><span class="op">=</span></li>
+                  <li>
+                    <span class="nt">SumOfTermsCompound</span> <span class="prod">→ SOT SOTCR</span>
+                    <ul>
+                      <li>
+                        <span class="nt">SumOfTerms</span> <span class="prod">→ Term SOTR</span>
+                        <ul>
+                          <li>
+                            <span class="nt">Term</span> <span class="prod">→ Factor TR</span>
+                            <ul>
+                              <li>
+                                <span class="nt">Factor</span> <span class="prod">→ Signal</span>
+                                <ul>
+                                  <li>
+                                    <span class="nt">Signal</span> → IDENT ST
+                                    <ul>
+                                      <li><span class="ident">a</span></li>
+                                      <li><span class="nt">SignalTail</span> → <span class="eps">ε</span></li>
+                                    </ul>
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <span class="nt">TR</span> <span class="prod">→ '*' Factor TR</span>
+                                <ul>
+                                  <li><span class="op">*</span></li>
+                                  <li>
+                                    <span class="nt">Factor</span> → <span class="nt">Signal</span>
+                                    <ul>
+                                      <li>
+                                        <span class="nt">Signal</span> → IDENT ST
+                                        <ul>
+                                          <li><span class="ident">b</span></li>
+                                          <li><span class="nt">SignalTail</span> → <span class="eps">ε</span></li>
+                                        </ul>
+                                      </li>
+                                    </ul>
+                                  </li>
+                                  <li><span class="nt">TR</span> → <span class="eps">ε</span></li>
+                                </ul>
+                              </li>
+                            </ul>
+                          </li>
+                          <li><span class="nt">SOTR</span> → <span class="eps">ε</span></li>
+                        </ul>
+                      </li>
+                      <li><span class="nt">SOTCR</span> → <span class="eps">ε</span></li>
+                    </ul>
+                  </li>
+                  <li><span class="nt">TriStateTail</span> → <span class="eps">ε</span></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li><span class="nt">ILR</span> → <span class="eps">ε</span></li>
+        </ul>
+      </li>
+      <li><span class="kw">end</span></li>
+      <li><span class="kw">module</span></li>
+    </ul>
+  </li>
+</ul>
+
+<h2>Lecture rapide</h2>
+<div class="legend" style="line-height: 1.7;">
+  <p style="margin: 4px 0;">• <b>Profondeur 4→8</b> : décomposition de la <code>ParamList</code> <code>a, b : c</code>.
+    Le séparateur <code>:</code> n'est pas distingué de <code>,</code> au niveau grammaire (sémantique attachée plus tard).</p>
+  <p style="margin: 4px 0;">• <b>Profondeur 6→13</b> : chemin d'expression <code>SOTC → SOT → Term → Factor * Factor</code>.
+    Le produit <code>a * b</code> apparaît via <code>TR → '*' Factor TR</code>, puis <code>TR → ε</code>.</p>
+  <p style="margin: 4px 0;">• <b>Feuilles</b> (de gauche à droite) restituent exactement la séquence de tokens :
+    <code>module ET ( a , b : c ) c = a * b end module</code>.</p>
+  <p style="margin: 4px 0;">• <b>Nœuds <span class="eps">ε</span></b> : productions vides. Chaque non-terminal optionnel
+    (queue de liste, tail de signal, tri-state tail) se ferme par un <span class="eps">ε</span>.</p>
+</div>
+
+</body>
+</html>
