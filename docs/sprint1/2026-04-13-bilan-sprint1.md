@@ -8,7 +8,7 @@ Note rédigée le 2026-04-13 après lecture individuelle du code de chaque branc
 
 **Fait** : parser LL(1) SHDL complet (SCRUM-23) — grammaire déclarative, checker de conflits LL(1), AST immuable avec Visitor, erreurs riches. **107 tests JUnit verts**, revérifiés ce soir. Squelette JavaFX/Gradle (`src/main/java/fr/n7/shdl/...`). Spec et plan versionnés dans `docs/specs/` et `docs/plans/`.
 
-**Limite connue** : piège grammatical `TERM_REST` (wildcard FSM + `when` suivi d'un STAR de règle suivante) documenté par un test, correction reportée au sprint 2.
+**Choix de scope (2026-04-14)** : FSM hors scope du MVP sprint 1. Le parser LL(1) accepte la syntaxe FSM (tests `ParserFsmTest` + `ParserFsmErrorTest`), mais `mvp/Interpreteur.construire()` refuse tout module contenant un nœud `Fsm` avec `UnsupportedOperationException("FSM hors scope MVP sprint 1 ...")`. Conséquence pratique : le conflit LL(1) `TERM_REST` (wildcard FSM suivant un `when`), documenté par `Ll1ConflictTest`, reste présent dans la grammaire mais n'a aucune incidence runtime sur la démo — aucun `.shdl` exécuté par le MVP ne contient de FSM. Réouverture FSM = implémenter la traduction AST→circuit, rien à refaire côté parser.
 
 ---
 
