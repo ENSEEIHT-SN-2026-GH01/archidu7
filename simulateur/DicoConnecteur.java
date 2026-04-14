@@ -20,6 +20,12 @@ public class DicoConnecteur {
 		return C;
 	}
 
+	public boolean existe(String S) {
+		Connecteur C = dico.get(S);
+		if (C == null) return false;
+		else return true;
+	}
+
 	public void ajouter(Connecteur c, String s) {
 
 		dico.put(s,c);

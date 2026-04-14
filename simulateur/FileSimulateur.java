@@ -10,6 +10,9 @@ public class FileSimulateur {
 
 	public FileSimulateur(){
 		Dico = new DicoConnecteur();
+		//TODO Creer les struct Entree et Sortie
+		//TODO ajouter les signaux littéraux au dico
+		//TODO generer les sigaux non littéraux et les enr au dico
 	}
 
 	public int nbEntree(){
