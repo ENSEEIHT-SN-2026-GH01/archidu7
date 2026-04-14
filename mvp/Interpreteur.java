@@ -51,6 +51,15 @@ public final class Interpreteur {
         }
 
         for (Instance inst : module.getInstances()) {
+            if (inst instanceof parser.ll1.ast.Fsm) {
+                throw new UnsupportedOperationException(
+                    "FSM hors scope MVP sprint 1 (cf. docs/sprint1/2026-04-13-bilan-sprint1.md). "
+                    + "Le parser LL(1) accepte la syntaxe FSM mais l'interpreteur la refuse tant "
+                    + "que l'axe FSM n'est pas repris.");
+            }
+        }
+
+        for (Instance inst : module.getInstances()) {
             if (!(inst instanceof Assignment)) {
                 throw new IllegalArgumentException(
                     "MVP : seul Assignment est supporte (recu " + inst.getClass().getSimpleName() + ")");

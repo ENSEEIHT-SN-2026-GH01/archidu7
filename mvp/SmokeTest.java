@@ -23,7 +23,31 @@ public final class SmokeTest {
         verif(p, notShdl, "a=UP", "b", Etat.DW);
         verif(p, notShdl, "a=DW", "b", Etat.UP);
 
+        String fsmShdl =
+            "module FEUX(a : b)\n" +
+            "  fsm asynchronous end fsm\n" +
+            "  b = a\n" +
+            "end module";
+        verifRejetFsm(p, fsmShdl);
+
         System.out.println("Smoke test OK");
+    }
+
+    private static void verifRejetFsm(Pilote p, String shdl) {
+        try {
+            p.executer(shdl, new LinkedHashMap<>());
+            throw new AssertionError("FSM aurait du etre refusee par l'interpreteur");
+        } catch (UnsupportedOperationException e) {
+            if (e.getMessage() == null || !e.getMessage().contains("FSM hors scope")) {
+                throw new AssertionError(
+                    "message attendu contient 'FSM hors scope', recu : " + e.getMessage());
+            }
+            System.out.println("  [OK] FSM correctement refusee : " + e.getMessage());
+        } catch (Exception e) {
+            throw new AssertionError(
+                "exception attendue UnsupportedOperationException, recu " + e.getClass().getSimpleName()
+                + " : " + e.getMessage());
+        }
     }
 
     private static void verif(Pilote p, String shdl, String entreesTxt, String wire, Etat attendu) throws Exception {
