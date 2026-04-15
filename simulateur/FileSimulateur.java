@@ -60,6 +60,10 @@ public class FileSimulateur {
 
 	
 	
+	private Connecteur getSignal(){
+		return null;
+	}
+
 	private void AND() {
 	}
 
