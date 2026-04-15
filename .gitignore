@@ -39,3 +39,6 @@ src-gen/
 
 # Outils volumineux telecharges (plantuml.jar ~22M)
 tools/*.jar
+
+# JavaFX SDK natif (binaires .so, volumineux, ne pas versionner)
+lib/javafx-sdk-21/
