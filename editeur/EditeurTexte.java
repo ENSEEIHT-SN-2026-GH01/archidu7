@@ -10,10 +10,12 @@ import javafx.scene.text.Font;
 public class EditeurTexte extends StackPane{
 
     private final int fontSize = 14;
+    EditeurTexteInvisible deriere;
+    TextMultiColoriable devant;
 
     public EditeurTexte(){
-        EditeurTexteInvisible deriere = new EditeurTexteInvisible();
-        TextMultiColoriable devant = new TextMultiColoriable();
+        deriere = new EditeurTexteInvisible();
+        devant = new TextMultiColoriable();
 
         /*transformation sur le texte coloriable plaçé au dessus */
         devant.setTranslateX(8);
@@ -43,4 +45,13 @@ public class EditeurTexte extends StackPane{
         getChildren().addAll(deriere, devant); 
     }
 
+    /**Colorie le morceau de texte entre les deux indices (inclus).
+     * 
+     * @param debut
+     * @param fin
+     * @param couleur La couleur à associer.
+     */
+    public void colorier(int debut, int fin, Color couleur){
+        devant.colorier(debut, fin, couleur);
+    }
 }
