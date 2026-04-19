@@ -10,7 +10,7 @@ public abstract class TextDecoupable extends TextFlow{
     protected CelluleTexte cache; //dernière cellule qui a été renvoyé par une des méthode de CelluleText
 
     public TextDecoupable(){
-        morceaux = new CelluleTexte(0, 0, "", 0, getChildren());
+        morceaux = new CelluleTexte(0, -1, "", 0, getChildren());
         cache = morceaux;
     }
 
@@ -49,6 +49,15 @@ public abstract class TextDecoupable extends TextFlow{
             return cache.getSubString(debut, fin);
         }
         else return morceaux.getSubString(debut, fin);
+    }
+
+    /**La taille du texte.
+     * 
+     * @return
+     */
+    public int length(){
+        if (cache != null) return cache.length();
+        else return morceaux.length();
     }
 
     /**Inserre du texte ou l'ajoute à la fin.

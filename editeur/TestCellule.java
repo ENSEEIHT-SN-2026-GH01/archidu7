@@ -27,6 +27,7 @@ public class TestCellule {
         tete.supprimerText(17, 50);
         tete.afficher();
 
-        System.out.println(unused.getChildren());
+        tete.supprimerText(16, 17);
+        tete.afficher();
     }
 }

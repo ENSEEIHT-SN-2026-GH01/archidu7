@@ -2,6 +2,7 @@ package editeur;
 
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 public class CelluleTexte {
@@ -23,6 +24,7 @@ public class CelluleTexte {
         indiceListeTexte = indice;
         listeTexte = liste;
         listeTexte.add(indiceListeTexte, morceau);
+        morceau.setFont(Font.font("Monospaced", 14));
     }
 
     public int getDebut(){
@@ -78,6 +80,15 @@ public class CelluleTexte {
                 }
             }
         }
+    }
+
+    /**La taille du texte.
+     * 
+     * @return
+     */
+    public int length(){
+        if (suivant != null) return suivant.length();
+        else return fin+1;
     }
 
     private void propagerChangementIndice(int nouveau){
@@ -219,23 +230,37 @@ public class CelluleTexte {
      * @param finSuppr Indice de l'élément après le dernier supprimé.
      */
     public CelluleTexte supprimerText(int debutSuppr, int finSuppr){
-        if (debutSuppr > fin){
+        if (debutSuppr > fin){ //recherche de la première cellule concernée
             if (suivant != null) return suivant.supprimerText(debutSuppr, finSuppr);
             else return this;
         }
-        else{
-            recoller(debutSuppr, finSuppr - 1);
+        else if(finSuppr > fin +1){ //suppression sur plusieurs morceaux
+
+            /*appel recurssif */
+            if (suivant != null){
+                suivant.supprimerText(fin + 1, finSuppr);
+                if (suivant.getDebut() > suivant.getFin()) suivant = suivant.suivant; //supression des cellules vides
+            }
+
+            /*supression sur ce morceau */
             String actuel = morceau.getText();
-            try {
-                morceau.setText(actuel.substring(0, debutSuppr - debut) + actuel.substring(finSuppr - debut, fin - debut));
-                int delta = debutSuppr - finSuppr -1;
-                fin += delta; //delta est negatif
-                if (suivant != null) suivant.propagerDecalage(delta);
-            }
-            catch (IndexOutOfBoundsException e){
-                morceau.setText(actuel.substring(0, debutSuppr - debut));
-                fin = debut + morceau.getText().length() - 1;
-            }
+             morceau.setText(actuel.substring(0, debutSuppr - debut));
+
+            /*decalage */
+            int delta = debutSuppr - fin - 1;
+            fin += delta; //delta est negatif
+            if (suivant != null) suivant.propagerDecalage(delta);
+
+            return this;
+        }
+        else{
+            String actuel = morceau.getText();
+  
+            morceau.setText(actuel.substring(0, debutSuppr - debut) + actuel.substring(finSuppr - debut, fin - debut + 1));
+            int delta = debutSuppr - finSuppr ;
+            fin += delta; //delta est negatif
+            if (suivant != null) suivant.propagerDecalage(delta);
+
             return this;
         }
     }
