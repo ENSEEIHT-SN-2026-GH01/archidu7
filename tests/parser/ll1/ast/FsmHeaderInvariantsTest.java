@@ -5,7 +5,7 @@ import parser.ll1.ast.*;
 import static org.junit.Assert.*;
 
 public class FsmHeaderInvariantsTest {
-    private static final Position P = new Position(1, 1);
+    private static final Position P = new Position(1, 1, 0);
 
     private static SumOfTerms sigSum(String name) {
         Signal s = new Signal(P, name, null, null);

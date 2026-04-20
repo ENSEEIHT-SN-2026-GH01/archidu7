@@ -47,7 +47,7 @@ public class AstImmutabilityTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void listeModuleInstancesImmutable() {
-        parser.ll1.ast.Module m = new parser.ll1.ast.Module(new Position(1,1), "X", List.of(), List.of());
+        parser.ll1.ast.Module m = new parser.ll1.ast.Module(new Position(1,1,0), "X", List.of(), List.of());
         m.getInstances().add(null);
     }
 
