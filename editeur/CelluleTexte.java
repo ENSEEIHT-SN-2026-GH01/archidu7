@@ -103,7 +103,7 @@ public class CelluleTexte {
      * n'a pu être effectué.
      */
     public CelluleTexte decoupe(int milieu){
-        if (milieu < fin && milieu > debut){
+        if (milieu < fin && milieu >= debut){
             String txt = morceau.getText();
 
             //nouvelle cellule
@@ -118,7 +118,7 @@ public class CelluleTexte {
 
             return nouvelle;
         }
-        else if(suivant != null && milieu > debut){
+        else if(suivant != null && milieu >= debut){
             return suivant.decoupe(milieu);
         }
         else return null;
@@ -166,8 +166,11 @@ public class CelluleTexte {
     public CelluleTexte creerMorceau(int debutMorceau, int finMorceau){
         CelluleTexte partie = decoupe(debutMorceau - 1);
         if(partie != null) {
+            afficher();
             partie.recoller(debutMorceau, finMorceau);
+            afficher();
             partie.decoupe(finMorceau);
+            afficher();
             return partie;
         }
         else {

@@ -34,7 +34,7 @@ public class EditeurTexte extends StackPane{
 
             /*pour tester, à supprimer */
             if (change.getCaretPosition() > 20){
-                devant.colorier(5, 15, Color.RED);
+                devant.colorier(5, 5, Color.RED);
             }
 
             return change;
