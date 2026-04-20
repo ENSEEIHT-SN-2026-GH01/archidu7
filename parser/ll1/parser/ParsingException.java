@@ -5,20 +5,21 @@ import java.util.*;
 
 public class ParsingException extends RuntimeException {
     private final ErrorCode code;
-    private final int line, column;
+    private final int line, column, offset;
     private final Set<TokenType> expected;
     private final TokenType actual;
     private final List<String> grammarContext;
     private final String sourceSnippet;
     private final String suggestion;
 
-    public ParsingException(ErrorCode code, int line, int column,
+    public ParsingException(ErrorCode code, int line, int column, int offset,
                             Set<TokenType> expected, TokenType actual,
                             Deque<String> grammarStack, String sourceSnippet, String suggestion) {
         super(build(code, line, column, expected, actual, grammarStack, sourceSnippet, suggestion));
         this.code = code;
         this.line = line;
         this.column = column;
+        this.offset = offset;
         this.expected = expected == null ? Set.of()
             : Collections.unmodifiableSet(new LinkedHashSet<>(expected));
         this.actual = actual;
@@ -30,6 +31,7 @@ public class ParsingException extends RuntimeException {
     public ErrorCode getCode() { return code; }
     public int getLine() { return line; }
     public int getColumn() { return column; }
+    public int getOffset() { return offset; }
     public Set<TokenType> getExpected() { return expected; }
     public TokenType getActual() { return actual; }
     public List<String> getGrammarContext() { return grammarContext; }
@@ -42,7 +44,7 @@ public class ParsingException extends RuntimeException {
         sb.append("Ligne ").append(l).append(", colonne ").append(col)
           .append(" [").append(c).append("]");
         if (exp != null && !exp.isEmpty()) sb.append(" : attendu ").append(exp);
-        if (act != null) sb.append(", reçu ").append(act);
+        if (act != null) sb.append(", recu ").append(act);
         if (snip != null && !snip.isEmpty()) sb.append("\n  ").append(snip);
         if (stack != null && !stack.isEmpty()) sb.append("\nContexte : ").append(String.join(" > ", stack));
         if (sug != null) sb.append("\nSuggestion : ").append(sug);

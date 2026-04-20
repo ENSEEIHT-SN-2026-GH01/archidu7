@@ -95,7 +95,7 @@ public final class Parser {
         if (actual == TokenType.EOF && code == ErrorCode.UNEXPECTED_TOKEN) {
             code = ErrorCode.EOF_UNEXPECTED;
         }
-        return new ParsingException(code, t.getLine(), t.getColumn(),
+        return new ParsingException(code, t.getLine(), t.getColumn(), t.getOffset(),
             expected, actual, grammarStack, snippet, null);
     }
 
@@ -170,7 +170,7 @@ public final class Parser {
                 String v = t.getValue();
                 if ("0".equals(v)) return Factor.lit0(p);
                 if ("1".equals(v)) return Factor.lit1(p);
-                throw new ParsingException(ErrorCode.BIT_OUT_OF_RANGE, t.getLine(), t.getColumn(),
+                throw new ParsingException(ErrorCode.BIT_OUT_OF_RANGE, t.getLine(), t.getColumn(), t.getOffset(),
                     Set.of(TokenType.INTEGER), TokenType.INTEGER, grammarStack, snippet(t),
                     "Factor accepte uniquement 0 ou 1.");
             }
@@ -334,7 +334,7 @@ public final class Parser {
             consume(TokenType.INTEGER);
             if ("0".equals(t.getValue())) return Factor.lit0(p);
             if ("1".equals(t.getValue())) return Factor.lit1(p);
-            throw new ParsingException(ErrorCode.BIT_OUT_OF_RANGE, t.getLine(), t.getColumn(),
+            throw new ParsingException(ErrorCode.BIT_OUT_OF_RANGE, t.getLine(), t.getColumn(), t.getOffset(),
                 Set.of(TokenType.INTEGER), TokenType.INTEGER, grammarStack, snippet(t),
                 "Argument littéral accepte uniquement 0 ou 1.");
         }
