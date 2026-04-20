@@ -20,7 +20,7 @@ public final class FsmHeader implements Node {
 
     /** Ancien constructeur sans Position, conservé pour compatibilité interne. */
     public FsmHeader(Kind kind, SumOfTerms clock, String resetStateName, SumOfTerms resetCondition) {
-        this(new Position(1, 1), kind, clock, resetStateName, resetCondition);
+        this(new Position(1, 1, 0), kind, clock, resetStateName, resetCondition);
     }
 
     private void validateInvariants() {

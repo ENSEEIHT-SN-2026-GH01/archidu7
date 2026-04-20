@@ -30,7 +30,9 @@ public final class Parser {
             Token last = ts.isEmpty() ? null : ts.get(ts.size() - 1);
             int l = last == null ? 1 : last.getLine();
             int c = last == null ? 1 : last.getColumn();
-            ts.add(new Token(TokenType.EOF, null, l, c));
+            int off = source != null ? source.length()
+                    : (last == null ? 0 : last.getOffset() + (last.getValue() == null ? 0 : last.getValue().length()));
+            ts.add(new Token(TokenType.EOF, null, l, c, off));
         }
         this.tokens = Collections.unmodifiableList(ts);
         this.source = source;
@@ -120,7 +122,7 @@ public final class Parser {
     // --- Signal ---
     private Signal parseSignal() {
         Token id = consume(TokenType.IDENTIFIER);
-        Position p = new Position(id.getLine(), id.getColumn());
+        Position p = new Position(id.getLine(), id.getColumn(), id.getOffset());
         if (peek(0).getType() == TokenType.LBRACKET) {
             consume(TokenType.LBRACKET);
             Token hi = consume(TokenType.INTEGER);
@@ -155,7 +157,7 @@ public final class Parser {
     // --- Factor / Term / SumOfTerms ---
     private Factor parseFactor() {
         Token t = peek(0);
-        Position p = new Position(t.getLine(), t.getColumn());
+        Position p = new Position(t.getLine(), t.getColumn(), t.getOffset());
         switch (t.getType()) {
             case LPAREN: {
                 consume(TokenType.LPAREN);
@@ -283,7 +285,7 @@ public final class Parser {
     private Module parseModule() {
         return enterRule("Module", () -> {
             Token mod = consume(TokenType.MODULE);
-            Position pos = new Position(mod.getLine(), mod.getColumn());
+            Position pos = new Position(mod.getLine(), mod.getColumn(), mod.getOffset());
             Token name = consume(TokenType.IDENTIFIER);
             consume(TokenType.LPAREN);
             if (peek(0).getType() == TokenType.RPAREN) {
@@ -313,7 +315,7 @@ public final class Parser {
     private ModuleInstance parseModuleInstance() {
         boolean predef = accept(TokenType.DOLLAR);
         Token id = consume(TokenType.IDENTIFIER);
-        Position pos = new Position(id.getLine(), id.getColumn());
+        Position pos = new Position(id.getLine(), id.getColumn(), id.getOffset());
         consume(TokenType.LPAREN);
         List<Node> args = new ArrayList<>();
         args.add(parseSignalOrLiteral());
@@ -327,7 +329,7 @@ public final class Parser {
 
     private Node parseSignalOrLiteral() {
         Token t = peek(0);
-        Position p = new Position(t.getLine(), t.getColumn());
+        Position p = new Position(t.getLine(), t.getColumn(), t.getOffset());
         if (t.getType() == TokenType.INTEGER) {
             consume(TokenType.INTEGER);
             if ("0".equals(t.getValue())) return Factor.lit0(p);
@@ -345,7 +347,7 @@ public final class Parser {
 
     private MapNode parseMap() {
         Token mk = consume(TokenType.MAP);
-        Position p = new Position(mk.getLine(), mk.getColumn());
+        Position p = new Position(mk.getLine(), mk.getColumn(), mk.getOffset());
         SignalCompound in = enterRule("SignalCompound", this::parseSignalCompound);
         consume(TokenType.ARROW);
         SignalCompound out = enterRule("SignalCompound", this::parseSignalCompound);
@@ -354,7 +356,7 @@ public final class Parser {
             Token b1 = consume(TokenType.BITFIELD);
             consume(TokenType.ARROW);
             Token b2 = consume(TokenType.BITFIELD);
-            Position ep = new Position(b1.getLine(), b1.getColumn());
+            Position ep = new Position(b1.getLine(), b1.getColumn(), b1.getOffset());
             entries.add(new MapEntry(ep, new BitField(ep, b1.getValue()), new BitField(ep, b2.getValue())));
         }
         consume(TokenType.END);
@@ -366,7 +368,7 @@ public final class Parser {
         Token fk = peek(0);
         TokenType kw = fk.getType(); // FSM ou STATEMACHINE
         consume(kw);
-        Position p = new Position(fk.getLine(), fk.getColumn());
+        Position p = new Position(fk.getLine(), fk.getColumn(), fk.getOffset());
         FsmHeader header = parseFsmHeader();
         List<FsmRule> rules = new ArrayList<>();
         while (peek(0).getType() == TokenType.STAR || peek(0).getType() == TokenType.IDENTIFIER) {
@@ -383,7 +385,7 @@ public final class Parser {
     private FsmHeader parseFsmHeader() {
         Token startTok = peek(0);
         TokenType t = startTok.getType();
-        Position hp = new Position(startTok.getLine(), startTok.getColumn());
+        Position hp = new Position(startTok.getLine(), startTok.getColumn(), startTok.getOffset());
         if (t == TokenType.ASYNCHRONOUS) {
             consume(TokenType.ASYNCHRONOUS);
             return new FsmHeader(hp, FsmHeader.Kind.ASYNCHRONOUS, null, null, null);
@@ -414,7 +416,7 @@ public final class Parser {
 
     private FsmRule parseFsmRule() {
         Token start = peek(0);
-        Position p = new Position(start.getLine(), start.getColumn());
+        Position p = new Position(start.getLine(), start.getColumn(), start.getOffset());
         boolean wild = false;
         List<String> froms = new ArrayList<>();
         if (peek(0).getType() == TokenType.STAR) {
