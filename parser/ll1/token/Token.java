@@ -23,6 +23,14 @@ public final class Token {
     public int       getColumn() { return column; }
     public int       getOffset() { return offset; }
 
+    /**Indice du dernier caractère du Token dans le texte.
+     * 
+     * @return
+     */
+    public int getFin(){
+        return offset + value.length() -1;
+    }
+
     @Override public String toString() {
         return type + "(" + value + ")@" + line + ":" + column + "#" + offset;
     }
