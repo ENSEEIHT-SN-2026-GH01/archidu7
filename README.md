@@ -158,6 +158,18 @@ try {
 }
 ```
 
+### Localisation des tokens et nœuds AST
+
+Chaque `Token` et chaque `Position` d'AST expose trois repères complémentaires :
+
+- `getLine()` / `getColumn()` — 1-indexés, pour afficher un message à l'utilisateur.
+- `getOffset()` — indice 0-indexé dans la chaîne source (premier caractère du lexème).
+  Directement utilisable pour surligner dans un `TextArea` / `CodeArea` JavaFX
+  via `selectRange(offset, offset + length)`.
+
+`ParsingException` expose également `getOffset()` pour positionner précisément
+le curseur sur le token fautif.
+
 Aucune dépendance JavaFX côté parser : rien n'empêche de le lancer en tâche
 de fond si le parsing de fichiers longs devient bloquant (peu probable aux
 tailles SHDL actuelles).
