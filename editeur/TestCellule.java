@@ -6,7 +6,7 @@ public class TestCellule {
     public static void main(){
         TextFlow unused = new TextFlow();
 
-        CelluleTexte tete = new CelluleTexte(0, 32, "helicopter zob pizza, zboub mario", 0, unused.getChildren());
+        CelluleTexte tete = new CelluleTexte(0, 32, "helicopter zob pizza, zboub mario", 0, unused.getChildren(), 16);
         tete.decoupe(12);
         tete.decoupe(35);
         tete.decoupe(20);

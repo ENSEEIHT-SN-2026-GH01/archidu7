@@ -8,12 +8,12 @@ import javafx.scene.text.Text;
  */
 public class TextMultiColoriable extends TextDecoupable{
     
-    public TextMultiColoriable(){
-        super();
+    public TextMultiColoriable(int fontSize){
+        super(fontSize);
     }
 
-    public TextMultiColoriable(String txt){
-        super(txt);
+    public TextMultiColoriable(String txt, int fontSize){
+        super(txt, fontSize);
     }
 
     /**Colorie le morceau de texte entre les deux indices (inclus).

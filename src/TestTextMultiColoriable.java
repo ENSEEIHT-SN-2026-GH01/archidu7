@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 
 public class TestTextMultiColoriable extends Application{
     public void start(Stage fen){
-        TextMultiColoriable test = new TextMultiColoriable("ce serait cool d'avoir plusieurs couleur dans le même texte");
+        TextMultiColoriable test = new TextMultiColoriable("ce serait cool d'avoir plusieurs couleur dans le même texte", 16);
         Scene scene = new Scene(test);
 
         test.colorier(5, 12, Color.RED);

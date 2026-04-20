@@ -11,11 +11,12 @@ public class CelluleTexte {
     private int fin; //indice du dernier element.
     private Text morceau;
     private CelluleTexte suivant;
+    private int font;
 
     private int indiceListeTexte; //indice dans la liste du TextFlow associé.
     private final ObservableList<Node> listeTexte; //La liste du TextFlow associé.
 
-    public CelluleTexte(int deb, int f, String texte, int indice, ObservableList<Node> liste){
+    public CelluleTexte(int deb, int f, String texte, int indice, ObservableList<Node> liste, int fontSize){
         debut = deb;
         fin = f;
         morceau = new Text(texte);
@@ -24,7 +25,11 @@ public class CelluleTexte {
         indiceListeTexte = indice;
         listeTexte = liste;
         listeTexte.add(indiceListeTexte, morceau);
-        morceau.setFont(Font.font("Monospaced", 14));
+
+        //à gérer autre part plus tard
+        morceau.setFont(Font.font("Monospaced", fontSize));
+        morceau.setStyle("-fx-font-weight: 600");
+        font = fontSize;
     }
 
     public int getDebut(){
@@ -107,7 +112,7 @@ public class CelluleTexte {
             String txt = morceau.getText();
 
             //nouvelle cellule
-            CelluleTexte nouvelle = new CelluleTexte(milieu + 1, fin, txt.substring(milieu + 1 - debut, fin - debut + 1), indiceListeTexte +1, listeTexte); 
+            CelluleTexte nouvelle = new CelluleTexte(milieu + 1, fin, txt.substring(milieu + 1 - debut, fin - debut + 1), indiceListeTexte +1, listeTexte, font); 
             nouvelle.suivant = suivant;
             nouvelle.propagerChangementIndice(indiceListeTexte + 1);
 
@@ -166,11 +171,8 @@ public class CelluleTexte {
     public CelluleTexte creerMorceau(int debutMorceau, int finMorceau){
         CelluleTexte partie = decoupe(debutMorceau - 1);
         if(partie != null) {
-            afficher();
             partie.recoller(debutMorceau, finMorceau);
-            afficher();
             partie.decoupe(finMorceau);
-            afficher();
             return partie;
         }
         else {

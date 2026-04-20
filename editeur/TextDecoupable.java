@@ -9,13 +9,13 @@ public abstract class TextDecoupable extends TextFlow{
     protected CelluleTexte morceaux; //tete de liste
     protected CelluleTexte cache; //dernière cellule qui a été renvoyé par une des méthode de CelluleText
 
-    public TextDecoupable(){
-        morceaux = new CelluleTexte(0, -1, "", 0, getChildren());
+    public TextDecoupable(int fontSize){
+        morceaux = new CelluleTexte(0, -1, "", 0, getChildren(), fontSize);
         cache = morceaux;
     }
 
-    public TextDecoupable(String txt){
-        morceaux = new CelluleTexte(0, txt.length() - 1, txt, 0, getChildren());
+    public TextDecoupable(String txt, int fontSize){
+        morceaux = new CelluleTexte(0, txt.length() - 1, txt, 0, getChildren(), fontSize);
         cache = morceaux;
     }
 
@@ -32,8 +32,9 @@ public abstract class TextDecoupable extends TextFlow{
      * @param txt Le nouveau texte.
      */
     public void setText(String txt){
+        int fontSize = (int) morceaux.getMorceau().getFont().getSize();
         getChildren().clear();
-        morceaux = new CelluleTexte(0, txt.length() + 1, txt, 0, getChildren());
+        morceaux = new CelluleTexte(0, txt.length() + 1, txt, 0, getChildren(), fontSize);
         cache = morceaux;
     }
 

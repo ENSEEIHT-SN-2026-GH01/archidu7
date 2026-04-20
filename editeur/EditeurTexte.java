@@ -9,17 +9,17 @@ import javafx.scene.text.Font;
 
 public class EditeurTexte extends StackPane{
 
-    private final int fontSize = 14;
+    private final int fontSize = 16;
     EditeurTexteInvisible deriere;
     TextMultiColoriable devant;
 
     public EditeurTexte(){
-        deriere = new EditeurTexteInvisible();
-        devant = new TextMultiColoriable();
+        deriere = new EditeurTexteInvisible(fontSize);
+        devant = new TextMultiColoriable(fontSize);
 
         /*transformation sur le texte coloriable plaçé au dessus */
-        devant.setTranslateX(8);
-        devant.setTranslateY(4);
+        devant.setTranslateX((fontSize / 2) + 2);
+        devant.setTranslateY(fontSize / 3);
         devant.setMouseTransparent(true);
 
         TextFormatter<String> formatter = new TextFormatter<>(change -> {
@@ -30,11 +30,6 @@ public class EditeurTexte extends StackPane{
                 String changement = change.getText();
 
                 devant.inserrer(change.getRangeStart() - 1, changement);
-            }
-
-            /*pour tester, à supprimer */
-            if (change.getCaretPosition() > 20){
-                devant.colorier(5, 5, Color.RED);
             }
 
             return change;

@@ -9,7 +9,7 @@ import javafx.scene.text.Font;
  */
 public class EditeurTexteInvisible extends TextArea {
 
-    public EditeurTexteInvisible() {
+    public EditeurTexteInvisible(int fontSize) {
         // 1. Appel du constructeur de la classe parente (TextArea)
         super();
 
@@ -19,7 +19,7 @@ public class EditeurTexteInvisible extends TextArea {
         // 3. Configuration de la police d'écriture
         // L'utilisation d'une police à chasse fixe (Monospaced) est fondamentale 
         // pour l'alignement visuel dans un éditeur de code.
-        this.setFont(Font.font("Monospaced", 14));
+        this.setFont(Font.font("Monospaced", fontSize));
 
         // 4. Désactivation du retour à la ligne automatique
         // En programmation, on préfère généralement avoir une barre de défilement 
