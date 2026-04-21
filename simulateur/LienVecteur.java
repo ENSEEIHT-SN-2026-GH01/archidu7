@@ -5,6 +5,7 @@ public class LienVecteur extends Lien {
 	private String nomPropre;
 
 	public LienVecteur(String nom, String nomPropre) {
+		//TODO un numero serait plus logique et pratique
 		super(nom);
 		this.nomPropre = nomPropre;
 	}
