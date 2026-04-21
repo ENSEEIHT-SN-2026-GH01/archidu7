@@ -11,6 +11,7 @@ public abstract class TextDecoupable extends TextFlow{
 
     public TextDecoupable(int fontSize){
         morceaux = new CelluleTexte(0, -1, "", 0, getChildren(), fontSize);
+        setLineSpacing(0.11875 * fontSize - 1.02);
         cache = morceaux;
     }
 
