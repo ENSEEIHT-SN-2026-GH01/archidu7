@@ -49,26 +49,62 @@ public class Erwan {
                 this.Numero = new Integer(num);
         }
 
+	/** Affectation de la valeur d'un signal à un autre signal.
+	 * Cela permet de "changer le nom" d'un signal, 
+	 * puisque les autre signaux ont un nom qui dépend exclusivement du nom de leur(s) entrée(s) et de leur opération.
+	 * C'est l'origine de tout signal généré.
+	 * @param Nom C'est le nom que l'on souhaite donner au signal "copié".
+	 * @param Entree De type Erwan, Entree modélise le signal que l'on copie.
+	 * @return La modélisation du signal ainsi copié. 
+	 */
 	public static Erwan AFFECTATION(String Nom, Erwan Entree) {
-		return new Erwan(Operation.AFFECTACTION,E
+		List<Erwan> Entrees = new ArrayList<>();
+                Entrees.add(Entree);
+                return new Erwan(Operation.AFFECTATION,Entrees,Nom);
+	}
 
+	/** Modélisation d'un signal résultant d'un ET logique.
+	 * @param Nom Il s'agit du nom résultant de l'algorithme de nommage non présent ici. Il n'est pas fait automatiquement pour le moment.
+	 * @param Entrees Il s'agit de la liste des signaux sur lesquelles on effectue l'operation.
+	 * @return La modélisation du signal ainsi généré.
+	 */
 	public static Erwan AND(String Nom, List<Erwan> Entrees) {
 		return new Erwan(Operation.AND,Entrees,Nom);
 	}
 
+	/** Modélisation d'un signal résultant d'un OU logique.
+         * @param Nom Il s'agit du nom résultant de l'algorithme de nommage non présent ici. Il n'est pas fait automatiq
+uement pour le moment.
+         * @param Entrees Il s'agit de la liste des signaux sur lesquelles on effectue l'operation.
+	 * @return La modélisation du signal ainsi généré.
+         */
 	public static Erwan OR(String Nom, List<Erwan> Entrees) {
                 return new Erwan(Operation.AND,Entrees,Nom);
         }
-
+	
+	/** Modélisation d'un signal résultant d'un NON logique.
+         * @param Nom Il s'agit du nom résultant de l'algorithme de nommage non présent ici. Il n'est pas fait automatiq
+uement pour le moment.
+         * @param Entree Il s'agit du signal sur lequel on effectue l'operation.
+	 * @return La modélisation du signal ainsi généré.
+         */
 	public static Erwan NOT(String Nom, Erwan Entree) {
 		List<Erwan> Entrees = new ArrayList<>();
 		Entrees.add(Entree);
                 return new Erwan(Operation.AND,Entrees,Nom);
         }
 
+	/** Modélisation d'un signal resultant d'une lecture logique.
+	 * @param Nom C'est le nom du signal que l'on souhaite LIRE.
+	 * @return La modélisation du signal ainsi généré.
+	 */
 	public static Erwan LITTERAL(String Nom) {
                 return new Erwan(Operation.LITTERAL,null,Nom);
         }
+
+	public static Erwan CONSTANTE(boolean b) {
+		return LITTERAL(b ? "1" : "0");
+	}
 
 	public static List<Erwan> ARANGE(String Nom,int IndiceDebut, int IndiceFin, List<Erwan> Entrees) {
 		List<Erwan> R = new ArrayList<>();
@@ -79,6 +115,7 @@ public class Erwan {
 
 	public static List<Erwan> ANDR(String Nom,int IndiceDebut, int IndiceFin, List<List<Erwan>> Entrees) {
 		List<Erwan> R = new ArrayList<>();
+		/*
                 int i = IndiceDebut;
                 for(Erwan e : Entrees) {
 			Erwan s = AND(Nom,e);
@@ -87,19 +124,82 @@ public class Erwan {
 			i = i + 1;
 		}
 		//TODO si i != IndiceFin Erreur ou alors on vire IndiceFin
+		//TODO Tout ce qui est commenté au dessus est obsolète
+		*/
+		List<List<Erwan>> A = new ArrayList<>();
+		for (int c = IndiceDebut; c <= IndiceFin; c++) {
+			List<Erwan> L = new ArrayList<>();
+			A.add(L);
+		}
+		for (Erwan e : Entrees) {
+			if (e.size() == 1) {
+				for (int c = 0; c <= (IndiceFin - IndiceDebut); c++) {
+					A.get(c).add(e.get(0));
+				}
+			} else if (e.size() ==  (IndiceFin - IndiceDebut + 1) {
+				for (int c = 0; c <= (IndiceFin - IndiceDebut); c++) {
+                                        A.get(c).add(e.get(c));
+                                }
+			} else throw new RuntimeError("Pb de taille"); //TODO changer l'erreur
+                }
+		int i = IndiceDebut;
+                for(List<Erwan> L : A) {
+                        Erwan s = AND(Nom,L);
+                        s.Numero = new Integer(i);
+                        R.add(s);
+                        i = i + 1;
+                }
                 return R;
         }
 
 	public static List<Erwan> ORR(String Nom,int IndiceDebut, int IndiceFin, List<List<Erwan>> Entrees) {
                 List<Erwan> R = new ArrayList<>();
+		List<List<Erwan>> A = new ArrayList<>();
+                for (int c = IndiceDebut; c <= IndiceFin; c++) {
+                        List<Erwan> L = new ArrayList<>();
+                        A.add(L);
+                }
+                for (Erwan e : Entrees) {
+                        if (e.size() == 1) {
+                                for (int c = 0; c <= (IndiceFin - IndiceDebut); c++) {
+                                        A.get(c).add(e.get(0));
+                                }
+                        } else if (e.size() ==  (IndiceFin - IndiceDebut + 1) {
+                                for (int c = 0; c <= (IndiceFin - IndiceDebut); c++) {
+                                        A.get(c).add(e.get(c));
+                                }
+                        } else throw new RuntimeError("Pb de taille"); //TODO changer l'erreur
+                }
                 int i = IndiceDebut;
-                for(Erwan e : Entrees) {
-                        Erwan s = OR(Nom,e);
+                for(List<Erwan> L : A) {
+                        Erwan s = OR(Nom,L);
                         s.Numero = new Integer(i);
                         R.add(s);
                         i = i + 1;
                 }
-		//TODO si i != IndiceFin Erreur ou alors on vire IndiceFin
+                return R;
+        }
+
+	public static List<Erwan> NOTR(String Nom,int IndiceDebut, int IndiceFin, List<Erwan> Entrees) {
+		if (Entrees.size() != (IndiceFin - IndiceDebut + 1)) throw new RuntimeError("Pb de taille"); //TODO changer l'erreur
+		List<Erwan> R = new ArrayList<>();
+                for (int c = 0; c <= (IndiceFin - IndiceDebut); c++) {
+			Erwan s = NOT(Nom,Entrees.get(c));
+			s.Numero = new Integer(IndiceDebut + c);
+			R.add(s);
+                }
+		return R;
+	}
+
+	public static List<Erwan> CONSTANTER(String Nom,int IndiceDebut, int IndiceFin, List<Boolean> Constantes){
+		if (Constantes.size() != (IndiceFin - IndiceDebut + 1)) throw new RuntimeError("Pb de taille"); //TODO changer l'erreur
+                List<Erwan> R = new ArrayList<>();
+                for (int c = 0; c <= (IndiceFin - IndiceDebut); c++) {
+			if (Constantes.get(c) == null) throw new RuntimeError("Boolean mal initialisé"); /* TODO changer l'erreur */
+                        Erwan s = CONSTANTE(Constantes.get(c).booleanValue());
+                        s.Numero = new Integer(IndiceDebut + c);
+                        R.add(s);
+                }
                 return R;
         }
 
@@ -113,7 +213,7 @@ public class Erwan {
                 return new Erwan(Operation.LITTERAL,null,"0");
 	}
 
-	public static List<Erwan> MODULE(String NomModule, List<String> NomEntrees, List<String> NomSorties){
+	public static List<Erwan> APPELMODULE(String NomModule, List<String> NomEntrees, List<String> NomSorties){
 		return null ; //TODO A Faire
 	}
 }
