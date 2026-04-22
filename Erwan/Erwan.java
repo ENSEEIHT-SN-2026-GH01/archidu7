@@ -115,7 +115,7 @@ public class Erwan {
 		List<Erwan> Entrees = new ArrayList<>();
 		Entrees.add(Entree);
 		String Nom = new String("/" + ((Entree.Op == Operation.LITTERAL || Entree.Op == Operation.NOT) ? Entree.Nom() : "(" + Entree.Nom() + ")"));
-                return new Erwan(Operation.AND,Entrees,Nom);
+                return new Erwan(Operation.NOT,Entrees,Nom);
         }
 
 	/** Modélisation d'un signal resultant d'une lecture logique.
