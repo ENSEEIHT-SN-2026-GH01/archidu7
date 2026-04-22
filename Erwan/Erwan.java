@@ -29,25 +29,37 @@ import java.util.*;
 
 public class Erwan {
 
-	public Operation Operation;
+	/** Opération du signal.*/
+	public Operation Op;
 
+	/** Les signaux représentant les entrées du signal.*/
 	public List<Erwan> Entrees;
 
-	public String Nom;
+	private String Nom;
 
+	/** Dans le cas d'un vecteur, représente l'index du signal.
+	 * vaut null si le signal ne fait pas parti d'un vecteur. */
 	public Integer Numero;
 
-	private Erwan(Operation Operation, List<Erwan> Entrees, String Nom) {
-		this.Operation = Operation;
+	private Erwan(Operation Op, List<Erwan> Entrees, String Nom) {
+		this.Op = Op;
 		this.Entrees = Entrees;
 		this.Nom = Nom;
 		this.Numero = null;
 	}
 
-	private Erwan(Operation Operation, List<Erwan> Entrees, String Nom, int num) {
-		this(Operation, Entrees,Nom);
+	private Erwan(Operation Op, List<Erwan> Entrees, String Nom, int num) {
+		this(Op, Entrees,Nom);
                 this.Numero = new Integer(num);
         }
+
+	/** Permet d'obtenir le nom d'un signal.
+	 * Cette méthode permet de prendre en compte si un signal fait parti d'un vecteur.
+	 * @return Le nom su signal
+	 */
+	public String Nom() {
+		return new String(Nom + ((this.Numero == null) ? "" : "[" + this.Numero + "]"));
+	}
 
 	/** Affectation de la valeur d'un signal à un autre signal.
 	 * Cela permet de "changer le nom" d'un signal, 
@@ -64,33 +76,45 @@ public class Erwan {
 	}
 
 	/** Modélisation d'un signal résultant d'un ET logique.
-	 * @param Nom Il s'agit du nom résultant de l'algorithme de nommage non présent ici. Il n'est pas fait automatiquement pour le moment.
 	 * @param Entrees Il s'agit de la liste des signaux sur lesquelles on effectue l'operation.
 	 * @return La modélisation du signal ainsi généré.
 	 */
-	public static Erwan AND(String Nom, List<Erwan> Entrees) {
+	public static Erwan AND(List<Erwan> Entrees) {
+		String Nom = null;
+		for (Erwan E : Entrees) {
+			String NE = null;
+			if (E.Op == Operation.LITTERAL || E.Op == Operation.NOT) NE = E.Nom();
+                        else NE = new String("(" + E.Nom() + ")");
+			if (Nom == null) Nom = new String(NE);
+			else Nom += " * " + NE;
+		}
 		return new Erwan(Operation.AND,Entrees,Nom);
 	}
 
 	/** Modélisation d'un signal résultant d'un OU logique.
-         * @param Nom Il s'agit du nom résultant de l'algorithme de nommage non présent ici. Il n'est pas fait automatiq
-uement pour le moment.
          * @param Entrees Il s'agit de la liste des signaux sur lesquelles on effectue l'operation.
 	 * @return La modélisation du signal ainsi généré.
          */
-	public static Erwan OR(String Nom, List<Erwan> Entrees) {
+	public static Erwan OR(List<Erwan> Entrees) {
+		String Nom = null;
+                for (Erwan E : Entrees) {
+			String NE = null;
+			if (E.Op == Operation.LITTERAL || E.Op == Operation.NOT) NE = E.Nom();
+			else NE = new String("(" + E.Nom() + ")");
+                        if (Nom == null) Nom = new String(NE);
+                        else Nom += " + " + NE;
+		}
                 return new Erwan(Operation.AND,Entrees,Nom);
         }
 	
 	/** Modélisation d'un signal résultant d'un NON logique.
-         * @param Nom Il s'agit du nom résultant de l'algorithme de nommage non présent ici. Il n'est pas fait automatiq
-uement pour le moment.
          * @param Entree Il s'agit du signal sur lequel on effectue l'operation.
 	 * @return La modélisation du signal ainsi généré.
          */
-	public static Erwan NOT(String Nom, Erwan Entree) {
+	public static Erwan NOT(Erwan Entree) {
 		List<Erwan> Entrees = new ArrayList<>();
 		Entrees.add(Entree);
+		String Nom = new String("/" + ((Entree.Op == Operation.LITTERAL || Entree.Op == Operation.NOT) ? Entree.Nom() : "(" + Entree.Nom() + ")"));
                 return new Erwan(Operation.AND,Entrees,Nom);
         }
 
@@ -130,6 +154,7 @@ uement pour le moment.
 			R.add(E);
 			i = i + 1;
 		}
+		if (Entrees.size() != IndiceFin - IndiceDebut + 1 ) throw new RuntimeException("Nombre non correspondant d'entrées"); //TODO changer l'erreur
                 return R;
         }
 	
@@ -137,10 +162,12 @@ uement pour le moment.
 	/** Opération "ET" dans le cas d'un vecteur. 
 	 * Cette méthode permet de simplifier l'opération ET bit à bit de deux vecteur, ou d'un vecteur et d'un signal.
 	 * En suposant la taille des vecteur etant de 'n' on peut mettre autant de vecteur de taille n et 1 que l'on souhaite dans les Entrees.
-	 * Un vecterur de taille différente entrainera une erreur.
-	 *
+	 * Un vecteur de taille différente entrainera une erreur.
+	 * @param Taille C'est la taille des vecteur entre lesquelles on fait l'opération.
+	 * @param Entrees C'est la liste des vecteur (eux mêmes des liste de Erwan).
+	 * @return La liste des modélisation des signaux inclus dans le vecteur généré par l'opération.
 	 */
-	public static List<Erwan> ANDR(String Nom, int Taille, List<List<Erwan>> Entrees) {
+	public static List<Erwan> ANDR(int Taille, List<List<Erwan>> Entrees) {
 		List<Erwan> R = new ArrayList<>();
 		/*
                 int i = IndiceDebut;
@@ -154,92 +181,115 @@ uement pour le moment.
 		//TODO Tout ce qui est commenté au dessus est obsolète
 		*/
 		List<List<Erwan>> A = new ArrayList<>();
-		for (int c = IndiceDebut; c <= IndiceFin; c++) {
+		for (int c = 0; c < Taille; c++) {
 			List<Erwan> L = new ArrayList<>();
 			A.add(L);
 		}
-		for (Erwan e : Entrees) {
+		for (List<Erwan> e : Entrees) {
 			if (e.size() == 1) {
-				for (int c = 0; c <= (IndiceFin - IndiceDebut); c++) {
+				for (int c = 0; c < Taille; c++) {
 					A.get(c).add(e.get(0));
 				}
-			} else if (e.size() ==  (IndiceFin - IndiceDebut + 1)) {
-				for (int c = 0; c <= (IndiceFin - IndiceDebut); c++) {
+			} else if (e.size() ==  Taille) {
+				for (int c = 0; c < Taille; c++) {
                                         A.get(c).add(e.get(c));
                                 }
-			} else throw new RuntimeError("Pb de taille"); //TODO changer l'erreur
+			} else throw new RuntimeException("Pb de taille"); //TODO changer l'erreur
                 }
-		int i = IndiceDebut;
                 for(List<Erwan> L : A) {
-                        Erwan s = AND(Nom,L);
-                        s.Numero = new Integer(i);
+                        Erwan s = AND(L);
                         R.add(s);
-                        i = i + 1;
                 }
                 return R;
         }
 
-	public static List<Erwan> ORR(String Nom,int IndiceDebut, int IndiceFin, List<List<Erwan>> Entrees) {
+	/** Opération "OU" dans le cas d'un vecteur.
+         * Cette méthode permet de simplifier l'opération OU bit à bit de deux vecteur, ou d'un vecteur et d'un signal.
+         * En suposant la taille des vecteur etant de 'n' on peut mettre autant de vecteur de taille n et 1 que l'on souhaite dans les Entrees.
+         * Un vecteur de taille différente entrainera une erreur.
+         * @param Taille C'est la taille des vecteur entre lesquelles on fait l'opération.
+         * @param Entrees C'est la liste des vecteur (eux mêmes des liste de Erwan).
+         * @return La liste des modélisation des signaux inclus dans le vecteur généré par l'opération.
+         */
+	public static List<Erwan> ORR(int Taille, List<List<Erwan>> Entrees) {
                 List<Erwan> R = new ArrayList<>();
 		List<List<Erwan>> A = new ArrayList<>();
-                for (int c = IndiceDebut; c <= IndiceFin; c++) {
+                for (int c = 0; c < Taille; c++) {
                         List<Erwan> L = new ArrayList<>();
                         A.add(L);
                 }
-                for (Erwan e : Entrees) {
+                for (List<Erwan> e : Entrees) {
                         if (e.size() == 1) {
-                                for (int c = 0; c <= (IndiceFin - IndiceDebut); c++) {
+                                for (int c = 0; c < Taille; c++) {
                                         A.get(c).add(e.get(0));
                                 }
-                        } else if (e.size() ==  (IndiceFin - IndiceDebut + 1)) {
-                                for (int c = 0; c <= (IndiceFin - IndiceDebut); c++) {
+                        } else if (e.size() ==  Taille) {
+                                for (int c = 0; c < Taille; c++) {
                                         A.get(c).add(e.get(c));
                                 }
-                        } else throw new RuntimeError("Pb de taille"); //TODO changer l'erreur
+                        } else throw new RuntimeException("Pb de taille"); //TODO changer l'erreur
                 }
-                int i = IndiceDebut;
                 for(List<Erwan> L : A) {
-                        Erwan s = OR(Nom,L);
-                        s.Numero = new Integer(i);
+                        Erwan s = OR(L);
                         R.add(s);
-                        i = i + 1;
                 }
                 return R;
         }
 
-	public static List<Erwan> NOTR(String Nom,int IndiceDebut, int IndiceFin, List<Erwan> Entrees) {
-		if (Entrees.size() != (IndiceFin - IndiceDebut + 1)) throw new RuntimeError("Pb de taille"); //TODO changer l'erreur
+	/** Opération "NON" dans le cas d'un vecteur.
+         * Cette méthode permet de simplifier l'opération NON bit à bit d'un vecteur.
+         * On précise aussi la taille pour la détection d'erreur.
+         * @param Taille C'est la taille du vecteur sur lequel on fait l'opération.
+         * @param Entrees C'est le vecteur (lui même une liste de Erwan).
+         * @return La liste des modélisation des signaux inclus dans le vecteur généré par l'opération.
+         */
+	public static List<Erwan> NOTR(int Taille, List<Erwan> Entrees) {
+		if (Entrees.size() != Taille) throw new RuntimeException("Pb de taille"); //TODO changer l'erreur
 		List<Erwan> R = new ArrayList<>();
-                for (int c = 0; c <= (IndiceFin - IndiceDebut); c++) {
-			Erwan s = NOT(Nom,Entrees.get(c));
-			s.Numero = new Integer(IndiceDebut + c);
+                for (int c = 0; c < Taille; c++) {
+			Erwan s = NOT(Entrees.get(c));
 			R.add(s);
                 }
 		return R;
 	}
 
-	public static List<Erwan> CONSTANTER(String Nom,int IndiceDebut, int IndiceFin, List<Boolean> Constantes){
-		if (Constantes.size() != (IndiceFin - IndiceDebut + 1)) throw new RuntimeError("Pb de taille"); //TODO changer l'erreur
+	/** Génération d'un vecteur Constant.
+         * Cette méthode permet de simplifier la création d'un vecteur constant.
+	 * On précise aussi la taille pour la détection d'erreur.
+         * @param Taille C'est la taille des vecteur entre lesquelles on fait l'opération.
+         * @param Constantes C'est la liste des Boolean représentant le vecteur Constant. Attention, un Boolean à null entrainera une erreur.
+         * @return La liste des modélisation des signaux inclus dans le vecteur généré par l'opération.
+         */
+	public static List<Erwan> CONSTANTER(int Taille, List<Boolean> Constantes){
+		if (Constantes.size() != Taille) throw new RuntimeException("Pb de taille"); //TODO changer l'erreur
                 List<Erwan> R = new ArrayList<>();
-                for (int c = 0; c <= (IndiceFin - IndiceDebut); c++) {
-			if (Constantes.get(c) == null) throw new RuntimeError("Boolean mal initialisé"); /* TODO changer l'erreur */
+                for (int c = 0; c < Taille; c++) {
+			if (Constantes.get(c) == null) throw new RuntimeException("Boolean mal initialisé"); /* TODO changer l'erreur */
                         Erwan s = CONSTANTE(Constantes.get(c).booleanValue());
-                        s.Numero = new Integer(IndiceDebut + c);
                         R.add(s);
                 }
                 return R;
         }
 
+	/** Generation d'un signal constant à UP.
+	 * @return Assez évident.
+	 */
 	public static Erwan CONSTANTE_UP() {
                 return new Erwan(Operation.LITTERAL,null,"1");          //TODO J'hésite a faire des méthode cst 1 et 0
 									    //TODO J'hésite a remplacer CONSTANTE par LITTERAL avec simplement
 									    //des signaux qui s'appellent 0 et 1 ....
         }
 
+	/** Generation d'un signal constant à DW.
+         * @return Assez évident.
+         */
 	public static Erwan CONSTANTE_DW() {
                 return new Erwan(Operation.LITTERAL,null,"0");
 	}
 
+	/** Génération des signaux grâce à un module.
+	 * Pas encore implémenté !! TODO !!!
+	 */
 	public static List<Erwan> APPELMODULE(String NomModule, List<String> NomEntrees, List<String> NomSorties){
 		return null ; //TODO A Faire
 	}
