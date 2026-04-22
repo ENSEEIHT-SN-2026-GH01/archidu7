@@ -6,5 +6,4 @@ public class SimulationCarresRonds {
     public static void main(String[] args) {
         Application.launch(FenetreSimulation.class, args);
     }
-    
 }
