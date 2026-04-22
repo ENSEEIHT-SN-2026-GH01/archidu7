@@ -75,4 +75,20 @@ public class EditeurTexte extends StackPane{
     public void colorier(int debut, int fin, Color couleur){
         devant.colorier(debut, fin, couleur);
     }
+
+    /**Renvoie tous le texte de l'éditeur.
+     *
+     * @return  
+     */
+    public String getText(){
+        return deriere.getText();
+    }
+
+    /**Change tous le texte de l'éditeur.
+     * 
+     * @param txt
+     */
+    public void setText(String txt){
+        deriere.setText(txt);
+    }
 }

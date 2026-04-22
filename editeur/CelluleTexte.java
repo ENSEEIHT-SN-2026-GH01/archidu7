@@ -28,7 +28,7 @@ public class CelluleTexte {
 
         //à gérer autre part plus tard
         morceau.setFont(Font.font("Monospaced", fontSize));
-        morceau.setStyle("-fx-font-weight: 600");
+        morceau.setStyle("-fx-font-weight: 700");
         font = fontSize;
     }
 
