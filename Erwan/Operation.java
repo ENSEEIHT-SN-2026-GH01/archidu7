@@ -1,3 +1,5 @@
+package Erwan;
+
 public enum Operation {
 
 	AND,

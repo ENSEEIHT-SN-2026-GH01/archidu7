@@ -1,28 +1,28 @@
-import Operation;
+package Erwan;
 import java.util.*;
 
 /** Erwan Modélise une opération du langage vhdl.
- * Cette classe permet de faire la jonction entre l'interpretation et la simulation.
+ * <p> Cette classe permet de faire la jonction entre l'interpretation et la simulation.</p>
  *
- * Erwan possède une strucure qui peut être vue arborifique ou recursive : 
+ * <p> Erwan possède une strucure qui peut être vue arborifique ou recursive : 
  * un Erwan contiendra lui-même d'autres Erwan pour décrire un signal dans son ensemble.
- * Chaque Erwan contient :
-      - le nom du signal qu'il génère
-      - le(s) Erwan (signaux) sur le(s)quelles il s'appuie pour le généré
-      - l'opération qu'il modélise avec le(s) Erwan d'entrée 
+ * Chaque Erwan contient : <br>
+      - le nom du signal qu'il génère <br>
+      - le(s) Erwan (signaux) sur le(s)quelles il s'appuie pour le généré <br>
+      - l'opération qu'il modélise avec le(s) Erwan d'entrée <br>
  * Le Erwan "père", soit celui qui n'est pas contenu dans un autre Erwan sera celui de l'affectation, 
  * tandis que le "dernier descendant", celui qui ne contient pas d'autre Erwan, sera celui d'une lecture "numérique":
  * soit celle d'une entrée, d'une constante, ou d'un signal généré. 
- * Entre ces deux types de Erwan on a les Erwan des Opérations logiques.
+ * Entre ces deux types de Erwan on a les Erwan des Opérations logiques. </p>
  *
- * Pour generer ces Erwan, aucun constructeur n'est mis à disposition. 
- * Il faudra passer exclusivement par les méthodes de classe.
+ * <p> Pour generer ces Erwan, aucun constructeur n'est mis à disposition. 
+ * Il faudra passer exclusivement par les méthodes de classe.</p>
  *
- * Le langage implémanté pour ce projet comprend la possibilité de créer des "vecteur" de signaux, 
+ * <p> Le langage implémanté pour ce projet comprend la possibilité de créer des "vecteur" de signaux, 
  * soit un regroupement cohérant de signaux ayant un seul nom mais etant identifiable par un indice.
  * Ici cela sera modélisé comme des sigaux indépendants, 
- * mais cela ne se repercutera pas vraiment sur la syntax pour generer ces signaux.
- * Ceci sera détaillé plus tard ! TODO
+ * mais cela ne se repercutera pas vraiment sur la syntax pour generer ces signaux. <br>
+ * Ceci sera détaillé plus tard ! TODO </p>
  *
  * @author  Mati AFRIAT -- archidu7
  */
@@ -102,18 +102,45 @@ uement pour le moment.
                 return new Erwan(Operation.LITTERAL,null,Nom);
         }
 
+	/** Modélisation d'un signal constant.
+	 * C'est une spécialisation de LITTERAL.
+	 * @param b booléen correspondant à la constante voulu.
+	 * @return La médélisation du signal ainsi généré.
+	 */
 	public static Erwan CONSTANTE(boolean b) {
 		return LITTERAL(b ? "1" : "0");
 	}
 
+	/** Affectation dans le cas d'un vecteur.
+	 * L'idée est la même que pour l'affectation classique mais la logique change un peu :
+	 * Puisque on ne modélise que des signaux et pas de vecteur de signaux, il faudra récupérer le résultat comme étant une liste de signaux.
+	 * On fournit la liste des signaux à intégré au vecteur, le nom du vecteur et les indice de début et de fin auxquelles on faut l'affectation.
+	 * @param Nom C'est le nom du vecteur à génerer. (Choix libre)
+	 * @param IndiceDebut c'est l'indice du vecteur à partir duquel commence l'affectation.
+	 * @param IndiceFin c'est l'indice du vecteur auquel s'arrête l'affectation.
+	 * @param Entrees c'est la liste des signaux à intégrer au vecteur.
+	 * @return La liste des modélisation des signaux inclus dans le vecteur.
+	 */
 	public static List<Erwan> ARANGE(String Nom,int IndiceDebut, int IndiceFin, List<Erwan> Entrees) {
 		List<Erwan> R = new ArrayList<>();
 		int i = IndiceDebut;
-		for(Erwan e : Entrees
+		for(Erwan e : Entrees) {
+			Erwan E = AFFECTATION(Nom,e);
+			E.Numero = new Integer(i);
+			R.add(E);
+			i = i + 1;
+		}
                 return R;
         }
+	
 
-	public static List<Erwan> ANDR(String Nom,int IndiceDebut, int IndiceFin, List<List<Erwan>> Entrees) {
+	/** Opération "ET" dans le cas d'un vecteur. 
+	 * Cette méthode permet de simplifier l'opération ET bit à bit de deux vecteur, ou d'un vecteur et d'un signal.
+	 * En suposant la taille des vecteur etant de 'n' on peut mettre autant de vecteur de taille n et 1 que l'on souhaite dans les Entrees.
+	 * Un vecterur de taille différente entrainera une erreur.
+	 *
+	 */
+	public static List<Erwan> ANDR(String Nom, int Taille, List<List<Erwan>> Entrees) {
 		List<Erwan> R = new ArrayList<>();
 		/*
                 int i = IndiceDebut;
@@ -136,7 +163,7 @@ uement pour le moment.
 				for (int c = 0; c <= (IndiceFin - IndiceDebut); c++) {
 					A.get(c).add(e.get(0));
 				}
-			} else if (e.size() ==  (IndiceFin - IndiceDebut + 1) {
+			} else if (e.size() ==  (IndiceFin - IndiceDebut + 1)) {
 				for (int c = 0; c <= (IndiceFin - IndiceDebut); c++) {
                                         A.get(c).add(e.get(c));
                                 }
@@ -164,7 +191,7 @@ uement pour le moment.
                                 for (int c = 0; c <= (IndiceFin - IndiceDebut); c++) {
                                         A.get(c).add(e.get(0));
                                 }
-                        } else if (e.size() ==  (IndiceFin - IndiceDebut + 1) {
+                        } else if (e.size() ==  (IndiceFin - IndiceDebut + 1)) {
                                 for (int c = 0; c <= (IndiceFin - IndiceDebut); c++) {
                                         A.get(c).add(e.get(c));
                                 }
