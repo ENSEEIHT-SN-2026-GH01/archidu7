@@ -153,20 +153,36 @@
   <p class="lede">Comment partir d'une chaîne SHDL, obtenir un arbre, l'inspecter visuellement, et parcourir les nœuds utiles pour construire le circuit.</p>
 </header>
 
-<h2>1. Obtenir un arbre depuis une chaîne SHDL</h2>
+<h2>1. Obtenir un <code>Module</code> pour travailler</h2>
 
-<p>Deux entrées au parser. La première <em>exige</em> un lexer implémentant l'interface <code>parser.ll1.parser.Lexer</code>. La seconde prend directement une liste de tokens (utile pour les tests tant qu'Erwan n'a pas livré la config lexer SHDL).</p>
+<p>Trois options selon le contexte. La plus rapide pour développer ton interprète est la première.</p>
+
+<h3>Option A — utiliser les exemples prêts à l'emploi (recommandé au début)</h3>
+
+<pre><code>import parser.ll1.ast.Module;
+import tests.parser.ll1.ast.ExemplesAst;
+
+Module m = ExemplesAst.et();            // c = a * b
+Module m = ExemplesAst.oun();           // c = /a + b
+Module m = ExemplesAst.mux();           // c = s*a + /s*b
+Module m = ExemplesAst.deuxSorties();   // x = a ; y = b
+Module m = ExemplesAst.basculeD();      // hors scope MVP
+Module m = ExemplesAst.decBCD();        // hors scope MVP (map)</code></pre>
+
+<p>Chaque méthode renvoie un <code>Module</code> déjà parsé, prêt à être passé à ton interprète. Ça évite tout contact avec le lexer ou les listes de tokens. Idéal tant que la config lexer SHDL d'Erwan n'est pas livrée.</p>
+
+<h3>Option B — parser une chaîne SHDL (quand le lexer sera prêt)</h3>
 
 <pre><code>import parser.ll1.parser.Parser;
 import parser.ll1.ast.Module;
 
-// Variante 1 — avec lexer (à utiliser quand la config SHDL sera prête)
-Module m = Parser.parseFrom(source, lexer);
+Module m = Parser.parseFrom(source, lexer);</code></pre>
 
-// Variante 2 — en partant d'une liste de Token
-Module m = new Parser(tokens).parse();</code></pre>
+<h3>Option C — partir d'une liste de tokens</h3>
 
-<p>Le résultat est toujours un <code>parser.ll1.ast.Module</code>, racine de l'AST. Toute erreur de syntaxe lève une <code>ParsingException</code> avec ligne, colonne, et offset dans la source.</p>
+<pre><code>Module m = new Parser(tokens).parse();</code></pre>
+
+<p>Dans tous les cas le résultat est un <code>parser.ll1.ast.Module</code>. Toute erreur de syntaxe lève une <code>ParsingException</code> avec ligne, colonne et offset dans la source.</p>
 
 <h2>2. Visualiser l'arbre — <code>AstDumper.dump()</code></h2>
 
@@ -420,9 +436,10 @@ Connecteur interpreterFacteur(Factor f, DicoConnecteur d) {
 <p>Le parser est couvert par ~114 tests JUnit (actuellement tous verts). Pertinents pour toi :</p>
 
 <ul>
-  <li><code>tests/parser/ll1/ast/AstDumperTest.java</code> — exemples d'assertions sur des dumps d'arbre. À copier si tu veux figer le résultat de ton interprète sur un cas précis.</li>
-  <li><code>tests/parser/ll1/ast/AstDumperDemo.java</code> — harnais <code>main()</code> qui imprime les 5 dumps de ce PDF. Lance-le pour vérifier que tout compile chez toi.</li>
-  <li><code>tests/parser/ll1/fixtures/ShdlFixtures.java</code> — 4 listes de tokens pré-faites (<code>moduleET</code>, <code>moduleBasculeD</code>, <code>moduleDecodeurBCD</code>, <code>moduleFsmSynchrone</code>), à parser avec <code>new Parser(fixture).parse()</code>.</li>
+  <li><code>tests/parser/ll1/ast/ExemplesAst.java</code> — 6 méthodes statiques renvoyant des <code>Module</code> prêts à l'emploi (voir section 1). Ton point d'entrée principal pour développer et tester.</li>
+  <li><code>tests/parser/ll1/ast/ExemplesAstTest.java</code> — 6 tests qui vérifient la forme de chaque exemple. À lire si tu veux voir comment naviguer dans un <code>Module</code> depuis du code.</li>
+  <li><code>tests/parser/ll1/ast/AstDumperTest.java</code> — assertions sur des dumps d'arbre. À copier si tu veux figer le résultat de ton interprète sur un cas précis.</li>
+  <li><code>tests/parser/ll1/ast/AstDumperDemo.java</code> — harnais <code>main()</code> qui imprime les 6 dumps (5 montrés dans ce PDF + le décodeur BCD). Lance-le pour vérifier que tout compile chez toi.</li>
 </ul>
 
 <h3>Comment lancer</h3>
