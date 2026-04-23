@@ -16,4 +16,8 @@ public interface Connecteur {
 
         public void setOrigine(Composant c)  ; 
 
+	public void unsetComposant();
+
+	public void unsetOrigine();
+
 }

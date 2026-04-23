@@ -18,6 +18,10 @@ public class Or extends Composant {
 		super.brancherSortie(r,1);
 	}
 
+	public Or(List<Connecteur> Entrees, Connecteur Sortie) {
+		super(Entrees,Sortie);
+	}
+
 	public void calculer()  {
 		boolean fini = false;
 		int i = 1;

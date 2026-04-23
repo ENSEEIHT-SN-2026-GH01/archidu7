@@ -45,11 +45,14 @@ public class TableauConnecteur {
 		getConnecteur(i).setValeur(b);
 	}
 
-	public void debrancher(Connecteur c)  {
+	public int debrancher(Connecteur c)  {
+		int cur = 0;
 		for (int i = 1; i <= getTaille(); i ++) {
 			if (getConnecteur(i) == c) {
 				brancher(null, i);
+				cur = i;
 			}
 		}
+		return cur;
 	}
 }

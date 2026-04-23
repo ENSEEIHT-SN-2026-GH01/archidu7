@@ -2,24 +2,24 @@ package simulateur;
 
 public class LienVecteur extends Lien {
 
-	private String nomPropre;
+	private int numero;
 
-	public LienVecteur(String nom, String nomPropre) {
+	public LienVecteur(String nom, int numero) {
 		//TODO un numero serait plus logique et pratique
 		super(nom);
-		this.nomPropre = nomPropre;
+		this.numero = numero;
 	}
 
 	public String getNom() {
-		return new String(super.getNom() + " - " + nomPropre);
+		return new String(super.getNom() + "[" + numero + "]");
 	}
 
 	public String getNomCommun() {
                 return super.getNom();
         }
 
-	public String getNomPropre() {
-                return new String(nomPropre);
+	public int getNumero() {
+                return this.numero;
         }
 
 

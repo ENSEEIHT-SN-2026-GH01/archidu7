@@ -34,7 +34,7 @@ public class DicoConnecteur {
 
 	public void supprimer(String s) {
 		
-		dico.put(s,null);
+		dico.remove(s);
 
 	}
 }

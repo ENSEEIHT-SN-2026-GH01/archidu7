@@ -29,6 +29,14 @@ public abstract class Composant implements Structure {
                 sorties = new TableauConnecteur(nb_sorties);
         }
 
+	public Composant(List<Connecteur> Entrees, Connecteur Sortie) {
+		this(Entrees.size(),1);
+		for (int i = 1; i <= Entrees.size(); i++){
+			this.brancherEntree(Entrees.get(i-1),i);
+		}
+		this.brancherSortie(Sortie,1);
+	}
+
 	public Composant(int nb_entrees, int nb_sorties, String[] NomSorties)  {
 		this(nb_entrees, nb_sorties);
 		sorties.initialiser(NomSorties);
@@ -61,14 +69,16 @@ public abstract class Composant implements Structure {
 		l.setOrigine(this);
 	}
 
-	public void debrancherEntree(Connecteur l)  {
-                entrees.debrancher(l);
-		l.setComposant(null);
+	public int debrancherEntree(Connecteur l)  {
+                int i = entrees.debrancher(l);
+		l.unsetComposant();
+		return i;
         }
 
-        public void debrancherSortie(Connecteur l)  {
-                sorties.debrancher(l);
-		l.setOrigine(null);
+        public int debrancherSortie(Connecteur l)  {
+                int i = sorties.debrancher(l);
+		l.unsetOrigine();
+		return i;
         }
 
 	protected void setSortie(int i, Etat b)  {

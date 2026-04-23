@@ -11,7 +11,7 @@ public class Multiplicateur extends Composant {
 	public Multiplicateur(Connecteur s, Connecteur c)  {
                 super(1,1);
                 super.brancherEntree(s,1);
-                super.brancherSortie(c1,1);
+                super.brancherSortie(c,1);
         }
 
 	public Multiplicateur(Connecteur s, Connecteur c1, Connecteur c2)  {
