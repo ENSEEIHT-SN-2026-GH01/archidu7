@@ -415,16 +415,53 @@ Connecteur interpreterFacteur(Factor f, DicoConnecteur d) {
 
 <div class="note">Les méthodes <code>chaineAnd(...)</code> / <code>chaineOr(...)</code> créent un arbre binaire de <code>And</code> / <code>Or</code> à partir d'une liste. Cas dégénéré (un seul élément) : retourner le connecteur tel quel.</div>
 
-<h2>6. Ce qu'on ignore pour le MVP</h2>
+<h2>6. Tests et outils disponibles</h2>
 
-<p>Ces nœuds existent dans l'AST mais correspondent à des fonctionnalités SHDL qu'on ne gère pas dans cette itération. Les détecter et lever une exception claire est suffisant.</p>
+<p>Le parser est couvert par ~114 tests JUnit (actuellement tous verts). Pertinents pour toi :</p>
+
+<ul>
+  <li><code>tests/parser/ll1/ast/AstDumperTest.java</code> — exemples d'assertions sur des dumps d'arbre. À copier si tu veux figer le résultat de ton interprète sur un cas précis.</li>
+  <li><code>tests/parser/ll1/ast/AstDumperDemo.java</code> — harnais <code>main()</code> qui imprime les 5 dumps de ce PDF. Lance-le pour vérifier que tout compile chez toi.</li>
+  <li><code>tests/parser/ll1/fixtures/ShdlFixtures.java</code> — 4 listes de tokens pré-faites (<code>moduleET</code>, <code>moduleBasculeD</code>, <code>moduleDecodeurBCD</code>, <code>moduleFsmSynchrone</code>), à parser avec <code>new Parser(fixture).parse()</code>.</li>
+</ul>
+
+<h3>Comment lancer</h3>
+
+<pre><code># Compile parser + tests
+./build.sh test
+
+# Lance toute la batterie (~25 suites)
+./run.sh
+
+# Lance une suite en particulier
+java -cp "bin:lib/junit-4.13.2.jar:lib/hamcrest-core-1.3.jar" \
+     org.junit.runner.JUnitCore tests.parser.ll1.ast.AstDumperTest
+
+# Lance le harnais d inspection
+java -cp "bin:lib/junit-4.13.2.jar:lib/hamcrest-core-1.3.jar" \
+     tests.parser.ll1.ast.AstDumperDemo</code></pre>
+
+<p>Pour tes propres tests, crée <code>tests/simulateur/MonTest.java</code>, importe <code>ShdlFixtures</code> et <code>Parser</code>, et <code>./build.sh test</code> les récupère automatiquement — aucune config à toucher.</p>
+
+<h2>7. Ce qu'on ignore</h2>
+
+<h3>Définitivement exclu du projet</h3>
+
+<p>Les machines à états finis (FSM) sortent totalement du périmètre de ce projet, à court comme à long terme. Le parser conserve les nœuds pour qu'un module avec <code>fsm ... end fsm</code> puisse tout de même être parsé sans erreur, mais aucune interprétation n'est attendue.</p>
+
+<ul>
+  <li><code>Fsm</code>, <code>FsmHeader</code>, <code>FsmRule</code> — machines à états (<code>fsm synchronous on clk ...</code>). <strong>Jamais implémenté.</strong></li>
+</ul>
+
+<h3>Hors scope du MVP (éventuellement plus tard)</h3>
+
+<p>Ces nœuds sont reconnus par le parser mais non interprétés pour cette itération. Les détecter et lever une <code>UnsupportedOperationException</code> avec un message clair suffit.</p>
 
 <ul>
   <li><code>ModuleInstance</code> — appel d'un sous-module (<code>ET(a, b : c)</code> utilisé depuis un autre module).</li>
-  <li><code>MemoryPoint</code> — bascules (<code>:=</code> avec <code>on clock</code>).</li>
-  <li><code>TriState</code> — sorties trois-états.</li>
-  <li><code>Fsm</code>, <code>FsmHeader</code>, <code>FsmRule</code> — machines à états.</li>
-  <li><code>MapNode</code>, <code>MapEntry</code> — tables de vérité (<code>map a -&gt; b</code>).</li>
+  <li><code>MemoryPoint</code> — bascules (<code>:=</code> avec <code>on clock</code>). Nécessite une boucle de convergence.</li>
+  <li><code>TriState</code> — sorties trois-états : une sortie qui peut valoir 0, 1 ou <em>Z</em> (haute impédance, « déconnectée »). Utilisé pour partager un bus entre plusieurs émetteurs. Syntaxe SHDL : <code>sortie = expr when enable</code>.</li>
+  <li><code>MapNode</code>, <code>MapEntry</code> — tables de vérité littérales via le mot-clé <code>map</code>. Sucre syntaxique pour décrire un décodeur / encodeur sans écrire les équations booléennes (p. ex. <code>"00" -&gt; "0001"</code>).</li>
 </ul>
 
 <footer>
