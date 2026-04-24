@@ -43,7 +43,7 @@ public class And extends Composant {
 		Tc2.brancher(c,Tc2.getTaille());
 		super.setE(Tc2);
 	}
-
+/*      
 	@Override
 	public void ajouter(List<Composant> L)  {
 		super.ajouter(L);
@@ -52,7 +52,7 @@ public class And extends Composant {
 			if (cd.getComposant() != null) cd.getComposant().ajouter(L);
                 }
 	}
-
+*/
 	public String getNom() {
 		return "And";
 	}

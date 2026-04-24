@@ -44,6 +44,7 @@ public class Or extends Composant {
 		super.setE(Tc2);
 	}
 
+/*
 	@Override
 	public void ajouter(List<Composant> L)  {
 		super.ajouter(L);
@@ -52,6 +53,7 @@ public class Or extends Composant {
 			if (cd.getComposant() != null) cd.getComposant().ajouter(L);
                 }
 	}
+*/
 
 	public String getNom() {
 		return "Or";
