@@ -41,7 +41,7 @@ public class FileSimulateur {
 	}
 
 	public BouttonEntree getEntrees(int i, int j)  {
-		return new BouttonEntree(Entrees.get(i+1)j); //TODO
+		return new BouttonEntree(Entrees.get(i+1),j); //TODO
 	}
 
 	public Connecteur getSorties(int i, int j)  {
