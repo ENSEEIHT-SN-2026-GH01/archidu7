@@ -5,21 +5,33 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Region;
+import simulateur.*;
 
+/**Bouton qui commande un bit d'une entrée. */
 public class EntreeSimulateur extends ToggleButton{
     
     public static final Image imageOff = new Image("assets/interupteur_off.png", 48, 48, true, false);
     public static final Image imageOn = new Image("assets/interupteur_on.png", 48, 48, true, false);
 
     private ImageView vue;
+    private BouttonEntree corps;
 
-    public EntreeSimulateur(){
+    public EntreeSimulateur(BouttonEntree corps){
         vue = new ImageView(imageOff);
+        this.corps = corps;
         
         setGraphic(vue);
 
+        /*Gestion du changement d'état. */
         selectedProperty().addListener((obs, wasSelected, isSelected) -> {
-            vue.setImage(isSelected ? imageOn : imageOff);
+            if (isSelected()){
+                vue.setImage(imageOn);
+                corps.set(Etat.UP);
+            }
+            else{
+                vue.setImage(imageOff);
+                corps.set(Etat.DW);
+            }
         });
 
         setStyle(
