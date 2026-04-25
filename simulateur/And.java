@@ -31,6 +31,7 @@ public class And extends Composant {
 			fini = (i >= super.getNbEntree()) || (e.getValeur() == -1);
 			i++;
 		}
+		super.setSortie(1,e);
 
         }
 
