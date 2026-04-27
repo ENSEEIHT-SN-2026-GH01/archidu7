@@ -28,7 +28,7 @@ public class Lien {
 		this.nom = nom;
 	}
 
-	public Composant getComposant(){
+	public Composant getComposant() {
 		return this.composantSuivant;
 	}
 

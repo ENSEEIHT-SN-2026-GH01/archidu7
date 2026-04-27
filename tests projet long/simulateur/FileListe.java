@@ -13,7 +13,9 @@ public class FileListe implements File {
 		}
 
 		private void ajouter(Composant c) {
-         	       if (this.c == null || this.c == c) this.c = c;
+         	        if (this.c == null || this.c == c) {
+						this.c = c;
+					}
                 	else {
                         	if (suivant == null) suivant = new Cellule(c);
                         	else suivant.ajouter(c);

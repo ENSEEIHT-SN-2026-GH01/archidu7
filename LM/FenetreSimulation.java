@@ -1,17 +1,38 @@
 import javafx.application.Application;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleButton;
+import simulateur.And;
+import simulateur.Etat;
+import simulateur.Simulateur;
 
 
 public class FenetreSimulation extends Application {
     // Les entrees sont des carrés, c'est l'utilisateur qui sélectionne le nombre de carrés séléctionnés.
+
+    private static final int NB_ENTREES = 9;
+    private static final int NB_SORTIES = 9;
+
+    private Simulateur sim;
+    private ToggleButton[] ronds = new ToggleButton[NB_SORTIES];
+
+    public FenetreSimulation() {
+        sim = new Simulateur(NB_ENTREES, NB_SORTIES);
+        // Circuit de démonstration : 4 portes AND
+        // AND(E0, E1) -> S0
+        sim.ajouterComposant(new And(sim.getLienEntree(0), sim.getLienEntree(1), sim.getLienSortie(0)));
+        // AND(E2, E3) -> S1
+        sim.ajouterComposant(new And(sim.getLienEntree(2), sim.getLienEntree(3), sim.getLienSortie(1)));
+        // AND(E4, E5) -> S2
+        sim.ajouterComposant(new And(sim.getLienEntree(4), sim.getLienEntree(5), sim.getLienSortie(2)));
+        // AND(E6, E7) -> S3
+        sim.ajouterComposant(new And(sim.getLienEntree(6), sim.getLienEntree(7), sim.getLienSortie(3)));
+        // S4 a S8 restent ND (pas de composant branché)
+    }
 
     private String StyleUpCarre = 
                         "-fx-background-radius: 0;" +
@@ -61,68 +82,67 @@ public class FenetreSimulation extends Application {
                         "-fx-border-radius: 50px;";
     
     
-    // private int[] carres = new int[9];
-    // private int[] ronds = new int[9];
+    private void rafraichirSorties() {
+        for (int i = 0; i < NB_SORTIES; i++) {
+            Etat e = sim.getSortieEtat(i);
+            if (e == Etat.UP) {
+                ronds[i].setStyle(StyleUpRond);
+            } else if (e == Etat.DW) {
+                ronds[i].setStyle(StyleDownRond);
+            } else {
+                ronds[i].setStyle(StyleUnknownRond);
+            }
+        }
+    }
 
-
-    // public FenetreSimulation(int nbEntree, int nbSortie, int[] nbSlotEntree, int[] nbSlotSortie) {
-
-    // }
     @Override
     public void start(Stage fenetre) {
 
-        // Une VBox, c'est un conteneur qui organise les éléments verticalement
-        VBox root = new VBox(20); // 20 pixels d'espacement entre les éléments
-        root.setPadding(new Insets(10)); // 10 pixels de marge autour du conteneur
-        root.setAlignment(Pos.CENTER); // Centrer les éléments dans la VBox
+        VBox root = new VBox(20);
+        root.setPadding(new Insets(10));
+        root.setAlignment(Pos.CENTER);
 
         HBox ligneCarres = new HBox(10);
         ligneCarres.setAlignment(Pos.CENTER);
 
-        // Une HBox, c'est un conteneur qui organise les éléments horizontalement
-        HBox ligneRonds = new HBox(10); // 10 pixels d'espacement entre les éléments
-        ligneRonds.setAlignment(Pos.CENTER); // Centrer les éléments dans la HBox       
+        HBox ligneRonds = new HBox(10);
+        ligneRonds.setAlignment(Pos.CENTER);
 
-        for (int i = 0; i <= 8; i++) {
+        for (int i = 0; i < NB_ENTREES; i++) {
+            final int idx = i;
 
-            // Creer un carre
-            // Initialement, le carre est en statut inconnu,
-            // il est affiché en noir avec un point d'interrogation blanc.
             ToggleButton carre = new ToggleButton("?");
             carre.setPrefSize(50, 50);
             carre.setMinSize(50, 50);
             carre.setMaxSize(50, 50);
             carre.setStyle(StyleUnknownCarre);
             carre.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+                carre.setText("");
                 if (isSelected) {
-                    carre.setText("");
                     carre.setStyle(StyleUpCarre);
+                    sim.setEntree(idx, Etat.UP);
                 } else {
-                    carre.setText("");
                     carre.setStyle(StyleDownCarre);
+                    sim.setEntree(idx, Etat.DW);
                 }
+                sim.calculer();
+                rafraichirSorties();
             });
 
-            ToggleButton rond = new ToggleButton();
-            rond.setStyle(StyleUnknownRond);
-            rond.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
-                if (isSelected) {
-                    rond.setText("");
-                    rond.setStyle(StyleUpRond);
-                } else {
-                    rond.setText("");
-                    rond.setStyle(StyleDownRond);
-                }
-            });
-            
-            ligneRonds.getChildren().add(rond);
             ligneCarres.getChildren().add(carre);
+        }
+        
+        for (int i = 0; i < NB_SORTIES; i++) {
+            ronds[i] = new ToggleButton();
+            ronds[i].setMouseTransparent(true);
+            ronds[i].setFocusTraversable(false);
+            ronds[i].setStyle(StyleUnknownRond);
+            ligneRonds.getChildren().add(ronds[i]);
         }
 
         root.getChildren().addAll(ligneCarres, ligneRonds);
-        Scene scene = new Scene(root, 400, 300);
+        Scene scene = new Scene(root, 600, 200);
 
-        // Parametres de la fenetre
         fenetre.setTitle("Simulation Carrés Ronds");
         fenetre.setScene(scene);
         fenetre.show();
