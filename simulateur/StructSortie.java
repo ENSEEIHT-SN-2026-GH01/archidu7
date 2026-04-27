@@ -5,7 +5,9 @@ public class StructSortie {
 	private String nom;
 	private TableauConnecteur T;
 
-	public StructSortie() {
+	public StructSortie(String nom, TableauConnecteur T) {
+		this.nom = nom;
+		this.T = T;
 	}
 
 	public String getNom() {

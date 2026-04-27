@@ -20,4 +20,6 @@ public interface Connecteur {
 
 	public void unsetOrigine();
 
+	public Connecteur getSignal(DicoConnecteur D);
+
 }
