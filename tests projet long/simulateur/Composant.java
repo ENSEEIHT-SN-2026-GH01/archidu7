@@ -31,6 +31,10 @@ public abstract class Composant {
 		return sorties.getLien(i);
 	}
 
+	public Lien getLienSortie() {
+		return sorties.getLien(1);
+	}
+
 	public void brancherEntree(Lien l, int i) {
 		entrees.brancher(l,i);
 	}
