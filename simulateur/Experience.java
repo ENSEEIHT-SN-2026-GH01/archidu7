@@ -42,18 +42,23 @@ public class Experience {
 		PlanCircuit.add(A("e",E(L(L("a"),N(L("b"))))));
 		PlanCircuit.add(A("f",E(L(L("a"),L("b")))));
 
+		for (Erwan e : PlanCircuit) {
+			System.out.println("Plan : " + e.Nom() + " = " + e.Entrees.get(0).Nom());
+		}
 		Simulateur Si = new FileSimulateur(PlanCircuit);
 		List<Etat> Entrees = new ArrayList<>();
 		List<BouttonEntree> EntreesM = new ArrayList<>();
 		List<Connecteur> Sorties = new ArrayList<>();
 		for(int i = 1; i <= Si.nbEntree(); i++) {
+			//System.out.println("On s'interresse à l'entree : " + Si.nomEntree(i));
 			for(int j = 1; j <= Si.nbSlotEntree(i); j++){
 				Entrees.add(Etat.ND);
 				EntreesM.add(Si.getEntrees(i,j));
-				System.out.println("Entree Ajoutée avec succès !");
+				//System.out.println("Entree Ajoutée avec succès !");
 			}
 		}
 		for(int i = 1; i <= Si.nbSorties(); i++){
+			//System.out.println("On s'interresse à la sortie : " + Si.nomSortie(i));
 			for(int j = 1; j <= Si.nbSlotSortie(i); j++) {
 				Sorties.add(Si.getSorties(i,j));
 			}

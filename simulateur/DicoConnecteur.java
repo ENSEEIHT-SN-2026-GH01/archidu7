@@ -16,6 +16,7 @@ public class DicoConnecteur {
 		if (C == null) {
 			C = new Lien(S);
 			dico.put(S,C);
+			//System.out.println("Création du lien : " + S);
 		}
 		return C;
 	}
