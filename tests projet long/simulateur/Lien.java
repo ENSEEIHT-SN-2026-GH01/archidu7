@@ -7,21 +7,21 @@ public class Lien {
 	private Composant composantSuivant;
 
 	public Lien(String nom) {
-		etat = Etat.ND;
+		this.etat = Etat.ND;
 		this.nom = nom;
-		composantSuivant = null;
+		this.composantSuivant = null;
 	}
 
 	public void setValeur(Etat b) {
-		etat = b;
+		this.etat = b;
 	}
 
 	public Etat getValeur() {
-		return etat;
+		return this.etat;
 	}
 
 	public String getNom() {
-		return new String(nom);
+		return new String(this.nom);
 	}
 
 	public void setNom(String nom) {
@@ -29,11 +29,11 @@ public class Lien {
 	}
 
 	public Composant getComposant(){
-		return composantSuivant;
+		return this.composantSuivant;
 	}
 
 	public void setComposant(Composant c) {
-		composantSuivant = c;
+		this.composantSuivant = c;
 	}
 
 }
