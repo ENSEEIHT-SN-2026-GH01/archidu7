@@ -68,7 +68,8 @@ public class FileSimulateur implements Simulateur{
 		for (Erwan S : Plan) {
 			if (S.Op != Operation.AFFECTATION) throw new RuntimeException("Pb de structure");
 			NomSorties.add(S.Nom());
-			construire(S.Entrees.get(0),NomEntrees);
+			//System.out.println("Sortie détectée : " + S.Nom());
+			construire(S,NomEntrees);
 		}
 		Set<String> inter = new HashSet<>(NomEntrees);
 		inter.retainAll(NomSorties);
@@ -90,25 +91,32 @@ public class FileSimulateur implements Simulateur{
 	}
 
 	private void construire(Erwan Signal, Set<String> E) {
-		if (Dico.existe(Signal.Nom())) throw new RuntimeException("Signal déjà attribué :" + Signal.Nom());
+		//if (Dico.existe(Signal.Nom())) throw new RuntimeException("Signal déjà attribué :" + Signal.Nom());
+		//System.out.println(" >>> Création du signal <<< : " + Signal.Nom());
 		Connecteur Sig = recupSignal(Signal.Entrees.get(0),E);
 		//TODO à finir
 		Dico.ajouter(Sig,Signal.Nom());
 	}
 
 	private Connecteur recupSignal(Erwan S, Set<String> E) {
-		if (Dico.existe(S.Nom())) return Dico.getConnecteur(S.Nom()).getSignal(Dico);
-		else {
+		if (Dico.existe(S.Nom())) {
+			//System.out.println("Lien déjà Connu : " + S.Nom());
+			return Dico.getConnecteur(S.Nom()).getSignal(Dico);
+		}  else {
+			//System.out.println("Lien pas connu : " + S.Nom());
 			switch (S.Op) {
 				case Operation.LITTERAL:
 					E.add(S.Nom());
+					//System.out.println("Entree détectée : " + S.Nom());
 					return Dico.getConnecteur(S.Nom());
 				case Operation.NOT:
 					Connecteur Entree = recupSignal(S.Entrees.get(0),E);
 					Connecteur Sortie = Dico.getConnecteur(S.Nom());
+					//System.out.println("NOT détectée : " + S.Nom());
 					Composant N = new Not(Entree,Sortie);
 					return Sortie;
 				case Operation.AND :
+					//System.out.println("AND détectée : " + S.Nom());
 					List<Connecteur> LAEntrees = new ArrayList<>();
 					Connecteur Sortie1 = Dico.getConnecteur(S.Nom());
 					for (Erwan e : S.Entrees) {
@@ -117,6 +125,7 @@ public class FileSimulateur implements Simulateur{
 					Composant A = new And(LAEntrees, Sortie1);
 					return Sortie1;
 				case Operation.OR :
+					//System.out.println("OR détectée : " + S.Nom());
 					List<Connecteur> LEntrees = new ArrayList<>();
                                         Connecteur Sortie2 = Dico.getConnecteur(S.Nom());
                                         for (Erwan e : S.Entrees) {

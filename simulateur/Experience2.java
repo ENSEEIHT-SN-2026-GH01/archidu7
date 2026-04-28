@@ -4,7 +4,7 @@ import java.util.*;
 import Erwan.*;
 import java.util.Scanner;
 
-public class Experience {
+public class Experience2 {
 
 	private static class En {
 		private String Nom;
@@ -90,10 +90,14 @@ public class Experience {
 	public static void main(String[] Args) {
 
 		List<Erwan> PlanCircuit = new ArrayList<>();
-		PlanCircuit.add(A("c",E(L(N(L("a")),N(L("b"))))));
-		PlanCircuit.add(A("d",E(L(N(L("a")),L("b")))));
-		PlanCircuit.add(A("e",E(L(L("a"),N(L("b"))))));
-		PlanCircuit.add(A("f",E(L(L("a"),L("b")))));
+		PlanCircuit.add(A("d", E( L( N( L("a") ), N(L("b") ),N( L( "c"))) ) ) );
+		PlanCircuit.add(A("e", E( L( N( L("a") ), N(L("b") ), L( "c")) ) ) );
+		PlanCircuit.add(A("f",E(L(N(L("a")),L("b"),N(L("c"))))));
+		PlanCircuit.add(A("g",E(L(N(L("a")),L("b"),L("c")))));
+		PlanCircuit.add(A("h",E(L(L("a"),N(L("b")),N(L("c"))))));
+		PlanCircuit.add(A("i",E(L(L("a"),N(L("b")),L("c")))));
+		PlanCircuit.add(A("j",E(L(L("a"),L("b"),N(L("c"))))));
+		PlanCircuit.add(A("k",E(L(L("a"),L("b"),L("c")))));
 
 		for (Erwan e : PlanCircuit) {
 			System.out.println("Plan : " + e.Nom() + " = " + e.Entrees.get(0).Nom());
