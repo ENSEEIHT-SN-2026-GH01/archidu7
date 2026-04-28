@@ -71,11 +71,27 @@ public class FileSimulateur implements Simulateur{
 			//System.out.println("Sortie détectée : " + S.Nom());
 			construire(S,NomEntrees);
 		}
+		/*for (String s : NomEntrees) {
+			System.out.println("Le signal " + s + " est lue");
+		}
+		for (String s : NomSorties) {
+                        System.out.println("Le signal " + s + " est généré");
+                }*/
 		Set<String> inter = new HashSet<>(NomEntrees);
 		inter.retainAll(NomSorties);
+		/*for (String s : inter) {
+                        System.out.println("Le signal " + s + " est lue et généré");
+                }*/
 		NomEntrees.removeAll(inter);
 		NomSorties.removeAll(inter);
+		for (String s : NomEntrees) {
+                        System.out.println("Le signal " + s + " est conservé pour l'entrée");
+                }
+                for (String s : NomSorties) {
+                        System.out.println("Le signal " + s + " est conservé pour la sortie");
+                }
 		//TODO 1ere version sans prendre en compte les vecteurs !!!
+		System.out.println("Fin construction ! \nDébut de créations des strctures d'entrées et de sorties !");
 		this.EntreesG = new ArrayList<>();
 		this.SortiesG = new ArrayList<>();
 		for (String nom : NomEntrees) {
@@ -88,6 +104,7 @@ public class FileSimulateur implements Simulateur{
                         T.brancher(Dico.getConnecteur(nom),1);
                         this.SortiesG.add(new StructSortie(nom,T));
                 }
+		//System.out.println("La Construction s'est bien passée !");
 	}
 
 	private void construire(Erwan Signal, Set<String> E) {
@@ -95,15 +112,35 @@ public class FileSimulateur implements Simulateur{
 		//System.out.println(" >>> Création du signal <<< : " + Signal.Nom());
 		Connecteur Sig = recupSignal(Signal.Entrees.get(0),E);
 		//TODO à finir
+		Connecteur SN = Dico.getConnecteur(Signal.Nom());
+		Multiplicateur M;
+		if (Sig.getComposant() == null) {
+			M = new Multiplicateur(Sig,SN);
+		} else {
+			if (Sig.getComposant() instanceof Multiplicateur) {
+				M = (Multiplicateur) Sig.getComposant();
+				M.ajouter(SN);
+			} else {
+				Sig.getSignal(Dico);
+				M = (Multiplicateur) Sig.getComposant();
+				M.ajouter(SN);
+			}
+		}
 		Dico.ajouter(Sig,Signal.Nom());
 	}
 
 	private Connecteur recupSignal(Erwan S, Set<String> E) {
 		if (Dico.existe(S.Nom())) {
-			//System.out.println("Lien déjà Connu : " + S.Nom());
+			System.out.println("Lien déjà Connu : " + S.Nom());
+			if (S.Op == Operation.LITTERAL) E.add(S.Nom());
+			else {
+				if (Dico.getConnecteur(S.Nom()).getOrigine() == null) {
+					System.out.println(S.Nom() + " < INVISIBLE");
+				}
+			}
 			return Dico.getConnecteur(S.Nom()).getSignal(Dico);
 		}  else {
-			//System.out.println("Lien pas connu : " + S.Nom());
+			System.out.println("Lien pas connu : " + S.Nom());
 			switch (S.Op) {
 				case Operation.LITTERAL:
 					E.add(S.Nom());
