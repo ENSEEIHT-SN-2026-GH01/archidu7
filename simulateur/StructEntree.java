@@ -52,6 +52,7 @@ public class StructEntree {
 		Connecteur C = T.getConnecteur(j);
 		List<Composant> Suivant = new ArrayList<>();
 		List<Composant> Calcul = new ArrayList<>();
+		Map<Composant,Integer> DicoCompo = new HashMap<>();
 		C.getComposant().ajouter(Suivant);
 		while (!Suivant.isEmpty()) {
 			List<Composant> Courant = Suivant;
@@ -59,7 +60,16 @@ public class StructEntree {
 			for(Composant Com : Courant) {
 				for (int i = 1; i <= Com.getNbSortie(); i++) {
 					if (Com.getConnecteurSortie(i) != null &&  Com.getConnecteurSortie(i).getComposant() != null) {
-						Com.getConnecteurSortie(i).getComposant().ajouter(Suivant);
+						Composant CI = Com.getConnecteurSortie(i).getComposant();
+						if (DicoCompo.get(CI) == null) {
+							CI.ajouter(Suivant);
+							DicoCompo.put(CI,1);
+						} else {
+							if (DicoCompo.get(CI) < 3) {
+								DicoCompo.put(CI,DicoCompo.get(CI));
+								CI.ajouter(Suivant);
+							}
+						}
 					}
 				}
 			}
