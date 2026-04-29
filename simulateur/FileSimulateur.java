@@ -84,14 +84,14 @@ public class FileSimulateur implements Simulateur{
                 }*/
 		NomEntrees.removeAll(inter);
 		NomSorties.removeAll(inter);
-		for (String s : NomEntrees) {
+		/*for (String s : NomEntrees) {
                         System.out.println("Le signal " + s + " est conservé pour l'entrée");
                 }
                 for (String s : NomSorties) {
                         System.out.println("Le signal " + s + " est conservé pour la sortie");
-                }
+                }*/
 		//TODO 1ere version sans prendre en compte les vecteurs !!!
-		System.out.println("Fin construction ! \nDébut de créations des strctures d'entrées et de sorties !");
+		//System.out.println("Fin construction ! \nDébut de créations des strctures d'entrées et de sorties !");
 		this.EntreesG = new ArrayList<>();
 		this.SortiesG = new ArrayList<>();
 		for (String nom : NomEntrees) {
@@ -131,16 +131,16 @@ public class FileSimulateur implements Simulateur{
 
 	private Connecteur recupSignal(Erwan S, Set<String> E) {
 		if (Dico.existe(S.Nom())) {
-			System.out.println("Lien déjà Connu : " + S.Nom());
+			//System.out.println("Lien déjà Connu : " + S.Nom());
 			if (S.Op == Operation.LITTERAL) E.add(S.Nom());
-			else {
+			/*else {
 				if (Dico.getConnecteur(S.Nom()).getOrigine() == null) {
 					System.out.println(S.Nom() + " < INVISIBLE");
 				}
-			}
+			}*/
 			return Dico.getConnecteur(S.Nom()).getSignal(Dico);
-		}  else {
-			System.out.println("Lien pas connu : " + S.Nom());
+		} else {
+			//System.out.println("Lien pas connu : " + S.Nom());
 			switch (S.Op) {
 				case Operation.LITTERAL:
 					E.add(S.Nom());

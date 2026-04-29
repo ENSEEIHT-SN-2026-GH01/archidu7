@@ -90,7 +90,7 @@ public class Experience3 {
 	public static void main(String[] Args) {
 
 		List<Erwan> PlanCircuit = new ArrayList<>();
-		PlanCircuit.add(A("S",E(L( L("Signal"), E(L( L("on"), L("clk") ))  ))));
+		PlanCircuit.add(A("S",E(L( L("Signal"), E(L( L("on"), L("clk"), N(L("reset")) ))  ))));
 		PlanCircuit.add(A("R",O( L( L("reset"), E(L( N(L("Signal")),  L("on"), L("clk")    ))   ) )));
 		PlanCircuit.add(A("q",N(O(L(   L("nq"),L("R")  )))));
 		PlanCircuit.add(A("nq",N(O(L(   L("q"),L("S")  )))));

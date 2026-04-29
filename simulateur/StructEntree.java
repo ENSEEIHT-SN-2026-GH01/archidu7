@@ -49,7 +49,7 @@ public class StructEntree {
 	}
 
 	private void initialiserListe(int j)  { //TODO Attention ! ne converge pas en cas de rebouclage !!!
-		System.out.println("j'ai été appelé !");
+		//System.out.println("j'ai été appelé !");
 		Connecteur C = T.getConnecteur(j);
 		List<Composant> Suivant = new ArrayList<>();
 		List<Composant> Calcul = new ArrayList<>();

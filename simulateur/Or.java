@@ -36,6 +36,7 @@ public class Or extends Composant {
         }
 
 	public void ajouter(Connecteur c)  {
+		/*
 		TableauConnecteur Tc = super.getE();
 		TableauConnecteur Tc2 = new TableauConnecteur(Tc.getTaille() + 1);
 		for (int i = 1; i <= Tc.getTaille(); i++) {
@@ -43,6 +44,8 @@ public class Or extends Composant {
 		}
 		Tc2.brancher(c,Tc2.getTaille());
 		super.setE(Tc2);
+		*/
+		super.ajouterEntree(c);
 	}
 
 /*
