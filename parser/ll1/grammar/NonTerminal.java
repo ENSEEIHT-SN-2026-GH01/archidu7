@@ -27,7 +27,7 @@ public enum NonTerminal implements Symbol {
     Factor,
     SignalAssignment,
     MemoryAssignment,
-    Comma_opt,
+    Comma_Opt,
     Set_Or_Reset,
     Enabled_Operand_Opt,
     Semicolon_Opt,

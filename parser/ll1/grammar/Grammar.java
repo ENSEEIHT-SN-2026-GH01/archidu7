@@ -37,7 +37,7 @@ public final class Grammar {
             FACTOR  = NonTerminal.Factor,
             SIG_A   = NonTerminal.SignalAssignment,
             MEM_A   = NonTerminal.MemoryAssignment,
-            COM_OPT = NonTerminal.Comma_opt,
+            COM_OPT = NonTerminal.Comma_Opt,
             SET_RST = NonTerminal.Set_Or_Reset,
             EN_OPT  = NonTerminal.Enabled_Operand_Opt,
             SEM_OPT = NonTerminal.Semicolon_Opt,
@@ -166,10 +166,10 @@ public final class Grammar {
         // SignalAssignment ::= AssignOp SumOfTermsCompound
         g.prod(SIG_A, AssignOp, SOTC);
 
-        // MemoryAssignment ::= MemAssignOp SumOfTermsCompound OnKW SumOfTerms Comma_opt Set_Or_Reset WhenKW SumOfTerms Enabled_Operand_Opt Semicolon_Opt
+        // MemoryAssignment ::= MemAssignOp SumOfTermsCompound OnKW SumOfTerms Comma_Opt Set_Or_Reset WhenKW SumOfTerms Enabled_Operand_Opt Semicolon_Opt
         g.prod(MEM_A, MemAssignOp, SOTC, OnKW, SOT, COM_OPT, SET_RST, WhenKW, SOT, EN_OPT, SEM_OPT);
 
-        // Comma_opt ::= Comma | ε
+        // Comma_Opt ::= Comma | ε
         g.prod(COM_OPT, Comma);
         g.eps(COM_OPT);
 
@@ -177,7 +177,7 @@ public final class Grammar {
         g.prod(SET_RST, ResetKW);
         g.prod(SET_RST, SetKW);
 
-        // Enabled_Operand_Opt ::= Comma_opt EnabledKW WhenKW SumOfTerms | ε
+        // Enabled_Operand_Opt ::= Comma_Opt EnabledKW WhenKW SumOfTerms | ε
         g.prod(EN_OPT, COM_OPT, EnabledKW, WhenKW, SOT);
         g.eps(EN_OPT);
 

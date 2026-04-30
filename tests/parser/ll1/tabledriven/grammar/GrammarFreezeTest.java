@@ -53,12 +53,12 @@ public class GrammarFreezeTest {
         "Factor ::= NotOp Signal\n" +
         "Factor ::= Signal\n" +
         "SignalAssignment ::= AssignOp SumOfTermsCompound\n" +
-        "MemoryAssignment ::= MemAssignOp SumOfTermsCompound OnKW SumOfTerms Comma_opt Set_Or_Reset WhenKW SumOfTerms Enabled_Operand_Opt Semicolon_Opt\n" +
-        "Comma_opt ::= Comma\n" +
-        "Comma_opt ::= ε\n" +
+        "MemoryAssignment ::= MemAssignOp SumOfTermsCompound OnKW SumOfTerms Comma_Opt Set_Or_Reset WhenKW SumOfTerms Enabled_Operand_Opt Semicolon_Opt\n" +
+        "Comma_Opt ::= Comma\n" +
+        "Comma_Opt ::= ε\n" +
         "Set_Or_Reset ::= ResetKW\n" +
         "Set_Or_Reset ::= SetKW\n" +
-        "Enabled_Operand_Opt ::= Comma_opt EnabledKW WhenKW SumOfTerms\n" +
+        "Enabled_Operand_Opt ::= Comma_Opt EnabledKW WhenKW SumOfTerms\n" +
         "Enabled_Operand_Opt ::= ε\n" +
         "Semicolon_Opt ::= Semicolon\n" +
         "Semicolon_Opt ::= ε\n" +
