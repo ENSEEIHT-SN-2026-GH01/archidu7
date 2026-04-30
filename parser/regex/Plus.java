@@ -22,4 +22,20 @@ public class Plus implements Regex {
   public boolean equals(Regex other) {
     return other instanceof Plus otherPlus && insideRegex.equals(otherPlus.getInsideRegex());
   }
+
+  @Override
+  public Regex simplify() {
+    insideRegex = insideRegex.simplify();
+
+    if (insideRegex instanceof Epsilon){
+      return insideRegex;
+    }
+    
+    return this;
+  }
+
+  @Override
+  public boolean isNotCompatible() {
+    return false;
+  }
 }

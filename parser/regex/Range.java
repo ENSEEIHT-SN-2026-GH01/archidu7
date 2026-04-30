@@ -31,4 +31,18 @@ public class Range implements Regex {
     return other instanceof Range otherRange && left == otherRange.getLeft() && right == otherRange.getRight();
   }
 
+  @Override
+  public Regex simplify() {
+    if (left == right){
+      return new Litteral(left);
+    }
+
+    return this;
+  }
+
+  @Override
+  public boolean isNotCompatible() {
+    return true;
+  }
+
 }

@@ -4,26 +4,37 @@ import java.util.Stack;
 
 // what needs to be implemented as regex
 // a | b => ok
-// (a) => ok?
+// (a) => ok
 // a* => ok
 // a+ => ok
-// .
 // \n et \r et \t => ok
 // \ + any a -> a => ok
-// ~a
 // [ab] => ok
 // [a-b] => ok
 // epsilon => ok
 // a => ok
+// . => ok ?
+// ~a
 
 // TODO make some adjustments to have wierd syntax like "()()" give "#" instead of "##" => v2
 
+
+/**
+ * Constructeur général des expressions régulières à partir de chaînes de caractères.
+ */
 public class Builder {
-
+  /** Cacartère servant à échapper les autres */
   public static final char ESCAPE = '\\';
+  /** Caractère marquant le début d'un groupe */
   public static final char GROUPING_START = '(';
+  /** Caractère marquant la fin d'un groupe */
   public static final char GROUPING_END = ')';
-
+  
+  /**
+   * Échapper le caractère
+   * @param c le caractère à échapper
+   * @return le caractère échappé
+   */
   private static char escape(char c) {
     switch (c) {
       case 'n':
@@ -34,8 +45,17 @@ public class Builder {
         return '\t';
     }
     return c;
-  }
 
+  }
+  
+  // Empecher de pouvoir l'appeler
+  private Builder(){}
+  
+  /**
+   * Constructeur de l'expression régulière à partir d'une chaine de caractères
+   * @param s la chaine à transformer en expression régulière
+   * @return l'expression régulière résultante
+   */
   public static Regex parseRegex(String s) {
     Stack<Regex> pile = new Stack<Regex>();
     boolean escaped = false;
@@ -95,6 +115,12 @@ public class Builder {
           case ESCAPE:
             escaped = true;
             break;
+          case Joker.CHARCTER:
+            pile.add(new Joker());
+            break;
+          case Not.CHARACTER:
+            pile.add(new Not());
+            break;
           default:
             pile.add(new Litteral(currentChar));
             break;
@@ -117,18 +143,22 @@ public class Builder {
     if (res instanceof Or r && r.getRightOperand() == null) {
       throw new SyntaxError(index - 1, Or.OPERATOR + " needs a right operand", s);
     }
+
     while (!pile.isEmpty()) {
 
       Regex r2 = pile.pop();
       if (r2 instanceof Or or && or.getRightOperand() == null) {
         or.setRightOperand(res);
         res = or;
+      } else if (r2 instanceof Not not && not.getInsideRegex() == null) {
+        not.setInsideRegex(res);
+        res = not;
       } else {
         res = new Concatenation(r2, res);
       }
     }
 
-    return res;
+    return res.simplify();
   }
 
   /**
@@ -276,5 +306,4 @@ public class Builder {
 
     return index + 1;
   }
-
 }

@@ -3,22 +3,23 @@ package parser.automate;
 import java.util.*;
 import parser.regex.*;
 import util.*;
+import parser.lexer.*;
 
 public class AutomateDeterministe<T> implements Automate<T> {
 
   private TransitionsDeterministe<Integer, Integer> delta;
   private Map<Set<Integer>, Integer> linTable = new HashMap<>();
   private Map<Integer, Set<Integer>> delinTable = new HashMap<>();
-  private Map<Integer, T> etatsTerminaux = new HashMap<>();
+  private Map<Integer, Lexem<T>> etatsTerminaux = new HashMap<>();
   private int start = 1;
   private int nextID = 2;
 
 
-  public static <T> AutomateDeterministe<T> fromList(List<Pair<Regex, T>> l) throws LexingException {
+  public static <T> AutomateDeterministe<T> fromList(List<Pair<Regex, Lexem<T>>> l) {
       return new AutomateDeterministe<T>(AutomateNonDeterministeSansEps.fromList(l));
   }
 
-  private AutomateDeterministe(AutomateNonDeterministeSansEps<T> super_) throws LexingException {
+  private AutomateDeterministe(AutomateNonDeterministeSansEps<Lexem<T>> super_) {
 
     Transitions<Integer, Integer> superDelta = super_.getDeltaSansEps();
     delta = new TransitionsDeterministe<>();
@@ -67,64 +68,72 @@ public class AutomateDeterministe<T> implements Automate<T> {
       
       // add all the next nodes as all the nodes reachable from the current node with
       // the precedent letter collection
-      try{
 
-        next.forEach((letter) -> {
-          Set<Integer> nextNode = new HashSet<>();
-          
-          // get the all the reachable nodes with this letter
-          node.forEach((state) -> {
-            nextNode.addAll(superDelta.delta(state, letter));
-          });
-          
-          // if no one is reachable, do nothing
-          if (nextNode.isEmpty()) {
-            return;
-          }
-          
-          // if not already seen, add it to the table and to todo
-          if (!seen.contains(nextNode)){
-            seen.add(nextNode);
-            todo.add(nextNode);
-            
-            linTable.put(nextNode, nextID);
-            delinTable.put(nextID, nextNode);
-            nextID++;
-            
-            // add it to the final states if possible
-            nextNode.forEach((currNode) -> {
-              if (super_.getEtatsTerminaux().containsKey(currNode)){
-                if (etatsTerminaux.containsKey(linTable.get(nextNode))){
-                  throw new RuntimeException( // be able to actually throw this error
-                    new LexingException("The grammar given is non deterministic")
-                  );
-                }
-                etatsTerminaux.put(linTable.get(nextNode), super_.getEtatsTerminaux().get(currNode));
-              }
-            });
-            
-          }
-          
-          // add the transition
-          delta.add(linTable.get(node), letter, linTable.get(nextNode));
+      next.forEach((letter) -> {
+        Set<Integer> nextNode = new HashSet<>();
+        
+        // get the all the reachable nodes with this letter
+        node.forEach((state) -> {
+          nextNode.addAll(superDelta.delta(state, letter));
         });
         
-      } catch (RuntimeException e) { // catch the Lexing exception masked
-        if (e.getCause() instanceof LexingException lexingException) {
-          throw lexingException; // throw it
+        // if no one is reachable, do nothing
+        if (nextNode.isEmpty()) {
+          return;
         }
-        throw e; // throw if it is not the right one
-      }
-    }
+        
+        // if not already seen, add it to the table and to todo
+        if (!seen.contains(nextNode)){
+          seen.add(nextNode);
+          todo.add(nextNode);
+          
+          linTable.put(nextNode, nextID);
+          delinTable.put(nextID, nextNode);
+          nextID++;
+          
+          // add it to the final states if possible
+          nextNode.forEach((currNode) -> {
 
-    System.out.println(this);
+            // si l'etat dans currNode est final
+            if (super_.getEtatsTerminaux().containsKey(currNode)){
+
+              // si l'état actuel est déjà terminal et que celui-ci n'est pas safe
+              if (etatsTerminaux.containsKey(linTable.get(nextNode)) && !etatsTerminaux.get(linTable.get(nextNode)).isSafe()){
+
+                // si l'état touvé est terminal et safe
+                if (super_.getEtatsTerminaux().get(currNode).isSafe()){
+                  return; // rien a faire
+                }
+
+                throw new NonDeterministicException("The grammar given is non deterministic since "
+                  + etatsTerminaux.get(linTable.get(nextNode)).getToken()
+                  + " and "
+                  + super_.getEtatsTerminaux().get(currNode).getToken()
+                  + " are colliding");
+              }
+
+              // either the ending state is new or the previous one registered is safe
+              if (!super_.getEtatsTerminaux().get(currNode).isSafe() || !etatsTerminaux.containsKey(linTable.get(nextNode)) ||
+                etatsTerminaux.get(linTable.get(nextNode)).getSafePriority() < super_.getEtatsTerminaux().get(currNode).getSafePriority()){
+                // changement du lexème terminal que si la nouvelle priorité est plus grande ou si le nouveau lexème est non safe
+                etatsTerminaux.put(linTable.get(nextNode), super_.getEtatsTerminaux().get(currNode));
+              }
+            }
+          });
+            
+        }
+          
+        // add the transition
+        delta.add(linTable.get(node), letter, linTable.get(nextNode));
+      });
+    }
   }
 
-  public Pair<T, Integer> exec1(String t) throws LexingException{
+  public Pair<Lexem<T>, Integer> exec1(String t) {
     int currState = start;
     int index = 0;
 
-    T lastTerminal = null;
+    Lexem<T> lastTerminal = null;
     int lastIndexTerminal = -1;
 
     // Tant que l'on peut continuer a trouver des terminaux plus longs
@@ -143,21 +152,23 @@ public class AutomateDeterministe<T> implements Automate<T> {
 
     // Si aucun final rencontré, erreur de syntaxe
     if (lastIndexTerminal == -1){
-      throw new LexingException("Erreur de syntaxe, lexème non reconnu");
+      throw new LexingException("Erreur de syntaxe, lexème non reconnu", index);
     }
 
     return Pair.pair(lastTerminal, lastIndexTerminal+1);
   }
 
   @Override
-  public List<T> exec(String t) throws LexingException{
-    List<T> lexemes = new LinkedList<>();
+  public List<Lexem<T>> exec(String t) {
+    List<Lexem<T>> lexemes = new LinkedList<>();
     int index = 0;
 
     while (index < t.length()){
-      Pair<T, Integer> p = exec1(t.substring(index));
-      lexemes.add(p.fst());
-      index = p.snd();
+      Pair<Lexem<T>, Integer> p = exec1(t.substring(index));
+      Lexem<T> lexem = new Lexem<T>(p.fst());
+      lexem.storeMatched(index, t.substring(index, index + p.snd()));
+      lexemes.add(lexem);
+      index += p.snd();
     }
     return lexemes;
   }
@@ -166,5 +177,4 @@ public class AutomateDeterministe<T> implements Automate<T> {
   public String toString() {
     return "Automate déterministe:\n\tInitiaux: " + start + "\n\tFinaux: " + etatsTerminaux + "\n\tTransitions: \n" + delta;
   }
-
 }

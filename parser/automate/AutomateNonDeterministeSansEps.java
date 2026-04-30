@@ -2,7 +2,7 @@ package parser.automate;
 
 import java.util.*;
 import util.*;
-
+import parser.lexer.Lexem;
 import parser.regex.Regex;
 
 public class AutomateNonDeterministeSansEps<T> implements Automate<T> {
@@ -88,7 +88,7 @@ public class AutomateNonDeterministeSansEps<T> implements Automate<T> {
   }
 
   @Override
-  public List<T> exec(String t) {
+  public List<Lexem<T>> exec(String t) {
     throw new NotExecutableError();
   }
 

@@ -32,4 +32,25 @@ public class Concatenation implements Regex {
         && leftRegex.equals(otherConcatenation.getLeftRegex())
         && rightRegex.equals(otherConcatenation.getRightRegex());
   }
+
+  @Override
+  public Regex simplify() {
+    rightRegex = rightRegex.simplify();
+    leftRegex = leftRegex.simplify();
+
+    if (rightRegex instanceof Epsilon){
+      return leftRegex;
+    }
+    
+    if (leftRegex instanceof Epsilon){
+      return rightRegex;
+    }
+
+    return this;
+  }
+
+  @Override
+  public boolean isNotCompatible() {
+    return false;
+  }
 }

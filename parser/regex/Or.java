@@ -36,4 +36,25 @@ public class Or implements Regex {
         && rightOperand.equals(otherOr.getRightOperand());
   }
 
+  @Override
+  public Regex simplify() {
+    leftOperand = leftOperand.simplify();
+    rightOperand = rightOperand.simplify();
+
+    if (leftOperand instanceof Joker && (rightOperand instanceof Litteral || rightOperand instanceof Range)){
+      return leftOperand;
+    }
+
+    if (rightOperand instanceof Joker && (leftOperand instanceof Litteral || leftOperand instanceof Range)){
+      return rightOperand;
+    }
+
+    return this;
+  }
+
+  @Override
+  public boolean isNotCompatible() {
+    return leftOperand.isNotCompatible() && rightOperand.isNotCompatible();
+  }
+
 }
