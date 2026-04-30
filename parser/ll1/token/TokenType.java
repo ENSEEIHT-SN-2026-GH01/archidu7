@@ -1,28 +1,45 @@
 package parser.ll1.token;
 
+/**
+ * Types de tokens pour le lexer SHDL.
+ *
+ * Nommage CamelCase aligné sur la grammaire LL(1) cible :
+ * les noms apparaissent tels quels dans la représentation BNF (Terminal.toString).
+ */
 public enum TokenType {
     // Mots-clés
-    MODULE, END, MAP, FSM, STATEMACHINE,
-    ON, WHEN, SET, RESET, ENABLED, OUTPUT,
-    ASYNCHRONOUS, SYNCHRONOUS,
+    ModuleKW,
+    EndKW,
+    OnKW,
+    WhenKW,
+    SetKW,
+    ResetKW,
+    EnabledKW,
 
     // Identifiants et littéraux
-    IDENTIFIER, INTEGER, BITFIELD,
+    Identifiant,
+    BitField,
+    NaturalInteger,
 
     // Opérateurs
-    EQ,          // =
-    ASSIGN,      // :=
-    STAR,        // *
-    PLUS,        // +
-    SLASH,       // /
-    AMPERSAND,   // &
-    ARROW,       // ->
-    DOTDOT,      // ..
+    AssignOp,       // =
+    MemAssignOp,    // :=
+    OrOp,           // +
+    Star,           // *  (terminal brut ; le NT AndOp ::= Star)
+    ConcatOp,       // &
+    NotOp,          // /
 
     // Délimiteurs
-    LPAREN, RPAREN, LBRACKET, RBRACKET,
-    COMMA, COLON, SEMICOLON, DOLLAR,
+    LeftPar,
+    RightPar,
+    LeftSquareBrack,
+    RightSquareBrack,
+    Comma,
+    Colon,
+    Semicolon,
+    PointPoint,
+    Dollar,
 
-    // Fin
+    // Fin de fichier
     EOF;
 }

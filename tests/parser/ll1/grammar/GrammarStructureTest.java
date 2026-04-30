@@ -8,26 +8,26 @@ import static org.junit.Assert.*;
 
 public class GrammarStructureTest {
     @Test public void terminalEqualsParTokenType() {
-        assertEquals(new Terminal(TokenType.EQ), new Terminal(TokenType.EQ));
-        assertNotEquals(new Terminal(TokenType.EQ), new Terminal(TokenType.PLUS));
+        assertEquals(new Terminal(TokenType.AssignOp), new Terminal(TokenType.AssignOp));
+        assertNotEquals(new Terminal(TokenType.AssignOp), new Terminal(TokenType.OrOp));
     }
 
     @Test public void productionCopieBody() {
         java.util.ArrayList<Symbol> body = new java.util.ArrayList<>();
-        body.add(new Terminal(TokenType.EQ));
-        Production p = new Production(NonTerminal.SIGNAL, body);
+        body.add(new Terminal(TokenType.AssignOp));
+        Production p = new Production(NonTerminal.Signal, body);
         body.clear();
         assertEquals(1, p.getBody().size());
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void bodyImmutable() {
-        new Production(NonTerminal.SIGNAL, List.of(new Terminal(TokenType.EQ)))
-            .getBody().add(new Terminal(TokenType.PLUS));
+        new Production(NonTerminal.Signal, List.of(new Terminal(TokenType.AssignOp)))
+            .getBody().add(new Terminal(TokenType.OrOp));
     }
 
     @Test public void epsilonEstDistinctDesAutresSymboles() {
         assertTrue(Terminal.EPSILON.isEpsilon());
-        assertFalse(new Terminal(TokenType.EQ).isEpsilon());
+        assertFalse(new Terminal(TokenType.AssignOp).isEpsilon());
     }
 }

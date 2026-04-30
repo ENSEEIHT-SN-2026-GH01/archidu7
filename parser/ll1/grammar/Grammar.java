@@ -8,103 +8,204 @@ public final class Grammar {
 
     private static Grammar buildShdl() {
         GrammarBuilder g = new GrammarBuilder();
-        // Alias concis
+
+        // Alias concis — NTs de la grammaire LL(1) cible
         final NonTerminal
-            MOD = NonTerminal.MODULE, PL = NonTerminal.PARAM_LIST, PLR = NonTerminal.PARAM_LIST_REST,
-            PARAM = NonTerminal.PARAM, AL = NonTerminal.ARG_LIST, ALR = NonTerminal.ARG_LIST_REST,
-            ARG = NonTerminal.ARG, SEP = NonTerminal.SEPAR,
-            IL = NonTerminal.INSTANCE_LIST, ILR = NonTerminal.INSTANCE_LIST_REST, INS = NonTerminal.INSTANCE,
-            AOT = NonTerminal.ASSIGN_OR_TRI, TST = NonTerminal.TRI_STATE_TAIL,
-            MP = NonTerminal.MEMORY_POINT, MT = NonTerminal.MEM_TAIL, SR = NonTerminal.SET_RESET,
-            OC = NonTerminal.OPT_COMMA, OS = NonTerminal.OPT_SEMI, OSC = NonTerminal.OPT_SEMI_OR_COMMA,
-            MI = NonTerminal.MODULE_INSTANCE,
-            MAP = NonTerminal.MAP, MVL = NonTerminal.MAP_VALUE_LIST, MV = NonTerminal.MAP_VALUE,
-            FSM = NonTerminal.FSM, FK = NonTerminal.FSM_KEYWORD, FH = NonTerminal.FSM_HEADER,
-            FRL = NonTerminal.FSM_RULE_LIST, FR = NonTerminal.FSM_RULE, FRR = NonTerminal.FSM_RULE_REST,
-            FLL = NonTerminal.FSM_RULE_LEFT, SNL = NonTerminal.STATE_NAME_LIST, SNLR = NonTerminal.STATE_NAME_LIST_REST,
-            SOTC = NonTerminal.SUM_OF_TERMS_COMPOUND, SOTCR = NonTerminal.SUM_OF_TERMS_COMPOUND_REST,
-            SOT = NonTerminal.SUM_OF_TERMS, SOTR = NonTerminal.SUM_OF_TERMS_REST,
-            T = NonTerminal.TERM, TR = NonTerminal.TERM_REST, F = NonTerminal.FACTOR,
-            SC = NonTerminal.SIGNAL_COMPOUND, SCR = NonTerminal.SIGNAL_COMPOUND_REST,
-            S = NonTerminal.SIGNAL, ST = NonTerminal.SIGNAL_TAIL, SAI = NonTerminal.SIGNAL_AFTER_INT,
-            SOL = NonTerminal.SIGNAL_OR_LITERAL;
+            START   = NonTerminal.Start,
+            MOD     = NonTerminal.Module,
+            IPLUS   = NonTerminal.Instance_Plus,
+            ISTAR   = NonTerminal.Instance_Star,
+            SPM_S   = NonTerminal.Separ_Param_Star,
+            SIG     = NonTerminal.Signal,
+            SS_OPT  = NonTerminal.Signal_Subset_Opt,
+            RNG_OPT = NonTerminal.Range_Opt,
+            SOLC    = NonTerminal.SignalOrLiteralCompound,
+            SOL_V   = NonTerminal.Signal_Or_Litteral_Value,
+            CSOL_S  = NonTerminal.Concat_Signal_Or_Litteral_Value_Star,
+            DDOT    = NonTerminal.DotDot,
+            ARG     = NonTerminal.Arg,
+            PARAM   = NonTerminal.Param,
+            INS     = NonTerminal.Instance,
+            OP      = NonTerminal.Operation,
+            ASSIGN  = NonTerminal.Assignment,
+            SOTC    = NonTerminal.SumOfTermsCompound,
+            CSOT_S  = NonTerminal.Concat_SumOfTerms_Star,
+            SOT     = NonTerminal.SumOfTerms,
+            OR_S    = NonTerminal.Or_Operand_Star,
+            TERM    = NonTerminal.Term,
+            AND_S   = NonTerminal.And_Operand_Star,
+            FACTOR  = NonTerminal.Factor,
+            SIG_A   = NonTerminal.SignalAssignment,
+            MEM_A   = NonTerminal.MemoryAssignment,
+            COM_OPT = NonTerminal.Comma_opt,
+            SET_RST = NonTerminal.Set_Or_Reset,
+            EN_OPT  = NonTerminal.Enabled_Operand_Opt,
+            SEM_OPT = NonTerminal.Semicolon_Opt,
+            MCALL   = NonTerminal.ModuleCall,
+            SARG_S  = NonTerminal.Separ_Arg_Star,
+            LITVAL  = NonTerminal.LiteralValue,
+            SEPAR   = NonTerminal.Separ,
+            ANDOP   = NonTerminal.AndOp;
 
-        // Module
-        g.prod(MOD, TokenType.MODULE, TokenType.IDENTIFIER, TokenType.LPAREN, PL, TokenType.RPAREN,
-                    IL, TokenType.END, TokenType.MODULE);
-        // ParamList
-        g.prod(PL, PARAM, PLR);
-        g.prod(PLR, SEP, PARAM, PLR); g.eps(PLR);
-        g.prod(PARAM, S);
-        g.prod(SEP, TokenType.COMMA); g.prod(SEP, TokenType.COLON);
-        // ArgList
-        g.prod(AL, ARG, ALR);
-        g.prod(ALR, SEP, ARG, ALR); g.eps(ALR);
-        g.prod(ARG, SOL);
-        g.prod(SOL, S);
-        g.prod(SOL, TokenType.INTEGER);
-        g.prod(SOL, TokenType.BITFIELD);
-        // InstanceList
-        g.prod(IL, INS, ILR);
-        g.prod(ILR, INS, ILR); g.eps(ILR);
-        // Instance (dispatch spécial lookahead-2 dans le parser, mais on enregistre les alternatives)
-        g.prod(INS, MI);
-        g.prod(INS, AOT);
-        g.prod(INS, MP);
-        g.prod(INS, FSM);
-        g.prod(INS, MAP);
-        // AssignOrTri
-        g.prod(AOT, SC, TokenType.EQ, SOTC, TST);
-        g.prod(TST, TokenType.OUTPUT, TokenType.ENABLED, TokenType.WHEN, SOT); g.eps(TST);
-        // MemoryPoint
-        g.prod(MP, SC, TokenType.ASSIGN, SOTC, TokenType.ON, SOT, OC, SR, TokenType.WHEN, SOT, MT, OS);
-        g.prod(MT, OC, TokenType.ENABLED, TokenType.WHEN, SOT); g.eps(MT);
-        g.prod(SR, TokenType.SET); g.prod(SR, TokenType.RESET);
-        g.prod(OC, TokenType.COMMA); g.eps(OC);
-        g.prod(OS, TokenType.SEMICOLON); g.eps(OS);
-        g.prod(OSC, TokenType.SEMICOLON); g.prod(OSC, TokenType.COMMA); g.eps(OSC);
-        // ModuleInstance
-        g.prod(MI, TokenType.IDENTIFIER, TokenType.LPAREN, AL, TokenType.RPAREN);
-        g.prod(MI, TokenType.DOLLAR, TokenType.IDENTIFIER, TokenType.LPAREN, AL, TokenType.RPAREN);
-        // Map
-        g.prod(MAP, TokenType.MAP, SC, TokenType.ARROW, SC, MVL, TokenType.END, TokenType.MAP);
-        g.prod(MVL, MV, MVL); g.eps(MVL);
-        g.prod(MV, TokenType.BITFIELD, TokenType.ARROW, TokenType.BITFIELD);
-        // FSM
-        g.prod(FSM, FK, FH, FRL, TokenType.END, FK);
-        g.prod(FK, TokenType.FSM); g.prod(FK, TokenType.STATEMACHINE);
-        g.prod(FH, TokenType.ASYNCHRONOUS);
-        g.prod(FH, TokenType.SYNCHRONOUS, TokenType.ON, SOT, OC, TokenType.IDENTIFIER, TokenType.WHEN, SOT);
-        g.prod(FH, TokenType.IDENTIFIER, TokenType.WHEN, SOT, OC, TokenType.SYNCHRONOUS, TokenType.ON, SOT);
-        g.prod(FRL, FR, FRL); g.eps(FRL);
-        g.prod(FR, FLL, TokenType.ARROW, TokenType.IDENTIFIER, FRR);
-        g.prod(FRR, TokenType.WHEN, SOT, OSC); g.eps(FRR);
-        g.prod(FLL, TokenType.STAR); g.prod(FLL, SNL);
-        g.prod(SNL, TokenType.IDENTIFIER, SNLR);
-        g.prod(SNLR, TokenType.COMMA, TokenType.IDENTIFIER, SNLR); g.eps(SNLR);
-        // Expressions
-        g.prod(SOTC, SOT, SOTCR);
-        g.prod(SOTCR, TokenType.AMPERSAND, SOT, SOTCR); g.eps(SOTCR);
-        g.prod(SOT, T, SOTR);
-        g.prod(SOTR, TokenType.PLUS, T, SOTR); g.eps(SOTR);
-        g.prod(T, F, TR);
-        g.prod(TR, TokenType.STAR, F, TR); g.eps(TR);
-        g.prod(F, TokenType.LPAREN, SOT, TokenType.RPAREN);
-        g.prod(F, TokenType.INTEGER);
-        g.prod(F, TokenType.BITFIELD);
-        g.prod(F, TokenType.SLASH, S);
-        g.prod(F, S);
-        // Signal
-        g.prod(SC, S, SCR);
-        g.prod(SCR, TokenType.AMPERSAND, S, SCR); g.eps(SCR);
-        g.prod(S, TokenType.IDENTIFIER, ST);
-        g.prod(ST, TokenType.LBRACKET, TokenType.INTEGER, SAI); g.eps(ST);
-        g.prod(SAI, TokenType.RBRACKET);
-        g.prod(SAI, TokenType.DOTDOT, TokenType.INTEGER, TokenType.RBRACKET);
-        g.prod(SAI, TokenType.COLON, TokenType.INTEGER, TokenType.RBRACKET);
+        // Aliases terminaux
+        final TokenType
+            ModuleKW        = TokenType.ModuleKW,
+            EndKW           = TokenType.EndKW,
+            OnKW            = TokenType.OnKW,
+            WhenKW          = TokenType.WhenKW,
+            SetKW           = TokenType.SetKW,
+            ResetKW         = TokenType.ResetKW,
+            EnabledKW       = TokenType.EnabledKW,
+            Identifiant     = TokenType.Identifiant,
+            BitField        = TokenType.BitField,
+            NaturalInteger  = TokenType.NaturalInteger,
+            AssignOp        = TokenType.AssignOp,
+            MemAssignOp     = TokenType.MemAssignOp,
+            OrOp            = TokenType.OrOp,
+            Star            = TokenType.Star,
+            ConcatOp        = TokenType.ConcatOp,
+            NotOp           = TokenType.NotOp,
+            LeftPar         = TokenType.LeftPar,
+            RightPar        = TokenType.RightPar,
+            LeftSquareBrack = TokenType.LeftSquareBrack,
+            RightSquareBrack= TokenType.RightSquareBrack,
+            Comma           = TokenType.Comma,
+            Colon           = TokenType.Colon,
+            Semicolon       = TokenType.Semicolon,
+            PointPoint      = TokenType.PointPoint,
+            Dollar          = TokenType.Dollar;
 
-        return g.build(MOD);
+        // Start
+        g.prod(START, MOD);
+
+        // Module ::= ModuleKW Identifiant LeftPar Param Separ_Param_Star RightPar Instance_Plus EndKW ModuleKW
+        g.prod(MOD, ModuleKW, Identifiant, LeftPar, PARAM, SPM_S, RightPar, IPLUS, EndKW, ModuleKW);
+
+        // Instance_Plus ::= Instance Instance_Star
+        g.prod(IPLUS, INS, ISTAR);
+
+        // Instance_Star ::= Instance Instance_Star | ε
+        g.prod(ISTAR, INS, ISTAR);
+        g.eps(ISTAR);
+
+        // Separ_Param_Star ::= Separ Param Separ_Param_Star | ε
+        g.prod(SPM_S, SEPAR, PARAM, SPM_S);
+        g.eps(SPM_S);
+
+        // Signal ::= Identifiant Signal_Subset_Opt
+        g.prod(SIG, Identifiant, SS_OPT);
+
+        // Signal_Subset_Opt ::= LeftSquareBrack NaturalInteger Range_Opt RightSquareBrack | ε
+        g.prod(SS_OPT, LeftSquareBrack, NaturalInteger, RNG_OPT, RightSquareBrack);
+        g.eps(SS_OPT);
+
+        // Range_Opt ::= DotDot NaturalInteger | ε
+        g.prod(RNG_OPT, DDOT, NaturalInteger);
+        g.eps(RNG_OPT);
+
+        // SignalOrLiteralCompound ::= Signal_Or_Litteral_Value Concat_Signal_Or_Litteral_Value_Star
+        g.prod(SOLC, SOL_V, CSOL_S);
+
+        // Signal_Or_Litteral_Value ::= Signal | LiteralValue
+        g.prod(SOL_V, SIG);
+        g.prod(SOL_V, LITVAL);
+
+        // Concat_Signal_Or_Litteral_Value_Star ::= ConcatOp Signal_Or_Litteral_Value Concat_Signal_Or_Litteral_Value_Star | ε
+        g.prod(CSOL_S, ConcatOp, SOL_V, CSOL_S);
+        g.eps(CSOL_S);
+
+        // DotDot ::= PointPoint | Colon
+        g.prod(DDOT, PointPoint);
+        g.prod(DDOT, Colon);
+
+        // Arg ::= SignalOrLiteralCompound
+        g.prod(ARG, SOLC);
+
+        // Param ::= Signal
+        g.prod(PARAM, SIG);
+
+        // Instance ::= Identifiant Operation | Dollar Identifiant ModuleCall
+        g.prod(INS, Identifiant, OP);
+        g.prod(INS, Dollar, Identifiant, MCALL);
+
+        // Operation ::= ModuleCall | Signal_Subset_Opt Assignment
+        g.prod(OP, MCALL);
+        g.prod(OP, SS_OPT, ASSIGN);
+
+        // Assignment ::= SignalAssignment | MemoryAssignment
+        g.prod(ASSIGN, SIG_A);
+        g.prod(ASSIGN, MEM_A);
+
+        // SumOfTermsCompound ::= SumOfTerms Concat_SumOfTerms_Star
+        g.prod(SOTC, SOT, CSOT_S);
+
+        // Concat_SumOfTerms_Star ::= ConcatOp SumOfTerms Concat_SumOfTerms_Star | ε
+        g.prod(CSOT_S, ConcatOp, SOT, CSOT_S);
+        g.eps(CSOT_S);
+
+        // SumOfTerms ::= Term Or_Operand_Star
+        g.prod(SOT, TERM, OR_S);
+
+        // Or_Operand_Star ::= OrOp Term Or_Operand_Star | ε
+        g.prod(OR_S, OrOp, TERM, OR_S);
+        g.eps(OR_S);
+
+        // Term ::= Factor And_Operand_Star
+        g.prod(TERM, FACTOR, AND_S);
+
+        // And_Operand_Star ::= AndOp Factor And_Operand_Star | ε
+        g.prod(AND_S, ANDOP, FACTOR, AND_S);
+        g.eps(AND_S);
+
+        // Factor ::= LeftPar SumOfTerms RightPar | LiteralValue | NotOp Signal | Signal
+        g.prod(FACTOR, LeftPar, SOT, RightPar);
+        g.prod(FACTOR, LITVAL);
+        g.prod(FACTOR, NotOp, SIG);
+        g.prod(FACTOR, SIG);
+
+        // SignalAssignment ::= AssignOp SumOfTermsCompound
+        g.prod(SIG_A, AssignOp, SOTC);
+
+        // MemoryAssignment ::= MemAssignOp SumOfTermsCompound OnKW SumOfTerms Comma_opt Set_Or_Reset WhenKW SumOfTerms Enabled_Operand_Opt Semicolon_Opt
+        g.prod(MEM_A, MemAssignOp, SOTC, OnKW, SOT, COM_OPT, SET_RST, WhenKW, SOT, EN_OPT, SEM_OPT);
+
+        // Comma_opt ::= Comma | ε
+        g.prod(COM_OPT, Comma);
+        g.eps(COM_OPT);
+
+        // Set_Or_Reset ::= ResetKW | SetKW
+        g.prod(SET_RST, ResetKW);
+        g.prod(SET_RST, SetKW);
+
+        // Enabled_Operand_Opt ::= Comma_opt EnabledKW WhenKW SumOfTerms | ε
+        g.prod(EN_OPT, COM_OPT, EnabledKW, WhenKW, SOT);
+        g.eps(EN_OPT);
+
+        // Semicolon_Opt ::= Semicolon | ε
+        g.prod(SEM_OPT, Semicolon);
+        g.eps(SEM_OPT);
+
+        // ModuleCall ::= LeftPar Arg Separ_Arg_Star RightPar
+        g.prod(MCALL, LeftPar, ARG, SARG_S, RightPar);
+
+        // Separ_Arg_Star ::= Separ Arg Separ_Arg_Star | ε
+        g.prod(SARG_S, SEPAR, ARG, SARG_S);
+        g.eps(SARG_S);
+
+        // LiteralValue ::= BitField
+        g.prod(LITVAL, BitField);
+
+        // Separ ::= Comma | Colon
+        g.prod(SEPAR, Comma);
+        g.prod(SEPAR, Colon);
+
+        // AndOp ::= Star
+        g.prod(ANDOP, Star);
+
+        return g.build(START);
     }
+
+    // -----------------------------------------------------------------------
 
     private final NonTerminal axiom;
     private final List<Production> productions;
@@ -126,5 +227,25 @@ public final class Grammar {
     public List<Production> getProductions() { return productions; }
     public List<Production> productionsOf(NonTerminal nt) {
         return byHead.getOrDefault(nt, List.of());
+    }
+
+    /**
+     * Représentation BNF textuelle de la grammaire.
+     * Format : une ligne par production, "Head ::= sym1 sym2 ..." avec ε pour epsilon.
+     */
+    public String toBnf() {
+        StringBuilder sb = new StringBuilder();
+        for (Production p : productions) {
+            sb.append(p.getHead().name()).append(" ::=");
+            if (p.isEpsilon()) {
+                sb.append(" ε");
+            } else {
+                for (Symbol s : p.getBody()) {
+                    sb.append(' ').append(s.toString());
+                }
+            }
+            sb.append('\n');
+        }
+        return sb.toString();
     }
 }
