@@ -32,7 +32,7 @@ public class Not extends Composant {
 		}
 
         }
-
+/*
 	public void ajouter(Connecteur c)  {
 		TableauConnecteur Tc = super.getE();
 		TableauConnecteur Tc2 = new TableauConnecteur(Tc.getTaille() + 1);
@@ -41,7 +41,9 @@ public class Not extends Composant {
 		}
 		Tc2.brancher(c,Tc2.getTaille());
 		super.setE(Tc2);
-	}
+		
+		
+	}*/
 
 /*
 	@Override

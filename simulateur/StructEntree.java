@@ -55,8 +55,9 @@ public class StructEntree {
 		List<Composant> Calcul = new ArrayList<>();
 		Map<Composant,Integer> DicoCompo = new HashMap<>();
 		C.getComposant().ajouter(Suivant);
-		int iteration = 0;
-		while (!Suivant.isEmpty() && iteration < 10) {
+		DicoCompo.put(C.getComposant(),1);
+		//int iteration = 0;
+		while (!Suivant.isEmpty() /*&& iteration < 10*/) {
 			List<Composant> Courant = Suivant;
 			Suivant = new ArrayList<>();
 			for(Composant Com : Courant) {
@@ -68,7 +69,7 @@ public class StructEntree {
 							DicoCompo.put(CI,1);
 						} else {
 							if (DicoCompo.get(CI) < 3) {
-								DicoCompo.put(CI,DicoCompo.get(CI));
+								DicoCompo.put(CI,DicoCompo.get(CI)+1);
 								CI.ajouter(Suivant);
 							}
 						}
@@ -76,7 +77,7 @@ public class StructEntree {
 				}
 			}
 			Calcul.addAll(Courant);
-			iteration ++;
+			//iteration ++;
 		}
 		System.out.println("Début liste Calcul " + this.nom);
 		for (Composant Compo : Calcul) {
