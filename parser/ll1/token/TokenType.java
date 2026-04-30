@@ -23,7 +23,7 @@ public enum TokenType {
 
     // Opérateurs
     AssignOp,       // =
-    MemAssignOp,    // :=
+    MemAssignOp,    // ::=
     OrOp,           // +
     Star,           // *  (terminal brut ; le NT AndOp ::= Star)
     ConcatOp,       // &
