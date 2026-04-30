@@ -140,7 +140,13 @@ public record Token(TokenType type, String value, int offset) {
 }
 ```
 
-`value` est non-null pour `IDENTIFIANT`, `BIT_FIELD`, `NATURAL_INTEGER` ; null pour les keywords/opérateurs/ponctuation (l'info est dans `type`).
+**`value` contient toujours le lexème exact** tel que présent dans la source,
+y compris pour les mots-clés et délimiteurs. Seul l'`EOF` a `value == null`
+(sentinelle sans lexème). Cet invariant est nécessaire pour que `end()`
+retourne toujours la position correcte de fin de token, et donc pour que
+`CstInternal.endOffset()` couvre exactement la portion de source du nœud.
+Le `TokenType` reste l'information classifiante ; `value` est purement
+positionnel (et utile pour les diagnostics).
 
 ### 4.2 `TokenType` (enum)
 

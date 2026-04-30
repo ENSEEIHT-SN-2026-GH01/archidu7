@@ -44,15 +44,8 @@ public class CstParserModuleTest {
     @Test
     public void module_offsets_couvrent_la_source() {
         CstNode root = CstParser.parse(SRC_MINIMAL);
-        // startOffset doit valoir 0 (premier caractère de la source)
         assertEquals(0, root.startOffset());
-        // Note : Token.end() = offset + (value == null ? 0 : value.length()).
-        // Les tokens sans value (mots-clés, délimiteurs) ont end() == offset.
-        // L'endOffset du CST est donc borné par le dernier token ayant une value,
-        // pas nécessairement src.length(). On vérifie au moins que l'offset final
-        // est dans l'intervalle [0, src.length()].
-        assertTrue("endOffset doit être >= 0", root.endOffset() >= 0);
-        assertTrue("endOffset doit être <= src.length()", root.endOffset() <= SRC_MINIMAL.length());
+        assertEquals(SRC_MINIMAL.length(), root.endOffset());
     }
 
     @Test

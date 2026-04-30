@@ -47,7 +47,8 @@ public class ShdlLexerTest {
         )) {
             var tokens = ShdlLexer.tokenize(c.src);
             assertEquals(c.src, c.expected, tokens.get(0).type());
-            assertNull("value doit etre null pour un keyword (" + c.src + ")", tokens.get(0).value());
+            assertEquals("value doit etre le lexeme exact (" + c.src + ")",
+                c.src, tokens.get(0).value());
         }
     }
 
@@ -96,16 +97,19 @@ public class ShdlLexerTest {
         }
     }
 
-    @Test public void value_lexeme_pour_3_types_valeur_seulement() {
-        // Identifiant, BitField, NaturalInteger -> value = lexeme
-        // Tout le reste -> value = null
-        assertEquals("abc", ShdlLexer.tokenize("abc").get(0).value());
-        assertEquals(".10", ShdlLexer.tokenize(".10").get(0).value());
-        assertEquals("7",   ShdlLexer.tokenize("7").get(0).value());
-        assertNull(ShdlLexer.tokenize("module").get(0).value());
-        assertNull(ShdlLexer.tokenize("(").get(0).value());
-        assertNull(ShdlLexer.tokenize("=").get(0).value());
-        assertNull(ShdlLexer.tokenize("::=").get(0).value());
+    @Test public void value_est_toujours_le_lexeme_matche() {
+        // Invariant : value contient le lexeme exact tel que dans la source,
+        // pour TOUS les types sauf EOF (sentinelle sans lexeme).
+        assertEquals("abc",    ShdlLexer.tokenize("abc").get(0).value());
+        assertEquals(".10",    ShdlLexer.tokenize(".10").get(0).value());
+        assertEquals("7",      ShdlLexer.tokenize("7").get(0).value());
+        assertEquals("module", ShdlLexer.tokenize("module").get(0).value());
+        assertEquals("(",      ShdlLexer.tokenize("(").get(0).value());
+        assertEquals("=",      ShdlLexer.tokenize("=").get(0).value());
+        assertEquals("::=",    ShdlLexer.tokenize("::=").get(0).value());
+        // EOF reste null (sentinelle sans lexeme)
+        var tokens = ShdlLexer.tokenize("abc");
+        assertNull(tokens.get(tokens.size() - 1).value());
     }
 
     @Test public void sequence_minimale_module() {

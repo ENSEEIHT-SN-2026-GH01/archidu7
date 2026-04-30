@@ -3,12 +3,14 @@ package parser.ll1.token;
 import java.util.Objects;
 
 /**
- * Token lexical : type + valeur (lexeme matché) + offset absolu dans la source.
+ * Token lexical : type + lexème matché + offset absolu dans la source.
  *
- * <p>{@code value} peut être {@code null} pour l'EOF et les pseudo-tokens sans
- * lexème. {@link #end()} retourne {@code offset + value.length()} ou {@code offset}
- * si {@code value} est null. {@link #end()} pointe sur le caractère APRÈS le
- * dernier de ce token (intervalle demi-ouvert {@code [offset, end)}).
+ * <p>{@code value} contient le lexème exact tel que présent dans la source
+ * (y compris pour les mots-clés et les délimiteurs). Seul l'EOF a
+ * {@code value == null} car c'est une sentinelle sans lexème. {@link #end()}
+ * retourne {@code offset + value.length()} (ou {@code offset} pour l'EOF) et
+ * pointe sur le caractère APRÈS le dernier de ce token (intervalle
+ * demi-ouvert {@code [offset, end)}).
  */
 public record Token(TokenType type, String value, int offset) {
     public Token {

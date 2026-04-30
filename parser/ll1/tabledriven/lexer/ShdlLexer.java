@@ -141,18 +141,11 @@ public final class ShdlLexer {
                 if (kw.isPresent()) bestType = kw.get();
             }
 
-            String value = needsValue(bestType) ? lexeme : null;
-            tokens.add(new Token(bestType, value, offset));
+            tokens.add(new Token(bestType, lexeme, offset));
             offset += bestLen;
         }
         tokens.add(new Token(TokenType.EOF, null, source.length()));
         return tokens;
-    }
-
-    private static boolean needsValue(TokenType t) {
-        return t == TokenType.Identifiant
-            || t == TokenType.BitField
-            || t == TokenType.NaturalInteger;
     }
 
     private static String previewChar(String s) {
