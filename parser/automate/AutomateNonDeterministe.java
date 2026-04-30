@@ -1,6 +1,8 @@
 package parser.automate;
 
 import java.util.*;
+
+import parser.lexer.Lexem;
 import parser.regex.*;
 import util.Pair;
 
@@ -12,10 +14,10 @@ public class AutomateNonDeterministe<T> implements Automate<T> {
   private int nextId;
 
   private AutomateNonDeterministe(Regex r, T lexeme) {
-    nextId = 2;
-    entryPoints.add(0);
-    etatsTerminaux.put(1, lexeme);
-    parseRegex(r, pair(0, 1));
+    nextId = 3;
+    entryPoints.add(1);
+    etatsTerminaux.put(2, lexeme);
+    parseRegex(r, pair(1, 2));
   }
 
   protected static <T> AutomateNonDeterministe<T> fromList(List<Pair<Regex, T>> l){
@@ -24,10 +26,7 @@ public class AutomateNonDeterministe<T> implements Automate<T> {
       listeAutomates.add(new AutomateNonDeterministe<T>(pair.fst(), pair.snd()));
     });
 
-    AutomateNonDeterministe<T> res = ouAutomates(listeAutomates);
-    System.out.println(res.toString());
-
-    return res;
+    return ouAutomates(listeAutomates);
   }
 
   private static Transitions<Integer, OptionalInt> transitionsOffsetted(Transitions<Integer, OptionalInt> transitions, int offset){
@@ -58,8 +57,9 @@ public class AutomateNonDeterministe<T> implements Automate<T> {
     etatsTerminaux.forEach((node, lexeme) -> {
       newEtatsTerminaux.put(node + offset, lexeme);
     });
+    etatsTerminaux = newEtatsTerminaux;
 
-    nextId += offset;
+    nextId += offset+1;
   }
 
   private static <T> AutomateNonDeterministe<T> ouAutomates(List<AutomateNonDeterministe<T>> l){
@@ -103,7 +103,11 @@ public class AutomateNonDeterministe<T> implements Automate<T> {
       for (int i = ra.getLeft(); i <= ra.getRight(); i++) {
         parseRegex(new Litteral((char) i), p);
       }
-    }
+    } else if (r instanceof Joker){
+      for (int i = 0; i <= 255; i++) {
+        parseRegex(new Litteral((char) i), p);
+      }
+    } // TODO add the not
   }
 
   private static <A, B> Pair<A, B> pair(A a, B b) {
@@ -127,7 +131,7 @@ public class AutomateNonDeterministe<T> implements Automate<T> {
   }
 
   @Override
-  public List<T> exec(String t) {
+  public List<Lexem<T>> exec(String t) {
     throw new NotExecutableError();
   }
 

@@ -51,4 +51,14 @@ public class Litteral implements Regex {
   public boolean equals(Regex other) {
     return other instanceof Litteral otherLitteral && character == otherLitteral.getCharacter();
   }
+
+  @Override
+  public Regex simplify() {
+    return this;
+  }
+
+  @Override
+  public boolean isNotCompatible() {
+    return true;
+  }
 }

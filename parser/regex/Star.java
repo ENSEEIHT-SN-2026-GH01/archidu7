@@ -22,4 +22,20 @@ public class Star implements Regex {
   public boolean equals(Regex other) {
     return other instanceof Star otherStar && insideRegex.equals(otherStar.getInsideRegex());
   }
+  
+  @Override
+  public Regex simplify() {
+    insideRegex = insideRegex.simplify();
+
+    if (insideRegex instanceof Epsilon){
+      return insideRegex;
+    }
+
+    return this;
+  }
+
+  @Override
+  public boolean isNotCompatible() {
+    return false;
+  }
 }

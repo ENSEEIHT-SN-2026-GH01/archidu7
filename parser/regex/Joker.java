@@ -1,17 +1,18 @@
 package parser.regex;
 
-public class Epsilon implements Regex {
+public class Joker implements Regex {
+  public static final char CHARCTER = '.';
 
   @Override
   public String toString() {
-    return "#";
+    return ".";
   }
 
   @Override
   public boolean equals(Regex other) {
-    return other instanceof Epsilon;
+    return other instanceof Joker;
   }
-  
+
   @Override
   public Regex simplify() {
     return this;
@@ -19,6 +20,6 @@ public class Epsilon implements Regex {
 
   @Override
   public boolean isNotCompatible() {
-    return false;
+    return true;
   }
 }
