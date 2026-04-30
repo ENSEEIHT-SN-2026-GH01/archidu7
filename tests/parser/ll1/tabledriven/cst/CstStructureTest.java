@@ -11,6 +11,7 @@ import parser.ll1.token.Token;
 import parser.ll1.token.TokenType;
 import parser.ll1.tabledriven.cst.CstInternal;
 import parser.ll1.tabledriven.cst.CstLeaf;
+import parser.ll1.tabledriven.cst.CstNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +71,7 @@ public class CstStructureTest {
     public void internal_children_immutable() {
         var tid = new Terminal(TokenType.Identifiant);
         var leaf = new CstLeaf(tid, new Token(TokenType.Identifiant, "x", 0));
-        var mutableList = new ArrayList<>(List.of(leaf));
+        List<CstNode> mutableList = new ArrayList<>(List.of(leaf));
         var node = CstInternal.of(NonTerminal.Module, PROD, mutableList);
         // Modifier la liste originale ne doit pas affecter les children du noeud
         mutableList.add(leaf);
