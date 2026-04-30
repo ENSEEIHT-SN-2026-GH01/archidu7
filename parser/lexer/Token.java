@@ -38,4 +38,5 @@ public enum Token{
   Comment,
   
   Error,
+  EOF,
 }
