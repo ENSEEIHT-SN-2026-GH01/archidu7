@@ -130,91 +130,77 @@ parser/ll1/
 
 ## 4. Composants
 
-### 4.1 `Token` (record)
+### 4.1 `Lexem<Token>` (classe d'Erwan)
 
-```java
-public record Token(TokenType type, String value, int offset) {
-    public int end() {
-        return offset + (value == null ? 0 : value.length());
-    }
-}
+> **Migration 2026-04-30 (soir)** : on n'a plus de `parser.ll1.token.Token` ni de
+> `parser.ll1.token.TokenType` maison. On utilise directement `parser.lexer.Token`
+> (enum d'Erwan) et `parser.lexer.Lexem<Token>` partout.
+
+`Lexem<Token>` est la classe d'Erwan (dans `parser/lexer/Lexem.java`). Elle contient :
+- `getToken()` : le type du token (`parser.lexer.Token`)
+- `getText()` : le lexeme exact matche dans la source
+- `getIndexDepart()` : index de debut dans la source
+- `getIndexFin()` : `indexDepart + text.length()`
+- `isIgnored()` : vrai pour whitespace/lineTerminator (trivia a filtrer)
+
+La sentinelle EOF est creee avec `storeMatched(src.length(), "")` pour que
+`getIndexDepart() == getIndexFin() == src.length()`.
+
+### 4.2 `parser.lexer.Token` (enum d'Erwan)
+
+On utilise directement l'enum d'Erwan. Liste complete :
 ```
-
-**`value` contient toujours le lexème exact** tel que présent dans la source,
-y compris pour les mots-clés et délimiteurs. Seul l'`EOF` a `value == null`
-(sentinelle sans lexème). Cet invariant est nécessaire pour que `end()`
-retourne toujours la position correcte de fin de token, et donc pour que
-`CstInternal.endOffset()` couvre exactement la portion de source du nœud.
-Le `TokenType` reste l'information classifiante ; `value` est purement
-positionnel (et utile pour les diagnostics).
-
-### 4.2 `TokenType` (enum)
-
-Liste exhaustive, alignée production-pour-production sur les terminaux de la grammaire LL(1) cible :
-
-```
-ModuleKW, EndKW, OnKW, WhenKW, SetKW, ResetKW, EnabledKW,
-LeftPar, RightPar, LeftSquareBrack, RightSquareBrack,
-Comma, Colon, Semicolon, PointPoint, Dollar,
-AssignOp, MemAssignOp, OrOp, Star, ConcatOp, NotOp,
+LeftPar, LeftSquareBrack, RightSquareBrack, RightPar,
+ModuleKW, EndKW, OutputKW, EnabledKW, WhenKW, OnKW, ResetKW, SetKW,
+ConcatOp, PointPoint, Colon, OrOp, Star, NotOp, AssignOp, MemAssignOp,
+Comma, Semicolon, Dollar,
 Identifiant, BitField, NaturalInteger,
-EOF
+whiteSpace, lineTerminator, Comment,
+Error, EOF
 ```
 
-**Convention de nommage** : CamelCase (et non `UPPER_SNAKE_CASE` JLS). Choix
-délibéré pour que les valeurs coïncident mot-pour-mot avec les symboles du BNF,
-ce qui rend `Grammar.toBnf()` et le `GrammarFreezeTest` trivialement
-maintenables. Voir `parser/ll1/grammar/package-info.java`. Même règle pour
-`NonTerminal`.
+**Note `MemAssignOp`** : chez Erwan, `:=` (pas `::=`). La grammaire formelle
+utilise donc `Token.MemAssignOp` qui correspond a `:=`.
 
-**Note `Star`** : terminal brut `*`. La grammaire introduit le NT
-`AndOp ::= Star` pour rester homogène avec les autres opérateurs (`OrOp` est
-un terminal direct, `AndOp` ne l'est pas — héritage du fichier source).
+**Note trivia** : `whiteSpace` et `lineTerminator` ont `isIgnored() == true` dans
+le lexer d'Erwan. `Comment` n'a pas `ignore=true` (oubli probable). On filtre
+les trois explicitement dans `CstParser.tokenize`.
 
-`EOF` : sentinelle ajoutée par le lexer en fin de flux pour faciliter la fin de parsing.
+**Note `Error`** : tout caractere non reconnu produit un `Lexem<Token>` avec
+`getToken() == Token.Error`. `CstParser.tokenize` leve une `ParsingException`
+si un tel lexeme est rencontre.
 
-### 4.3 `ShdlLexer`
+### 4.3 Lexer (direct, pas de wrapper)
 
 ```java
-public final class ShdlLexer {
-    public static List<Token> tokenize(String source) throws LexerException;
-}
+// Dans CstParser.parse(String source) :
+List<Lexem<Token>> raw = new Lexer().tokenize(source);
+// filtre trivia + Error + append EOF sentinelle
 ```
 
-Algorithme :
+Plus de `ShdlLexer`, plus de `KeywordTable`, plus de `LexerException` maison.
+Le lexer d'Erwan gere nativement les keywords (via le mecanisme `safe` qui
+priorise `ModuleKW` sur `Identifiant` pour le mot "module").
 
-1. Construction unique (à la première invocation, cached) d'un `AutomateDeterministe<TokenType>` à partir d'une `List<Pair<Regex, TokenType>>` contenant uniquement :
-   - Opérateurs/ponctuations (regex de littéral échappé)
-   - `IDENTIFIANT` : `[a-zA-Z_][a-zA-Z0-9_]*`
-   - `BIT_FIELD` : `\.[0-1]+`
-   - `NATURAL_INTEGER` : `[0-9]+`
-   - **Pas** de keywords (reclassif post-lex)
-   - **Pas** de whitespace (skip pré-traitement)
-   - **Pas** de commentaires (skip pré-traitement)
-2. Boucle sur le source :
-   - Skip whitespace (`[ \t\r\n]+`)
-   - Skip commentaire (`//...EOL` ou `#...EOL`)
-   - Si fin du source : ajouter `Token(EOF, null, source.length())`, sortir
-   - Appeler `automate.exec1(source.substring(currentOffset))` → `(type, length)`
-   - Slice le lexème : `source.substring(currentOffset, currentOffset + length)`
-   - Si `type == IDENTIFIANT` et lexème ∈ `KeywordTable` : reclassifier en keyword
-   - Sinon : créer `Token(type, lexèmeOuNull, currentOffset)` (`null` si type sans valeur intéressante)
-   - Avancer `currentOffset += length`
-3. Erreur si `exec1` lève `LexingException` ou si le source est vide à un endroit inattendu : `LexerException` avec offset.
-
-### 4.4 `KeywordTable`
-
+**Filtrage trivia** :
 ```java
-public static final Map<String, TokenType> KEYWORDS = Map.of(
-    "module",  MODULE_KW,
-    "end",     END_KW,
-    "on",      ON_KW,
-    "when",    WHEN_KW,
-    "set",     SET_KW,
-    "reset",   RESET_KW,
-    "enabled", ENABLED_KW
-);
+skip si lex.isIgnored()
+      || lex.getToken() == Token.Comment
+      || lex.getToken() == Token.whiteSpace
+      || lex.getToken() == Token.lineTerminator
 ```
+
+**EOF sentinelle** :
+```java
+Lexem<Token> eof = new Lexem<>(Token.EOF);
+eof.storeMatched(source.length(), "");
+filtered.add(eof);
+```
+
+### 4.4 (supprime) `KeywordTable`
+
+Supprime. La reclassification keyword/identifiant est geree nativement par le
+lexer d'Erwan via le mecanisme de priorite `safe`.
 
 ### 4.5 `Grammar.SHDL`
 
@@ -229,15 +215,14 @@ Bugs déjà identifiés dans le fichier qu'on **corrige dans `Grammar.SHDL` côt
 
 ```java
 public record ParsingTable(Map<TableKey, Production> entries) {
-    public record TableKey(NonTerminal nt, TokenType t) {}
-    public Optional<Production> lookup(NonTerminal nt, TokenType t) { ... }
+    public record TableKey(NonTerminal nt, Token t) {}
+    public Optional<Production> lookup(NonTerminal nt, Token t) { ... }
 }
 ```
 
-La clé est typée `TokenType` (pas `Terminal`) pour cohérence avec
-`FirstSet`/`FollowSet`, qui retournent `Set<TokenType>`. `Terminal` reste un
-simple wrapper utilisé côté grammaire ; les consommateurs de la table ne
-manipulent que des `TokenType`.
+La cle est typee `parser.lexer.Token` (enum d'Erwan, pas notre ancien `TokenType`).
+`FirstSet`/`FollowSet` retournent desormais `Set<Token>`. `Terminal` reste un
+simple wrapper autour de `Token`.
 
 ### 4.7 `TableBuilder`
 
@@ -276,25 +261,30 @@ public record CstInternal(
     // implémentations de first/allOf/has parcourent children
 }
 
-public record CstLeaf(Terminal t, Token token) implements CstNode {
-    public int startOffset() { return token.offset(); }
-    public int endOffset() { return token.end(); }
+public record CstLeaf(Terminal t, Lexem<Token> lexem) implements CstNode {
+    public int startOffset() { return lexem.getIndexDepart(); }
+    public int endOffset()   { return lexem.getIndexFin(); }
     // first/allOf/has triviaux (un Leaf n'a pas d'enfants)
 }
 ```
 
-`startOffset` / `endOffset` sur `CstInternal` calculés à la construction :
-- `startOffset` = offset du premier `CstLeaf` descendant (ou `-1` si l'arbre est purement ε, cas dégénéré)
-- `endOffset` = endOffset du dernier `CstLeaf` descendant
+`startOffset` / `endOffset` sur `CstInternal` calcules a la construction :
+- `startOffset` = `getIndexDepart()` du premier enfant
+- `endOffset` = `getIndexFin()` du dernier enfant
 
-Cas ε (production réduite à `ε`) : `CstInternal` avec children vides ; `startOffset` = `endOffset` = offset du token courant au moment de la prédiction (= position d'insertion du ε dans le flux).
+Cas epsilon (production reduite a epsilon) : `CstInternal` avec children vides ;
+`startOffset` = `endOffset` = `getIndexDepart()` du token courant au moment de
+la prediction (= position d'insertion du epsilon dans le flux).
+
+**Cas EOF sentinelle** : `getIndexDepart() == getIndexFin() == src.length()`.
+EOF n'est jamais attache comme CstLeaf (le driver s'arrete avant).
 
 ### 4.9 `CstParser`
 
 ```java
 public final class CstParser {
-    public static CstNode parse(String source) throws LexerException, ParsingException;
-    public static CstNode parseTokens(List<Token> tokens) throws ParsingException;  // pour tests isolés
+    public static CstNode parse(String source) throws ParsingException;
+    // parseTokens retire : on appelle directement new Lexer().tokenize() en interne
 }
 ```
 
@@ -314,10 +304,10 @@ Algorithme à pile classique :
 ```java
 public final class ParsingException extends RuntimeException {
     private final int offset;
-    private final TokenType expected;  // peut être null pour erreurs plus complexes
-    private final Token actual;
+    private final Token expected;       // parser.lexer.Token, peut etre null
+    private final Lexem<Token> actual;  // parser.lexer.Lexem<Token>, peut etre null
     private final NonTerminal context;
-    // message formaté avec ces infos
+    // message formate avec ces infos
 }
 ```
 
@@ -352,22 +342,25 @@ Module @0..47 [Module → ModuleKW Identifiant LeftPar Param Separ_Param_Star Ri
 
 Utile pour debug et tests golden-master.
 
-## 4.12 Modifications nécessaires côté code amont (`parser/regex/`, `parser/automate/`)
+## 4.12 Modifications cote code amont (`parser/regex/`, `parser/automate/`, `parser/lexer/`)
 
-**Aucune.** Le code amont est utilisable tel quel pour le besoin via `exec1`. Bugs et limitations identifiés (audit) sont contournables côté wrapper :
+**Note de migration 2026-04-30 (soir)** : migration vers `parser/lexer/` d'Erwan ;
+suppression de `parser/ll1/token/` (TokenType, Token) et `parser/ll1/tabledriven/lexer/`
+(ShdlLexer, KeywordTable, LexerException). Ces workarounds etaient necessaires
+avant que le lexer d'Erwan soit disponible. Desormais obsoletes.
 
-- `exec` bugué (offset cumulé) : non utilisé, on consomme `exec1` en boucle
-- **`fromList(N>1 règles)` bugué : les états finaux se réécrivent mutuellement
-  lors de la fusion des NFA, seule la dernière règle survit. Découvert pendant
-  l'implémentation du lexer (Task 5). Contournement adopté : un automate par
-  règle + longest match orchestré côté Java dans `ShdlLexer.tokenize`. Bug à
-  signaler à Erwan (cf. `docs/bugs-amont-erwan.md`).**
-- Pas de priorité keyword/Identifiant : reclassif post-lex
-- Pas de négation `[^...]` : skip whitespace+commentaires en pré-traitement
-- `fromList` mute son argument : passer une copie défensive
-- `System.out.println` polluant : ignoré
+Le bug `fromList(N>1 regles)` decrit dans `docs/bugs-amont-erwan.md` est
+**resolu upstream** (commit 55bbf38 d'Erwan). Son lexer `Lexer.java` l'utilise
+correctement avec le mecanisme `safe`. Ce commit est inclus dans
+`origin/interpretation@d1c84a0` (import de ce sprint).
 
-Améliorations qualité optionnelles à signaler en amont sans bloquer cette branche (voir audit).
+- `exec` (exec sur chaine entiere) : utilise par `Lexer.tokenize`. Fonctionne.
+- `parser/lexer/Lexer` : construit l'automate complet, priorites keywords via `safe`.
+- `parser/lexer/Lexem` : classe de lexeme avec offsets et flag `ignore`.
+- `parser/lexer/Token` : enum officiel du projet, a utiliser partout.
+
+Ne pas toucher au code dans `parser/automate/`, `parser/regex/`, `parser/lexer/`,
+`util/` : code exclusivement maintenu par Erwan.
 
 ## 5. Tests
 
