@@ -3,9 +3,21 @@
 Découverts pendant le développement du parser table-driven SHDL
 (branche `feature/parser-ll1-table-driven`, sprint 2).
 
-Aucune modification du code d'Erwan dans cette branche : les bugs sont
-contournés côté wrapper. Ce document existe pour qu'Erwan puisse confirmer
-et corriger sur sa branche quand il aura le temps.
+> **STATUT 2026-04-30 (soir) : LES DEUX BUGS SONT FIXÉS UPSTREAM**
+> par Erwan dans le commit `55bbf38` sur `origin/interpretation`
+> ("Le lexer + correction et ajustements sur les automates et les
+> expressions régulières"). Bug 1 corrigé exactement comme attendu
+> (`index += p.snd()`). Bug 2 corrigé via deux changements dans
+> `AutomateNonDeterministe` : `nextId += offset+1` ET
+> `etatsTerminaux = newEtatsTerminaux` (le second nous avait échappé,
+> c'était la cause principale ; notre repro le déclenchait quand même).
+> Notre code va migrer vers le lexer d'Erwan dans cette branche, ce qui
+> rend les workarounds locaux obsolètes. Document conservé pour
+> traçabilité.
+
+Aucune modification du code d'Erwan dans cette branche : les bugs étaient
+contournés côté wrapper. Ce document a servi à signaler les bugs avant
+qu'Erwan ne les fixe.
 
 ---
 
