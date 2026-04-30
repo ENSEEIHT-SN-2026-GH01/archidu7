@@ -3,7 +3,7 @@ package tests.parser.ll1.tabledriven.grammar;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import parser.ll1.grammar.*;
-import parser.ll1.token.TokenType;
+import parser.lexer.Token;
 
 import static org.junit.Assert.*;
 
@@ -29,7 +29,7 @@ public class FollowSetShdlTest {
     // -----------------------------------------------------------------------
     @Test
     public void followModule_contientEOF() {
-        assertTrue(follow.of(NonTerminal.Module).contains(TokenType.EOF));
+        assertTrue(follow.of(NonTerminal.Module).contains(Token.EOF));
     }
 
     // -----------------------------------------------------------------------
@@ -42,13 +42,13 @@ public class FollowSetShdlTest {
     // -----------------------------------------------------------------------
     @Test
     public void followInstance_contientEndKW() {
-        assertTrue(follow.of(NonTerminal.Instance).contains(TokenType.EndKW));
+        assertTrue(follow.of(NonTerminal.Instance).contains(Token.EndKW));
     }
 
     @Test
     public void followInstance_contientIdentifiantEtDollar() {
-        assertTrue(follow.of(NonTerminal.Instance).contains(TokenType.Identifiant));
-        assertTrue(follow.of(NonTerminal.Instance).contains(TokenType.Dollar));
+        assertTrue(follow.of(NonTerminal.Instance).contains(Token.Identifiant));
+        assertTrue(follow.of(NonTerminal.Instance).contains(Token.Dollar));
     }
 
     // -----------------------------------------------------------------------
@@ -62,9 +62,9 @@ public class FollowSetShdlTest {
     // -----------------------------------------------------------------------
     @Test
     public void followParam_contientCommaColonRightPar() {
-        assertTrue(follow.of(NonTerminal.Param).contains(TokenType.Comma));
-        assertTrue(follow.of(NonTerminal.Param).contains(TokenType.Colon));
-        assertTrue(follow.of(NonTerminal.Param).contains(TokenType.RightPar));
+        assertTrue(follow.of(NonTerminal.Param).contains(Token.Comma));
+        assertTrue(follow.of(NonTerminal.Param).contains(Token.Colon));
+        assertTrue(follow.of(NonTerminal.Param).contains(Token.RightPar));
     }
 
     // -----------------------------------------------------------------------
@@ -77,7 +77,7 @@ public class FollowSetShdlTest {
     // -----------------------------------------------------------------------
     @Test
     public void followFactor_contientStar() {
-        assertTrue(follow.of(NonTerminal.Factor).contains(TokenType.Star));
+        assertTrue(follow.of(NonTerminal.Factor).contains(Token.Star));
     }
 
     // -----------------------------------------------------------------------
@@ -88,7 +88,7 @@ public class FollowSetShdlTest {
     // -----------------------------------------------------------------------
     @Test
     public void followTerm_contientOrOp() {
-        assertTrue(follow.of(NonTerminal.Term).contains(TokenType.OrOp));
+        assertTrue(follow.of(NonTerminal.Term).contains(Token.OrOp));
     }
 
     // -----------------------------------------------------------------------
@@ -100,9 +100,9 @@ public class FollowSetShdlTest {
     // -----------------------------------------------------------------------
     @Test
     public void followSumOfTerms_contientCommaResetKWSetKW() {
-        assertTrue(follow.of(NonTerminal.SumOfTerms).contains(TokenType.Comma));
-        assertTrue(follow.of(NonTerminal.SumOfTerms).contains(TokenType.ResetKW));
-        assertTrue(follow.of(NonTerminal.SumOfTerms).contains(TokenType.SetKW));
+        assertTrue(follow.of(NonTerminal.SumOfTerms).contains(Token.Comma));
+        assertTrue(follow.of(NonTerminal.SumOfTerms).contains(Token.ResetKW));
+        assertTrue(follow.of(NonTerminal.SumOfTerms).contains(Token.SetKW));
     }
 
     // -----------------------------------------------------------------------
@@ -111,6 +111,6 @@ public class FollowSetShdlTest {
     // -----------------------------------------------------------------------
     @Test
     public void followSumOfTerms_contientRightPar() {
-        assertTrue(follow.of(NonTerminal.SumOfTerms).contains(TokenType.RightPar));
+        assertTrue(follow.of(NonTerminal.SumOfTerms).contains(Token.RightPar));
     }
 }

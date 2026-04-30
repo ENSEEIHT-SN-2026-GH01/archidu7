@@ -3,7 +3,7 @@ package tests.parser.ll1.tabledriven.grammar;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import parser.ll1.grammar.*;
-import parser.ll1.token.TokenType;
+import parser.lexer.Token;
 
 import java.util.Set;
 
@@ -30,7 +30,7 @@ public class FirstSetShdlTest {
     // -----------------------------------------------------------------------
     @Test
     public void firstModule_estExactementModuleKW() {
-        assertEquals(Set.of(TokenType.ModuleKW), first.of(NonTerminal.Module));
+        assertEquals(Set.of(Token.ModuleKW), first.of(NonTerminal.Module));
     }
 
     // -----------------------------------------------------------------------
@@ -42,11 +42,11 @@ public class FirstSetShdlTest {
     // -----------------------------------------------------------------------
     @Test
     public void firstFactor_contientLesQuatreAlternatives() {
-        Set<TokenType> expected = Set.of(
-                TokenType.LeftPar,
-                TokenType.BitField,
-                TokenType.NotOp,
-                TokenType.Identifiant
+        Set<Token> expected = Set.of(
+                Token.LeftPar,
+                Token.BitField,
+                Token.NotOp,
+                Token.Identifiant
         );
         assertEquals(expected, first.of(NonTerminal.Factor));
     }
@@ -58,7 +58,7 @@ public class FirstSetShdlTest {
     // -----------------------------------------------------------------------
     @Test
     public void firstInstance_estExactementIdentifiantEtDollar() {
-        assertEquals(Set.of(TokenType.Identifiant, TokenType.Dollar), first.of(NonTerminal.Instance));
+        assertEquals(Set.of(Token.Identifiant, Token.Dollar), first.of(NonTerminal.Instance));
     }
 
     // -----------------------------------------------------------------------
@@ -70,11 +70,11 @@ public class FirstSetShdlTest {
     // -----------------------------------------------------------------------
     @Test
     public void firstOperation_contientLesQuatreTerminaux() {
-        Set<TokenType> expected = Set.of(
-                TokenType.LeftPar,
-                TokenType.LeftSquareBrack,
-                TokenType.AssignOp,
-                TokenType.MemAssignOp
+        Set<Token> expected = Set.of(
+                Token.LeftPar,
+                Token.LeftSquareBrack,
+                Token.AssignOp,
+                Token.MemAssignOp
         );
         assertEquals(expected, first.of(NonTerminal.Operation));
     }
@@ -103,7 +103,7 @@ public class FirstSetShdlTest {
     // -----------------------------------------------------------------------
     @Test
     public void firstDotDot_estExactementPointPointEtColon() {
-        assertEquals(Set.of(TokenType.PointPoint, TokenType.Colon), first.of(NonTerminal.DotDot));
+        assertEquals(Set.of(Token.PointPoint, Token.Colon), first.of(NonTerminal.DotDot));
     }
 
     // -----------------------------------------------------------------------
@@ -112,7 +112,7 @@ public class FirstSetShdlTest {
     // -----------------------------------------------------------------------
     @Test
     public void firstSetOrReset_estExactementResetKWEtSetKW() {
-        assertEquals(Set.of(TokenType.ResetKW, TokenType.SetKW), first.of(NonTerminal.Set_Or_Reset));
+        assertEquals(Set.of(Token.ResetKW, Token.SetKW), first.of(NonTerminal.Set_Or_Reset));
     }
 
     // -----------------------------------------------------------------------
@@ -121,6 +121,6 @@ public class FirstSetShdlTest {
     // -----------------------------------------------------------------------
     @Test
     public void firstModuleCall_estExactementLeftPar() {
-        assertEquals(Set.of(TokenType.LeftPar), first.of(NonTerminal.ModuleCall));
+        assertEquals(Set.of(Token.LeftPar), first.of(NonTerminal.ModuleCall));
     }
 }
