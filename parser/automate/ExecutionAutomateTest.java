@@ -38,10 +38,10 @@ public class ExecutionAutomateTest {
 
       try {
         assertContent(a.exec(chaineTest), resultat1);
-      } catch (LexingException e){
+      } catch (LexingException _){
         assertTrue("A lexing was encountered", false);
       }
-    } catch (LexingException e){ // ici l'automate est sufffisamment simple pour que la grammaire soit deterministe
+    } catch (LexingException _){ // ici l'automate est sufffisamment simple pour que la grammaire soit deterministe
     }
 
     
