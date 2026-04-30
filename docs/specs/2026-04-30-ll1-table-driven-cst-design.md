@@ -144,16 +144,26 @@ public record Token(TokenType type, String value, int offset) {
 
 ### 4.2 `TokenType` (enum)
 
-Liste exhaustive (à finaliser depuis la grammaire LL(1) cible) :
+Liste exhaustive, alignée production-pour-production sur les terminaux de la grammaire LL(1) cible :
 
 ```
-MODULE_KW, END_KW, ON_KW, WHEN_KW, SET_KW, RESET_KW, ENABLED_KW,
-LEFT_PAR, RIGHT_PAR, LEFT_SQUARE_BRACK, RIGHT_SQUARE_BRACK,
-COMMA, COLON, SEMICOLON, POINT_POINT, DOLLAR,
-ASSIGN_OP, MEM_ASSIGN_OP, OR_OP, AND_OP, CONCAT_OP, NOT_OP,
-IDENTIFIANT, BIT_FIELD, NATURAL_INTEGER,
+ModuleKW, EndKW, OnKW, WhenKW, SetKW, ResetKW, EnabledKW,
+LeftPar, RightPar, LeftSquareBrack, RightSquareBrack,
+Comma, Colon, Semicolon, PointPoint, Dollar,
+AssignOp, MemAssignOp, OrOp, Star, ConcatOp, NotOp,
+Identifiant, BitField, NaturalInteger,
 EOF
 ```
+
+**Convention de nommage** : CamelCase (et non `UPPER_SNAKE_CASE` JLS). Choix
+délibéré pour que les valeurs coïncident mot-pour-mot avec les symboles du BNF,
+ce qui rend `Grammar.toBnf()` et le `GrammarFreezeTest` trivialement
+maintenables. Voir `parser/ll1/grammar/package-info.java`. Même règle pour
+`NonTerminal`.
+
+**Note `Star`** : terminal brut `*`. La grammaire introduit le NT
+`AndOp ::= Star` pour rester homogène avec les autres opérateurs (`OrOp` est
+un terminal direct, `AndOp` ne l'est pas — héritage du fichier source).
 
 `EOF` : sentinelle ajoutée par le lexer en fin de flux pour faciliter la fin de parsing.
 
@@ -213,10 +223,15 @@ Bugs déjà identifiés dans le fichier qu'on **corrige dans `Grammar.SHDL` côt
 
 ```java
 public record ParsingTable(Map<TableKey, Production> entries) {
-    public record TableKey(NonTerminal nt, Terminal t) {}
-    public Optional<Production> lookup(NonTerminal nt, Terminal t) { ... }
+    public record TableKey(NonTerminal nt, TokenType t) {}
+    public Optional<Production> lookup(NonTerminal nt, TokenType t) { ... }
 }
 ```
+
+La clé est typée `TokenType` (pas `Terminal`) pour cohérence avec
+`FirstSet`/`FollowSet`, qui retournent `Set<TokenType>`. `Terminal` reste un
+simple wrapper utilisé côté grammaire ; les consommateurs de la table ne
+manipulent que des `TokenType`.
 
 ### 4.7 `TableBuilder`
 
@@ -335,7 +350,12 @@ Utile pour debug et tests golden-master.
 
 **Aucune.** Le code amont est utilisable tel quel pour le besoin via `exec1`. Bugs et limitations identifiés (audit) sont contournables côté wrapper :
 
-- `exec` bugué : non utilisé
+- `exec` bugué (offset cumulé) : non utilisé, on consomme `exec1` en boucle
+- **`fromList(N>1 règles)` bugué : les états finaux se réécrivent mutuellement
+  lors de la fusion des NFA, seule la dernière règle survit. Découvert pendant
+  l'implémentation du lexer (Task 5). Contournement adopté : un automate par
+  règle + longest match orchestré côté Java dans `ShdlLexer.tokenize`. Bug à
+  signaler à Erwan (cf. `docs/bugs-amont-erwan.md`).**
 - Pas de priorité keyword/Identifiant : reclassif post-lex
 - Pas de négation `[^...]` : skip whitespace+commentaires en pré-traitement
 - `fromList` mute son argument : passer une copie défensive
