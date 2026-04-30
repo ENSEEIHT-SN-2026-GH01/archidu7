@@ -1,16 +1,16 @@
 package parser.ll1.tabledriven;
 
+import parser.lexer.Lexem;
+import parser.lexer.Lexer;
+import parser.lexer.Token;
 import parser.ll1.grammar.Grammar;
 import parser.ll1.grammar.NonTerminal;
 import parser.ll1.grammar.Production;
 import parser.ll1.grammar.Symbol;
 import parser.ll1.grammar.Terminal;
-import parser.ll1.token.Token;
-import parser.ll1.token.TokenType;
 import parser.ll1.tabledriven.cst.CstInternal;
 import parser.ll1.tabledriven.cst.CstLeaf;
 import parser.ll1.tabledriven.cst.CstNode;
-import parser.ll1.tabledriven.lexer.ShdlLexer;
 import parser.ll1.tabledriven.table.ParsingTable;
 import parser.ll1.tabledriven.table.TableBuilder;
 
@@ -24,12 +24,12 @@ import java.util.Optional;
 /**
  * Driver de parsing LL(1) table-driven pour SHDL.
  *
- * <p>Produit un {@link CstNode} (arbre de syntaxe concrète) depuis une source
- * textuelle ou une liste de tokens pré-calculée.
+ * <p>Produit un {@link CstNode} (arbre de syntaxe concrete) depuis une source
+ * textuelle. Utilise directement le lexer d Erwan ({@link Lexer}).
  */
 public final class CstParser {
 
-    // Table et axiome : calculés une seule fois (la grammaire est statique)
+    // Table et axiome : calcules une seule fois (la grammaire est statique)
     private static final ParsingTable TABLE = TableBuilder.build(Grammar.SHDL);
     private static final NonTerminal  AXIOM = Grammar.SHDL.getAxiom();
 
@@ -40,29 +40,55 @@ public final class CstParser {
     // -----------------------------------------------------------------------
 
     /**
-     * Tokenise {@code source} puis parse.
+     * Tokenise {@code source} via le lexer d Erwan puis parse.
+     *
+     * <p>Les trivia (whitespace, lineTerminator, commentaires) sont filtres.
+     * Les lexemes {@link Token#Error} levent une {@link ParsingException}.
+     * Un lexeme EOF sentinelle est ajoute en fin de liste.
      *
      * @throws NullPointerException si {@code source} est null
      * @throws ParsingException si la source n'est pas syntaxiquement correcte
      */
     public static CstNode parse(String source) {
         Objects.requireNonNull(source, "source");
-        return parseTokens(ShdlLexer.tokenize(source));
-    }
-
-    /**
-     * Parse une liste de tokens (doit se terminer par EOF).
-     *
-     * @throws NullPointerException si {@code tokens} est null
-     * @throws ParsingException si les tokens ne forment pas un programme valide
-     */
-    public static CstNode parseTokens(List<Token> tokens) {
-        Objects.requireNonNull(tokens, "tokens");
+        List<Lexem<Token>> tokens = tokenize(source);
         return new Driver(tokens).run();
     }
 
+    /**
+     * Tokenise {@code source}, filtre les trivia, ajoute EOF et retourne la liste.
+     * Les {@link Token#Error} levent une {@link ParsingException}.
+     */
+    static List<Lexem<Token>> tokenize(String source) {
+        List<Lexem<Token>> raw = new Lexer().tokenize(source);
+        List<Lexem<Token>> filtered = new ArrayList<>(raw.size() + 1);
+        for (Lexem<Token> lex : raw) {
+            Token t = lex.getToken();
+            // Filtrage trivia : whitespace, lineTerminator et commentaires
+            if (lex.isIgnored()
+                    || t == Token.whiteSpace
+                    || t == Token.lineTerminator
+                    || t == Token.Comment) {
+                continue;
+            }
+            // Un Token.Error indique un caractere non reconnu
+            if (t == Token.Error) {
+                throw new ParsingException(
+                        "caractere non reconnu : \"" + lex.getText() + "\"",
+                        lex.getIndexDepart(),
+                        null, lex, null);
+            }
+            filtered.add(lex);
+        }
+        // Sentinelle EOF : indexDepart = indexFin = source.length()
+        Lexem<Token> eofLexem = new Lexem<>(Token.EOF);
+        eofLexem.storeMatched(source.length(), "");
+        filtered.add(eofLexem);
+        return filtered;
+    }
+
     // -----------------------------------------------------------------------
-    // Implémentation interne
+    // Implementation interne
     // -----------------------------------------------------------------------
 
     /** Cadre de construction d'un CstInternal en cours. */
@@ -82,17 +108,17 @@ public final class CstParser {
         boolean isComplete() { return children.size() >= expectedChildren; }
     }
 
-    /** Moteur de parsing : une instance par appel à {@link #parseTokens}. */
+    /** Moteur de parsing : une instance par appel a {@link #parse}. */
     private static final class Driver {
-        private final List<Token> tokens;
+        private final List<Lexem<Token>> tokens;
         private int cursor = 0;
 
-        Driver(List<Token> tokens) {
+        Driver(List<Lexem<Token>> tokens) {
             this.tokens = tokens;
         }
 
         CstNode run() {
-            // Pile des symboles à traiter
+            // Pile des symboles a traiter
             Deque<Symbol> stack = new ArrayDeque<>();
 
             // Pile des frames (CstInternal en construction)
@@ -102,7 +128,7 @@ public final class CstParser {
             frames.push(rootFrame);
 
             // Push EOF puis axiome (Start) sur la pile des symboles
-            stack.push(new Terminal(TokenType.EOF));
+            stack.push(new Terminal(Token.EOF));
             stack.push(AXIOM);
 
             // ----------------------------------------------------------------
@@ -110,14 +136,14 @@ public final class CstParser {
             // ----------------------------------------------------------------
             while (!stack.isEmpty()) {
                 Symbol top     = stack.pop();
-                Token  current = tokens.get(cursor);
+                Lexem<Token> current = tokens.get(cursor);
 
                 if (top.isTerminal()) {
                     Terminal terminal = (Terminal) top;
-                    if (terminal.getType() == current.type()) {
+                    if (terminal.getType() == current.getToken()) {
                         // Match
-                        if (current.type() == TokenType.EOF) {
-                            // On ne crée pas de CstLeaf pour EOF, on s'arrête
+                        if (current.getToken() == Token.EOF) {
+                            // On ne cree pas de CstLeaf pour EOF, on s'arrete
                             break;
                         }
                         CstLeaf leaf = new CstLeaf(terminal, current);
@@ -127,7 +153,7 @@ public final class CstParser {
                         // Mismatch
                         throw new ParsingException(
                                 "token inattendu",
-                                current.offset(),
+                                current.getIndexDepart(),
                                 terminal.getType(),
                                 current,
                                 frameContext(frames));
@@ -135,22 +161,22 @@ public final class CstParser {
                 } else {
                     // NonTerminal
                     NonTerminal nt = (NonTerminal) top;
-                    Optional<Production> opt = TABLE.lookup(nt, current.type());
+                    Optional<Production> opt = TABLE.lookup(nt, current.getToken());
                     if (opt.isEmpty()) {
                         throw new ParsingException(
                                 "aucune production applicable",
-                                current.offset(),
+                                current.getIndexDepart(),
                                 null,
                                 current,
                                 nt);
                     }
                     Production prod = opt.get();
                     if (prod.isEpsilon()) {
-                        // Production ε : construire le noeud ε directement, sans frame ni push
-                        CstInternal epsilonNode = CstInternal.epsilon(nt, prod, current.offset());
+                        // Production epsilon : construire le noeud epsilon directement
+                        CstInternal epsilonNode = CstInternal.epsilon(nt, prod, current.getIndexDepart());
                         attach(frames, epsilonNode);
                     } else {
-                        // Production non-ε : ouvrir un frame et empiler les symboles en ordre inverse
+                        // Production non-epsilon : ouvrir un frame et empiler les symboles en ordre inverse
                         List<Symbol> body = prod.getBody();
                         frames.push(new Frame(nt, prod, body.size(), new ArrayList<>()));
                         for (int i = body.size() - 1; i >= 0; i--) {
@@ -172,11 +198,11 @@ public final class CstParser {
                 }
             }
 
-            // Vérification finale
+            // Verification finale
             if (rootFrame.children.isEmpty()) {
                 throw new ParsingException(
                         "aucun arbre produit",
-                        tokens.isEmpty() ? 0 : tokens.get(0).offset(),
+                        tokens.isEmpty() ? 0 : tokens.get(0).getIndexDepart(),
                         null, null, AXIOM);
             }
             return rootFrame.children.get(0);

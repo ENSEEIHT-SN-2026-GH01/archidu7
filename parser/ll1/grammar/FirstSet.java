@@ -1,16 +1,16 @@
 package parser.ll1.grammar;
 
-import parser.ll1.token.TokenType;
+import parser.lexer.Token;
 import java.util.*;
 
 public final class FirstSet {
     private final Grammar grammar;
-    private final Map<NonTerminal, Set<TokenType>> first = new EnumMap<>(NonTerminal.class);
+    private final Map<NonTerminal, Set<Token>> first = new EnumMap<>(NonTerminal.class);
     private final Set<NonTerminal> nullable = EnumSet.noneOf(NonTerminal.class);
 
     public FirstSet(Grammar grammar) {
         this.grammar = Objects.requireNonNull(grammar);
-        for (NonTerminal nt : NonTerminal.values()) first.put(nt, EnumSet.noneOf(TokenType.class));
+        for (NonTerminal nt : NonTerminal.values()) first.put(nt, EnumSet.noneOf(Token.class));
         compute();
     }
 
@@ -26,7 +26,7 @@ public final class FirstSet {
                 }
                 boolean allNullable = true;
                 for (Symbol s : p.getBody()) {
-                    Set<TokenType> firstOfS = firstOfSymbol(s);
+                    Set<Token> firstOfS = firstOfSymbol(s);
                     if (first.get(head).addAll(firstOfS)) changed = true;
                     if (!isNullable(s)) { allNullable = false; break; }
                 }
@@ -35,7 +35,7 @@ public final class FirstSet {
         }
     }
 
-    private Set<TokenType> firstOfSymbol(Symbol s) {
+    private Set<Token> firstOfSymbol(Symbol s) {
         if (s.isEpsilon()) return Set.of();
         if (s.isTerminal()) return Set.of(((Terminal) s).getType());
         return first.get((NonTerminal) s);
@@ -47,15 +47,15 @@ public final class FirstSet {
         return nullable.contains((NonTerminal) s);
     }
 
-    public Set<TokenType> of(NonTerminal nt) {
+    public Set<Token> of(NonTerminal nt) {
         return Collections.unmodifiableSet(first.get(nt));
     }
 
     public boolean nullable(NonTerminal nt) { return nullable.contains(nt); }
 
-    /** First d'une séquence (utile pour le parser et Follow). */
-    public Set<TokenType> ofSequence(List<Symbol> seq) {
-        Set<TokenType> out = EnumSet.noneOf(TokenType.class);
+    /** First d'une sequence (utile pour le parser et Follow). */
+    public Set<Token> ofSequence(List<Symbol> seq) {
+        Set<Token> out = EnumSet.noneOf(Token.class);
         for (Symbol s : seq) {
             out.addAll(firstOfSymbol(s));
             if (!isNullable(s)) return out;

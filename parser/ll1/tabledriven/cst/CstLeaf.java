@@ -2,26 +2,28 @@ package parser.ll1.tabledriven.cst;
 
 import parser.ll1.grammar.Symbol;
 import parser.ll1.grammar.Terminal;
-import parser.ll1.token.Token;
+import parser.lexer.Lexem;
+import parser.lexer.Token;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Feuille du CST : correspond à un terminal consommé par le parser.
+ * Feuille du CST : correspond a un terminal consomme par le parser.
  *
- * <p>Les offsets proviennent directement du {@link Token} sous-jacent.
+ * <p>Les offsets proviennent directement du {@link Lexem} sous-jacent.
+ * Pour le token EOF sentinelle, indexDepart == indexFin == source.length().
  */
-public record CstLeaf(Terminal t, Token token) implements CstNode {
+public record CstLeaf(Terminal t, Lexem<Token> lexem) implements CstNode {
 
-    /** Valide que ni {@code t} ni {@code token} ne sont null. */
+    /** Valide que ni {@code t} ni {@code lexem} ne sont null. */
     public CstLeaf {
         Objects.requireNonNull(t, "t");
-        Objects.requireNonNull(token, "token");
+        Objects.requireNonNull(lexem, "lexem");
     }
 
-    @Override public int startOffset() { return token.offset(); }
-    @Override public int endOffset()   { return token.end(); }
+    @Override public int startOffset() { return lexem.getIndexDepart(); }
+    @Override public int endOffset()   { return lexem.getIndexFin(); }
     @Override public Symbol symbol()   { return t; }
 
     /** Une feuille n'a pas d'enfants : retourne toujours vide. */

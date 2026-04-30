@@ -1,6 +1,6 @@
 package parser.ll1.grammar;
 
-import parser.ll1.token.TokenType;
+import parser.lexer.Token;
 import java.util.*;
 
 public final class Ll1Conflict {
@@ -8,10 +8,10 @@ public final class Ll1Conflict {
 
     private final Type type;
     private final NonTerminal nt;
-    private final Set<TokenType> conflictingTokens;
+    private final Set<Token> conflictingTokens;
     private final String detail;
 
-    public Ll1Conflict(Type type, NonTerminal nt, Set<TokenType> conflictingTokens, String detail) {
+    public Ll1Conflict(Type type, NonTerminal nt, Set<Token> conflictingTokens, String detail) {
         this.type = type;
         this.nt = nt;
         this.conflictingTokens = Set.copyOf(conflictingTokens);
@@ -20,7 +20,7 @@ public final class Ll1Conflict {
 
     public Type getType() { return type; }
     public NonTerminal getNonTerminal() { return nt; }
-    public Set<TokenType> getConflictingTokens() { return conflictingTokens; }
+    public Set<Token> getConflictingTokens() { return conflictingTokens; }
     public String getDetail() { return detail; }
 
     @Override public String toString() { return type + " sur " + nt + " : " + detail; }

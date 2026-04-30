@@ -1,9 +1,9 @@
 package parser.ll1.grammar;
 
-import parser.ll1.token.TokenType;
+import parser.lexer.Token;
 import java.util.*;
 
-/** Petit DSL fluide pour décrire les productions lisiblement. */
+/** Petit DSL fluide pour decrire les productions lisiblement. */
 public final class GrammarBuilder {
     private final List<Production> productions = new ArrayList<>();
 
@@ -23,7 +23,7 @@ public final class GrammarBuilder {
 
     private static Symbol toSymbol(Object o) {
         if (o instanceof Symbol) return (Symbol) o;
-        if (o instanceof TokenType) return new Terminal((TokenType) o);
+        if (o instanceof Token t) return new Terminal(t);
         throw new IllegalArgumentException("Symbole invalide: " + o);
     }
 }

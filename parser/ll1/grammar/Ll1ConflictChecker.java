@@ -1,6 +1,6 @@
 package parser.ll1.grammar;
 
-import parser.ll1.token.TokenType;
+import parser.lexer.Token;
 import java.util.*;
 
 public final class Ll1ConflictChecker {
@@ -16,7 +16,7 @@ public final class Ll1ConflictChecker {
 
     public List<Ll1Conflict> findAllConflicts() {
         List<Ll1Conflict> result = new ArrayList<>();
-        // Récursion gauche directe
+        // Recursion gauche directe
         for (Production p : grammar.getProductions()) {
             List<Symbol> body = p.getBody();
             if (!body.isEmpty() && body.get(0) == p.getHead()) {
@@ -28,21 +28,21 @@ public final class Ll1ConflictChecker {
         for (NonTerminal nt : NonTerminal.values()) {
             List<Production> prods = grammar.productionsOf(nt);
             if (prods.size() < 2) continue;
-            List<Set<TokenType>> firsts = new ArrayList<>();
+            List<Set<Token>> firsts = new ArrayList<>();
             int nullableIdx = -1;
             for (int i = 0; i < prods.size(); i++) {
                 Production p = prods.get(i);
-                Set<TokenType> f = p.isEpsilon() ? Set.of() : first.ofSequence(p.getBody());
+                Set<Token> f = p.isEpsilon() ? Set.of() : first.ofSequence(p.getBody());
                 firsts.add(f);
                 if (p.isEpsilon() || first.sequenceNullable(p.getBody())) nullableIdx = i;
             }
             // FIRST/FIRST
             for (int i = 0; i < firsts.size(); i++) {
                 for (int j = i + 1; j < firsts.size(); j++) {
-                    Set<TokenType> a = firsts.get(i);
-                    Set<TokenType> b = firsts.get(j);
+                    Set<Token> a = firsts.get(i);
+                    Set<Token> b = firsts.get(j);
                     if (a.isEmpty() || b.isEmpty()) continue;
-                    Set<TokenType> inter = EnumSet.copyOf(a);
+                    Set<Token> inter = EnumSet.copyOf(a);
                     inter.retainAll(b);
                     if (!inter.isEmpty()) {
                         result.add(new Ll1Conflict(Ll1Conflict.Type.FIRST_FIRST, nt,
@@ -52,16 +52,16 @@ public final class Ll1ConflictChecker {
             }
             // FIRST/FOLLOW
             if (nullableIdx >= 0) {
-                Set<TokenType> followNt = follow.of(nt);
+                Set<Token> followNt = follow.of(nt);
                 for (int i = 0; i < firsts.size(); i++) {
                     if (i == nullableIdx) continue;
-                    Set<TokenType> fi = firsts.get(i);
+                    Set<Token> fi = firsts.get(i);
                     if (fi.isEmpty()) continue;
-                    Set<TokenType> inter = EnumSet.copyOf(fi);
+                    Set<Token> inter = EnumSet.copyOf(fi);
                     inter.retainAll(followNt);
                     if (!inter.isEmpty()) {
                         result.add(new Ll1Conflict(Ll1Conflict.Type.FIRST_FOLLOW, nt,
-                            inter, "ε production en conflit avec production " + i));
+                            inter, "eps production en conflit avec production " + i));
                     }
                 }
             }

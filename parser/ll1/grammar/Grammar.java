@@ -1,6 +1,6 @@
 package parser.ll1.grammar;
 
-import parser.ll1.token.TokenType;
+import parser.lexer.Token;
 import java.util.*;
 
 public final class Grammar {
@@ -47,33 +47,33 @@ public final class Grammar {
             SEPAR   = NonTerminal.Separ,
             ANDOP   = NonTerminal.AndOp;
 
-        // Aliases terminaux
-        final TokenType
-            ModuleKW        = TokenType.ModuleKW,
-            EndKW           = TokenType.EndKW,
-            OnKW            = TokenType.OnKW,
-            WhenKW          = TokenType.WhenKW,
-            SetKW           = TokenType.SetKW,
-            ResetKW         = TokenType.ResetKW,
-            EnabledKW       = TokenType.EnabledKW,
-            Identifiant     = TokenType.Identifiant,
-            BitField        = TokenType.BitField,
-            NaturalInteger  = TokenType.NaturalInteger,
-            AssignOp        = TokenType.AssignOp,
-            MemAssignOp     = TokenType.MemAssignOp,
-            OrOp            = TokenType.OrOp,
-            Star            = TokenType.Star,
-            ConcatOp        = TokenType.ConcatOp,
-            NotOp           = TokenType.NotOp,
-            LeftPar         = TokenType.LeftPar,
-            RightPar        = TokenType.RightPar,
-            LeftSquareBrack = TokenType.LeftSquareBrack,
-            RightSquareBrack= TokenType.RightSquareBrack,
-            Comma           = TokenType.Comma,
-            Colon           = TokenType.Colon,
-            Semicolon       = TokenType.Semicolon,
-            PointPoint      = TokenType.PointPoint,
-            Dollar          = TokenType.Dollar;
+        // Aliases terminaux (parser.lexer.Token d Erwan)
+        final Token
+            ModuleKW        = Token.ModuleKW,
+            EndKW           = Token.EndKW,
+            OnKW            = Token.OnKW,
+            WhenKW          = Token.WhenKW,
+            SetKW           = Token.SetKW,
+            ResetKW         = Token.ResetKW,
+            EnabledKW       = Token.EnabledKW,
+            Identifiant     = Token.Identifiant,
+            BitField        = Token.BitField,
+            NaturalInteger  = Token.NaturalInteger,
+            AssignOp        = Token.AssignOp,
+            MemAssignOp     = Token.MemAssignOp,
+            OrOp            = Token.OrOp,
+            Star            = Token.Star,
+            ConcatOp        = Token.ConcatOp,
+            NotOp           = Token.NotOp,
+            LeftPar         = Token.LeftPar,
+            RightPar        = Token.RightPar,
+            LeftSquareBrack = Token.LeftSquareBrack,
+            RightSquareBrack= Token.RightSquareBrack,
+            Comma           = Token.Comma,
+            Colon           = Token.Colon,
+            Semicolon       = Token.Semicolon,
+            PointPoint      = Token.PointPoint,
+            Dollar          = Token.Dollar;
 
         // Start
         g.prod(START, MOD);
