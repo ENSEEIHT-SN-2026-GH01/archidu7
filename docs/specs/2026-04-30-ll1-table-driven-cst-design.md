@@ -485,4 +485,18 @@ Cas :
 
 ---
 
+## 9. Etat de livraison (2026-05-01)
+
+| Tache | Statut | Commit(s) |
+|---|---|---|
+| Task 8.B Tests CstParser par construct | Livre | CstParserSignalTest, ExpressionTest, AssignmentTest, MemoryAssignmentTest, ModuleCallTest, ErrorTest |
+| Task 9 CstDumper | Livre | `feat(cst): CstDumper sortie indentee box-drawing` + CstDumperTest golden |
+| Task 10 Integration EndToEndTest | Livre | `test(integration): EndToEndTest avec golden CstDumper` (4 fixtures) |
+| Task 11 README + finalisation spec | Livre | `docs(parser): README parser LL(1) table-driven` |
+| Review M2 ParsingException final | Livre | `refactor(parser): ParsingException final` |
+| Review M3 contextPath | Livre | `refactor(parser): contextPath complet pour ParsingException` |
+| Review M4 EOF premature offset | Livre | `test(parser): eof premature avec offset verifie` |
+| Review 18a epsilon CstInternal | Livre | `test(cst): production epsilon produit CstInternal vide` |
+| Review 18d expected null | Livre | `test(parser): erreur sans terminal attendu` |
+
 **Fin de spec.**
