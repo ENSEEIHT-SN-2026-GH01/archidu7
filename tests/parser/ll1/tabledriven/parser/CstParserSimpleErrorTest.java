@@ -26,6 +26,17 @@ public class CstParserSimpleErrorTest {
     }
 
     @Test
+    public void eof_premature_prefix_valide_offset_a_fin() {
+        // Prefixe valide mais incomplet : attend Param, instances, end module
+        // "module foo (" a longueur 12 ; le lexer produit EOF a offset 12
+        String src = "module foo (";
+        ParsingException e = assertThrows(ParsingException.class,
+                () -> CstParser.parse(src));
+        // L'offset de l'erreur doit pointer sur la fin de la source (EOF)
+        assertEquals("L'offset doit etre a la fin de la source", src.length(), e.offset());
+    }
+
+    @Test
     public void token_inattendu_jette() {
         // "module 42 () end module" : 42 est NaturalInteger la ou un Identifiant est attendu
         ParsingException e = assertThrows(ParsingException.class,
