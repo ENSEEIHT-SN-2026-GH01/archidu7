@@ -1,16 +1,13 @@
 package editeur;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextFormatter;
-import javafx.scene.control.skin.TextAreaSkin;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 
 public class EditeurTexte extends StackPane{
 
@@ -90,5 +87,13 @@ public class EditeurTexte extends StackPane{
      */
     public void setText(String txt){
         deriere.setText(txt);
+    }
+
+    /**Ajoute un listeneur pour ecouter les changements sur le texte.
+     * 
+     * @param ecouteur Le listener.
+     */
+    public void addListener(ChangeListener<String> ecouteur){
+        deriere.textProperty().addListener(ecouteur);
     }
 }
