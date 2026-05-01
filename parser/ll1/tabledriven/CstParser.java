@@ -156,7 +156,8 @@ public final class CstParser {
                                 current.getIndexDepart(),
                                 terminal.getType(),
                                 current,
-                                frameContext(frames));
+                                frameContext(frames),
+                                buildContextPath(frames));
                     }
                 } else {
                     // NonTerminal
@@ -168,7 +169,8 @@ public final class CstParser {
                                 current.getIndexDepart(),
                                 null,
                                 current,
-                                nt);
+                                nt,
+                                buildContextPath(frames));
                     }
                     Production prod = opt.get();
                     if (prod.isEpsilon()) {
@@ -216,11 +218,34 @@ public final class CstParser {
             frames.peek().children.add(node);
         }
 
-        /** Retourne le NonTerminal du frame courant pour le contexte d'erreur, ou null. */
+        /** Retourne le NonTerminal du frame courant (innermost) pour le contexte d'erreur, ou null. */
         private static NonTerminal frameContext(Deque<Frame> frames) {
             if (frames.isEmpty()) return null;
             Frame top = frames.peek();
             return top.nt; // null pour rootFrame, c'est acceptable
+        }
+
+        /**
+         * Construit un chemin lisible de non-terminaux depuis la racine vers le frame courant.
+         * Ex. "Module > Instance > Operation".
+         * Retourne null si la pile ne contient que le rootFrame.
+         */
+        private static String buildContextPath(Deque<Frame> frames) {
+            // frames est une Deque utilisee en pile : peek() == sommet == innermost
+            // On veut afficher du root vers le top => inverser
+            List<String> names = new ArrayList<>();
+            for (Frame f : frames) {
+                // iteration en ordre LIFO : f va de innermost a outermost (rootFrame en dernier)
+                if (f.nt != null) names.add(f.nt.name());
+            }
+            if (names.isEmpty()) return null;
+            // inverser pour avoir root -> ... -> innermost
+            StringBuilder sb = new StringBuilder();
+            for (int i = names.size() - 1; i >= 0; i--) {
+                if (sb.length() > 0) sb.append(" > ");
+                sb.append(names.get(i));
+            }
+            return sb.toString();
         }
     }
 }
