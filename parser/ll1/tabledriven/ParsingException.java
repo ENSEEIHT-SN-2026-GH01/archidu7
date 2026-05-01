@@ -4,7 +4,7 @@ import parser.ll1.grammar.NonTerminal;
 import parser.lexer.Lexem;
 import parser.lexer.Token;
 
-public class ParsingException extends RuntimeException {
+public final class ParsingException extends RuntimeException {
     private final int offset;
     private final Token expected;       // peut etre null
     private final Lexem<Token> actual;  // peut etre null
