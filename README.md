@@ -1,4 +1,45 @@
-# Parser LL(1) SHDL
+# ⚠️ BRANCHE OBSOLETE — voir `feature/parser-ll1-table-driven`
+
+**Cette branche contient le parser recursive-descent du sprint 1.** Elle est
+**conservée pour traçabilité** mais n'est plus la cible du projet.
+
+Le parser actuel est sur `feature/parser-ll1-table-driven` :
+parser LL(1) **table-driven** produisant un **CST** (Concrete Syntax Tree),
+aligné sur le lexer amont `parser.lexer`.
+
+## Guide de migration rapide
+
+| Ancienne API (cette branche)                         | Nouvelle API (`-table-driven`)                              |
+|------------------------------------------------------|-------------------------------------------------------------|
+| `parser.ll1.token.Token`                             | `parser.lexer.Lexem<parser.lexer.Token>`                    |
+| `Token.getOffset()`                                  | `Lexem.getIndexDepart()`                                    |
+| `Token.getFin()` (inclusif)                          | `parser.ll1.Lexems.getFin(lex)` (helper, inclusif)          |
+| `Token.value` / `lexeme`                             | `Lexem.getText()`                                           |
+| `Token.getLine()` / `getColumn()`                    | non exposé — recalculer depuis l'offset si besoin           |
+| `parser.ll1.parser.Parser.parseFrom(src, lexer)`     | `parser.ll1.tabledriven.CstParser.parse(src)`               |
+| `Module ast = ...` (AST)                             | `CstNode root = ...` (CST, hierarchie sealed)               |
+| `parser.ll1.parser.ParsingException`                 | `parser.ll1.tabledriven.ParsingException`                   |
+
+Pour la coloration syntaxique, utiliser directement le lexer amont :
+
+```java
+import parser.lexer.Lexer;
+import parser.lexer.Lexem;
+import parser.lexer.Token;
+import parser.ll1.Lexems;
+
+List<Lexem<Token>> lex = new Lexer().tokenize(source);
+for (Lexem<Token> l : lex) {
+    int debut = l.getIndexDepart();
+    int fin   = Lexems.getFin(l);          // inclusif
+    Token typ = l.getToken();
+    // assigner couleur selon typ, surligner [debut, fin]
+}
+```
+
+---
+
+# Parser LL(1) SHDL (sprint 1, archive)
 
 Branche de travail d'Alexis Briend pour l'axe **parser LL(1)** du projet long
 TOB (simulateur SHDL, N7 1SN, 2025-2026). Parser descendant LL(1) du langage
