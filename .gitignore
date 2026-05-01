@@ -15,3 +15,5 @@ local.properties
 src-gen/
 *.xml
 *.zip
+.vscode/
+javafx-sdk-*/
