@@ -23,7 +23,7 @@ CstNode root = CstParser.parse(String source);
 ```
 
 `CstParser.parse(source)` :
-1. Tokenise `source` via le lexer d'Erwan (`parser.lexer.Lexer`)
+1. Tokenise `source` via le lexer du projet (`parser.lexer.Lexer`)
 2. Filtre les trivia (whitespace, lineTerminator, commentaires)
 3. Ajoute une sentinelle EOF a `source.length()`
 4. Leve `ParsingException` si la source n'est pas syntaxiquement valide
@@ -37,7 +37,7 @@ CstNode root = CstParser.parse(String source);
 
 ## Dependance amont
 
-Le lexer est fourni par le package `parser.lexer` (code d'Erwan) :
+Le lexer est fourni par le package `parser.lexer` (code amont du projet) :
 - `Lexer` : tokenise une source SHDL
 - `Lexem<Token>` : lexeme avec token, texte et offset
 - `Token` : enum de tous les types de tokens SHDL
@@ -101,3 +101,19 @@ Les noeuds epsilon (productions vides) sont marques `(vide)` avec `startOffset =
   n'est pas un `Factor` valide dans une expression.
 - `MemoryAssignment` supporte un seul `Set_Or_Reset` par instance.
 - Les appels memoire (`$nom(...)`) utilisent `Dollar Identifiant ModuleCall`.
+
+## Ecarts assumes vs `shdl_grammar_LL1_v2.txt`
+
+1. **Factor parens** : la spec a `Factor ::= RightPar SOT LeftPar` (typo, parens
+   inversees). Notre grammaire utilise `LeftPar SOT RightPar`. Sans correction,
+   `(a + b)` serait rejete.
+2. **NTs morts retires** : `SignalCompound` et `Concat_Signal_Star` sont definis
+   dans la spec mais reference par aucune autre production (inaccessibles depuis
+   l'axiome). On les omet pour eviter de polluer la grammaire.
+3. **Trivia filtres** : whitespace, lineTerminator et commentaires sont retires
+   *avant* parsing, donc absents du CST. Les offsets restent corrects. CST
+   "quasi-strict" : suffisant pour la simulation, insuffisant pour un outil de
+   refactoring qui voudrait preserver le formatage source.
+4. **Casse uniforme** : `Comma_Opt` au lieu de `Comma_opt` (la spec a une
+   incoherence interne sur la casse de `_Opt`).
+5. **MemAssignOp** : la spec ecrit `'::='` ; le lexer matche `:=` (typo amont).
