@@ -3,7 +3,6 @@ import editeur.EditeurTexte;
 import javafx.scene.paint.*;
 import parser.lexer.Lexem;
 import parser.lexer.Token;
-import parser.ll1.token.*;
 
 /**Class de colorateur pour les token qui seront toujours de la même couleur. */
 public class ColorateurUnique implements ColorateurToken{
