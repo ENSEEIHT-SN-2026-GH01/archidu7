@@ -5,9 +5,15 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import simulateur.Simulateur;
 
-/**La vraie fenêtre utilisable */
+/**Fenêtre du simulateur.
+ * Peut-être instencié avec n'importe quel Simulateur.
+ */
 public class FenetreSimulateur extends Scene{
 
+    /**Instencie la fenêtre à partir d'un simulateur.
+     * 
+     * @param sim Le simulateur déjà construit.
+     */
     public FenetreSimulateur(Simulateur sim){
         VBox vecteurs = new VBox();
 

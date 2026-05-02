@@ -4,11 +4,16 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.text.Text;
 import simulateur.Simulateur;
 
-/**Les boutons d'une entrée. */
+/**Tous boutons d'une entrée. */
 public class VecteurEntreeSimulateur extends FlowPane{
 
     private Text texte;
 
+    /**Construit avec un simulateur et un numero d'entree;
+     * 
+     * @param composant Le simulateur.
+     * @param numero Numero d'entree dans le simulateur.
+     */
     public VecteurEntreeSimulateur(Simulateur composant, int numero){
         /*Ajout du texte*/
         texte = new Text(composant.nomEntree(numero) + " : ");

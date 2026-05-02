@@ -7,6 +7,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Region;
 import simulateur.*;
 
+//TODO : ajout de l'état indeterminé.
 /**Bouton qui commande un bit d'une entrée. */
 public class EntreeSimulateur extends ToggleButton{
     
@@ -16,6 +17,10 @@ public class EntreeSimulateur extends ToggleButton{
     private ImageView vue;
     private BouttonEntree corps;
 
+    /** Cree le bouton connecté au BoutonCorps interne.
+     * 
+     * @param corps Connexion à la simulation.
+     */
     public EntreeSimulateur(BouttonEntree corps){
         vue = new ImageView(imageOff);
         this.corps = corps;
