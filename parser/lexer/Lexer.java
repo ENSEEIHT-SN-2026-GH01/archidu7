@@ -49,7 +49,7 @@ public class Lexer {
     l.add(Pair.pair(Builder.parseRegex("[0-9]+"), new Lexem<Token>(Token.NaturalInteger)));
     l.add(Pair.pair(Builder.parseRegex("[ \\t]"), new Lexem<Token>(Token.whiteSpace, true)));
     l.add(Pair.pair(Builder.parseRegex("[\\r\\n]"), new Lexem<Token>(Token.lineTerminator, true)));
-    l.add(Pair.pair(Builder.parseRegex("(//|#)(~[\\r\\n])*"), new Lexem<Token>(Token.Comment)));
+    l.add(Pair.pair(Builder.parseRegex("((//)|#)(~[\\r\\n])*"), new Lexem<Token>(Token.Comment)));
     // Lexème Erreur => safe car il ne doit pas etre pris avant les autres => plus petite priorité
     Lexem<Token> error = new Lexem<Token>(Token.Error);
     error.setSafe(0);
