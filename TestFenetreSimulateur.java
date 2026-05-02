@@ -3,65 +3,11 @@ import Erwan.*;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-import java.util.Scanner;
 import simulateur.*;
 import simulateur.affichage.*;
 
 /**test basé sur le Experience2. */
 public class TestFenetreSimulateur extends Application{
-
-	private static class En {
-		private String Nom;
-		private Etat E;
-		private BouttonEntree B;
-
-		private En(String Nom, BouttonEntree B) {
-			this.Nom = Nom;
-			E = Etat.ND;
-			this.B = B;
-		}
-
-		private void click() {
-			switch (E){
-                                case Etat.ND:
-                                        E = Etat.DW;
-                                        B.set(Etat.DW);
-					break;
-                                case Etat.DW:
-                                        E = Etat.UP;
-                                        B.set(Etat.UP);
-                                        break;
-                                case Etat.UP:
-                                        E = Etat.DW;
-                                        B.set(Etat.DW);
-                                        break;
-                                default :
-                                        break;
-                      	}
-		}
-
-		private String Nom() {
-			return Nom;
-		}
-	}
-
-	private static class So {
-                private String Nom;
-                private Connecteur B;
-
-                private So(String Nom, Connecteur B) {
-                        this.Nom = Nom;
-                        this.B = B;
-                }
-
-		private Etat Val() {
-			return B.getValeur();
-		}
-
-		private String Nom() {
-			return Nom;
-		}
-        }
 
 	public static Erwan A(String Nom, Erwan S){
 		return Erwan.AFFECTATION(Nom,S);
@@ -107,21 +53,6 @@ public class TestFenetreSimulateur extends Application{
 			System.out.println("Plan : " + e.Nom() + " = " + e.Entrees.get(0).Nom());
 		}
 		Simulateur Si = new FileSimulateur(PlanCircuit);
-		List<En> Entrees = new ArrayList<>();
-		List<So> Sorties = new ArrayList<>();
-		for(int i = 1; i <= Si.nbEntree(); i++) {
-			//System.out.println("On s'interresse à l'entree : " + Si.nomEntree(i));
-			for(int j = 1; j <= Si.nbSlotEntree(i); j++){
-				Entrees.add(new En(Si.nomEntree(i), Si.getEntrees(i,j)));
-				//System.out.println("Entree Ajoutée avec succès !");
-			}
-		}
-		for(int i = 1; i <= Si.nbSorties(); i++){
-			//System.out.println("On s'interresse à la sortie : " + Si.nomSortie(i));
-			for(int j = 1; j <= Si.nbSlotSortie(i); j++) {
-				Sorties.add(new So(Si.nomSortie(i),Si.getSorties(i,j)));
-			}
-                }
 
 		FenetreSimulateur scene = new FenetreSimulateur(Si);
 		fen.setScene(scene);

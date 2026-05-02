@@ -9,6 +9,7 @@ import simulateur.*;
 /**Led correspondant à un bit d'une sortie. */
 public class SortieSimulateur extends Label{
     
+    public static final Image imageUndef = new Image("assets/sortie_undef.png", 48, 48, true, false);
     public static final Image imageOff = new Image("assets/sortie_off.png", 48, 48, true, false);
     public static final Image imageOn = new Image("assets/sortie_on.png", 48, 48, true, false);
 
@@ -23,7 +24,7 @@ public class SortieSimulateur extends Label{
         super();
 
         /*vue */
-        vue = new ImageView(imageOff);
+        vue = new ImageView(imageUndef);
         setGraphic(vue);
 
         /*fonctionnement */
@@ -41,9 +42,14 @@ public class SortieSimulateur extends Label{
         vue.setImage(imageOff);
     }
 
+    /**Mets la led en undef. */
+    public void setNd(){
+        vue.setImage(imageUndef);
+    }
+
     /**Listeneur qui change l'affichage de la led lorsque l'état du signal change. */
     private class SortieListener implements ConnecteurListener{
-        
+
         @Override
         public void signalModifie(Etat e){
             switch (e) {
@@ -52,7 +58,9 @@ public class SortieSimulateur extends Label{
                     break;
                 case DW:
                     setOff();
-                default:
+                    break;
+                case ND:
+                    setNd();
                     break;
             }
         }

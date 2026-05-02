@@ -11,6 +11,7 @@ import simulateur.*;
 /**Bouton qui commande un bit d'une entrée. */
 public class EntreeSimulateur extends ToggleButton{
     
+    public static final Image imageUndef = new Image("assets/interupteur_undef.png", 48, 48, true, false);
     public static final Image imageOff = new Image("assets/interupteur_off.png", 48, 48, true, false);
     public static final Image imageOn = new Image("assets/interupteur_on.png", 48, 48, true, false);
 
@@ -22,7 +23,7 @@ public class EntreeSimulateur extends ToggleButton{
      * @param corps Connexion à la simulation.
      */
     public EntreeSimulateur(BouttonEntree corps){
-        vue = new ImageView(imageOff);
+        vue = new ImageView(imageUndef);
         this.corps = corps;
         
         setGraphic(vue);
