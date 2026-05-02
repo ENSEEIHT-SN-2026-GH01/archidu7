@@ -57,4 +57,9 @@ public interface Connecteur {
 	 */
 	public Connecteur getSignal(DicoConnecteur D);
 
+	/**Ajoute un listener à ce connecteur qui est notifié lorsque la valeur du signal change.
+	 * 
+	 * @param listener Le listener.
+	 */
+	public void addListener(ConnecteurListener listener);
 }
