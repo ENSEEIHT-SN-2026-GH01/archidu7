@@ -1,3 +1,5 @@
+package simulateur.affichage;
+
 // Créer une fenêtre avec JavaFX
 
 import javafx.application.Application;

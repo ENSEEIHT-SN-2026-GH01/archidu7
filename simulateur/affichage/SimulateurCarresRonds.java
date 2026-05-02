@@ -1,3 +1,5 @@
+package simulateur.affichage;
+
 import java.util.ArrayList;
 import java.util.List;
 
