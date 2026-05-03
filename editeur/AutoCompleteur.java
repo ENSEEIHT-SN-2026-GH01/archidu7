@@ -25,8 +25,10 @@ public class AutoCompleteur implements UnaryOperator<Change>{
                         break;
                     case '[':
                         txt = txt.concat("]");
+                        break;
                     case '\'':
                         txt = txt.concat("\'");
+                        break;
                     default:
                         break;
                 }
