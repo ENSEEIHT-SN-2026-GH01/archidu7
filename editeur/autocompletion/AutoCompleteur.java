@@ -1,7 +1,7 @@
-package editeur;
+package editeur.autocompletion;
 
 import java.util.function.UnaryOperator;
-
+import editeur.*;
 import javafx.scene.control.TextFormatter.Change;
 
 public class AutoCompleteur implements UnaryOperator<Change>{

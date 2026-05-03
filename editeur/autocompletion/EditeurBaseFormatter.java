@@ -1,5 +1,6 @@
-package editeur;
+package editeur.autocompletion;
 
+import editeur.TextDecoupable;
 import javafx.scene.control.TextFormatter.Change;
 
 /**Contient une methode que tout texte formatteur déstiné à EditeurTexte doit appeler à la fin. */

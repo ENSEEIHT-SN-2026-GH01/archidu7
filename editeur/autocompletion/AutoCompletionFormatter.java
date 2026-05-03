@@ -1,5 +1,6 @@
-package editeur;
+package editeur.autocompletion;
 
+import editeur.*;
 import javafx.scene.control.TextFormatter;
 
 /**Formatter permettant l'auto completion.*/

@@ -8,6 +8,7 @@ import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import editeur.autocompletion.*;
 
 public class EditeurTexte extends StackPane{
 
