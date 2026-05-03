@@ -28,19 +28,7 @@ public class EditeurTexte extends StackPane{
         contenneurDevant.setMouseTransparent(true);
 
         /*transmition du texte de l'arrière vers l'avant */
-        TextFormatter<String> formatter = new TextFormatter<>(change -> {
-            if (change.isDeleted()){
-                devant.supprimer(change.getRangeStart(), change.getRangeEnd());
-            }
-            if (change.isAdded()){
-                String changement = change.getText();
-
-                devant.inserrer(change.getRangeStart() - 1, changement);
-            }
-
-            return change;
-        });
-        deriere.setTextFormatter(formatter);
+        deriere.setTextFormatter(new AutoCompletionFormatter(devant));
 
         /*lien entre le scrolling de devant et derrière */
         Platform.runLater(() -> {
