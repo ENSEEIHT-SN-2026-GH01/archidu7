@@ -2,8 +2,6 @@ package tests.parser.ll1.tabledriven.grammar;
 
 import org.junit.Test;
 import parser.ll1.grammar.*;
-import java.util.EnumSet;
-import java.util.Set;
 import static org.junit.Assert.*;
 
 /**

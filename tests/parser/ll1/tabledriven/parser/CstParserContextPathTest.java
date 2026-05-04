@@ -6,6 +6,8 @@ import static org.junit.Assert.*;
 import parser.ll1.tabledriven.CstParser;
 import parser.ll1.tabledriven.ParsingException;
 
+import static util.test.Assert.assertThrows;
+
 /**
  * Tests pour le champ contextPath de ParsingException (review M3).
  *
