@@ -107,7 +107,32 @@ public class AutomateNonDeterministe<T> implements Automate<T> {
       for (int i = 0; i <= 255; i++) {
         parseRegex(new Litteral((char) i), p);
       }
-    } // TODO add the not
+    } else if (r instanceof Not not){
+      List<Boolean> arr = new LinkedList<>();
+      for (int i = 0; i <= 255; i++) {
+        arr.add(true);
+      }
+      arr = new ArrayList<>(arr);
+      collapseNot(arr, not.getInsideRegex());
+      for (int i = 0; i <= 255; i++) {
+        if (arr.get(i)){
+          parseRegex(new Litteral((char) i), p);
+        }
+      }
+    }
+  }
+
+  private void collapseNot(List<Boolean> l, Regex r){
+    if (r instanceof Litteral lit) {
+      l.set(lit.getCharacter(), false);
+    } else if (r instanceof Or o) {
+      collapseNot(l, o.getLeftOperand());
+      collapseNot(l, o.getRightOperand());
+    } else if (r instanceof Range ra) {
+      for (int i = ra.getLeft(); i <= ra.getRight(); i++) {
+        l.set(i, false);
+      }
+    }
   }
 
   private static <A, B> Pair<A, B> pair(A a, B b) {
