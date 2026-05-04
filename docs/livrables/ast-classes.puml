@@ -1,0 +1,57 @@
+@startuml ast-classes
+!pragma layout smetana
+skinparam classAttributeIconSize 0
+skinparam classFontSize 11
+skinparam defaultFontName Sans
+skinparam linetype ortho
+hide empty members
+
+interface Node {
+  +accept(v: Visitor<R>): R
+}
+
+interface Visitor<R> {
+  +visit(...): R
+}
+
+abstract class Expression
+abstract class Statement
+
+class Module
+class Assignment
+class TriState
+class MemoryPoint
+class ModuleInstance
+class Map
+class Fsm
+
+class Ident
+class Litteral
+class BinaryOp
+class UnaryOp
+class Index
+class Slice
+class Concat
+
+Node <|-- Expression
+Node <|-- Statement
+Node <|-- Module
+
+Statement <|-- Assignment
+Statement <|-- TriState
+Statement <|-- MemoryPoint
+Statement <|-- ModuleInstance
+Statement <|-- Map
+Statement <|-- Fsm
+
+Expression <|-- Ident
+Expression <|-- Litteral
+Expression <|-- BinaryOp
+Expression <|-- UnaryOp
+Expression <|-- Index
+Expression <|-- Slice
+Expression <|-- Concat
+
+Module "1" *-- "*" Statement
+Node ..> Visitor : accept
+@enduml
