@@ -45,3 +45,4 @@ javafx-sdk-*/
 # JavaFX SDK natif (binaires .so, volumineux, ne pas versionner)
 lib/javafx-sdk-21/
 .vscode
+eclipse-formatter.xml
