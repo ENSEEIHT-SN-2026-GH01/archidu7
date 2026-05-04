@@ -1,4 +1,4 @@
-package coloration;
+package editeur.coloration;
 import editeur.EditeurTexte;
 import javafx.scene.paint.*;
 import parser.lexer.Lexem;

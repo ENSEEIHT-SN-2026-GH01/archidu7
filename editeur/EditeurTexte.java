@@ -34,7 +34,8 @@ public class EditeurTexte extends StackPane{
         /*lien entre le scrolling de devant et derrière */
         Platform.runLater(() -> {
             ScrollPane sp = (ScrollPane) deriere.lookup(".scroll-pane");
-            Node txt = sp.getContent();
+            if (sp != null) {
+                Node txt = sp.getContent();
 
             if (sp != null) {
                 sp.vvalueProperty().addListener((obs, oldVal, newVal) -> {
@@ -46,6 +47,7 @@ public class EditeurTexte extends StackPane{
                     double largeur = txt.getBoundsInLocal().getWidth() - sp.getViewportBounds().getWidth();
                     contenneurDevant.setTranslateX(-newVal.doubleValue() * largeur);
                 });
+            }
             }
         });
 

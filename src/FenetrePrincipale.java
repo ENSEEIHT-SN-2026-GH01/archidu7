@@ -1,6 +1,5 @@
-import coloration.GestionnaireColorateur;
+import editeur.coloration.GestionnaireColorateur;
 import editeur.EditeurTexte;
-import javafx.beans.InvalidationListener;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.*;

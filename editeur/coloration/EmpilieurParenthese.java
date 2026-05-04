@@ -1,4 +1,4 @@
-package coloration;
+package editeur.coloration;
 
 import java.util.Stack;
 
