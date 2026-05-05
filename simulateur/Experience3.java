@@ -18,22 +18,22 @@ public class Experience3 {
 		}
 
 		private void click() {
-			switch (E){
-                                case Etat.ND:
-                                        E = Etat.DW;
-                                        B.set(Etat.DW);
+			switch (E) {
+				case Etat.ND:
+					E = Etat.DW;
+					B.set(Etat.DW);
 					break;
-                                case Etat.DW:
-                                        E = Etat.UP;
-                                        B.set(Etat.UP);
-                                        break;
-                                case Etat.UP:
-                                        E = Etat.DW;
-                                        B.set(Etat.DW);
-                                        break;
-                                default :
-                                        break;
-                      	}
+				case Etat.DW:
+					E = Etat.UP;
+					B.set(Etat.UP);
+					break;
+				case Etat.UP:
+					E = Etat.DW;
+					B.set(Etat.DW);
+					break;
+				default:
+					break;
+			}
 		}
 
 		private String Nom() {
@@ -42,13 +42,13 @@ public class Experience3 {
 	}
 
 	private static class So {
-                private String Nom;
-                private Connecteur B;
+		private String Nom;
+		private Connecteur B;
 
-                private So(String Nom, Connecteur B) {
-                        this.Nom = Nom;
-                        this.B = B;
-                }
+		private So(String Nom, Connecteur B) {
+			this.Nom = Nom;
+			this.B = B;
+		}
 
 		private Etat Val() {
 			return B.getValeur();
@@ -57,13 +57,13 @@ public class Experience3 {
 		private String Nom() {
 			return Nom;
 		}
-        }
-
-	public static Erwan A(String Nom, Erwan S){
-		return Erwan.AFFECTATION(Nom,S);
 	}
 
-	public static Erwan L(String Nom){
+	public static Erwan A(String Nom, Erwan S) {
+		return Erwan.AFFECTATION(Nom, S);
+	}
+
+	public static Erwan L(String Nom) {
 		return Erwan.LITTERAL(Nom);
 	}
 
@@ -75,11 +75,11 @@ public class Experience3 {
 		return Erwan.OR(S);
 	}
 
-	public static Erwan N(Erwan S){
+	public static Erwan N(Erwan S) {
 		return Erwan.NOT(S);
 	}
 
-	public static List<Erwan> L(Erwan... S){
+	public static List<Erwan> L(Erwan... S) {
 		List<Erwan> l = new ArrayList<>();
 		for (Erwan e : S) {
 			l.add(e);
@@ -90,12 +90,12 @@ public class Experience3 {
 	public static void main(String[] Args) {
 
 		List<Erwan> PlanCircuit = new ArrayList<>();
-		PlanCircuit.add(A("S",E(L( L("Signal"), E(L( L("on"), L("clk"), N(L("reset")) ))  ))));
-		PlanCircuit.add(A("R",O( L( L("reset"), E(L( N(L("Signal")),  L("on"), L("clk")    ))   ) )));
-		PlanCircuit.add(A("q",N(O(L(   L("nq"),L("R")  )))));
-		PlanCircuit.add(A("nq",N(O(L(   L("q"),L("S")  )))));
-		PlanCircuit.add(A("NQ",L("nq")));
-		PlanCircuit.add(A("Q",L("q")));
+		PlanCircuit.add(A("S", E(L(L("Signal"), E(L(L("on"), L("clk"), N(L("reset"))))))));
+		PlanCircuit.add(A("R", O(L(L("reset"), E(L(N(L("Signal")), L("on"), L("clk")))))));
+		PlanCircuit.add(A("q", N(O(L(L("nq"), L("R"))))));
+		PlanCircuit.add(A("nq", N(O(L(L("q"), L("S"))))));
+		PlanCircuit.add(A("NQ", L("nq")));
+		PlanCircuit.add(A("Q", L("q")));
 
 		for (Erwan e : PlanCircuit) {
 			System.out.println("Plan : " + e.Nom() + " = " + e.Entrees.get(0).Nom());
@@ -103,48 +103,49 @@ public class Experience3 {
 		Simulateur Si = new FileSimulateur(PlanCircuit);
 		List<En> Entrees = new ArrayList<>();
 		List<So> Sorties = new ArrayList<>();
-		for(int i = 1; i <= Si.nbEntree(); i++) {
-			//System.out.println("On s'interresse à l'entree : " + Si.nomEntree(i));
-			for(int j = 1; j <= Si.nbSlotEntree(i); j++){
-				Entrees.add(new En(Si.nomEntree(i), Si.getEntrees(i,j)));
-				//System.out.println("Entree Ajoutée avec succès !");
+		for (int i = 1; i <= Si.nbEntree(); i++) {
+			// System.out.println("On s'interresse à l'entree : " + Si.nomEntree(i));
+			for (int j = 1; j <= Si.nbSlotEntree(i); j++) {
+				Entrees.add(new En(Si.nomEntree(i), Si.getEntrees(i, j)));
+				// System.out.println("Entree Ajoutée avec succès !");
 			}
 		}
-		for(int i = 1; i <= Si.nbSorties(); i++){
-			//System.out.println("On s'interresse à la sortie : " + Si.nomSortie(i));
-			for(int j = 1; j <= Si.nbSlotSortie(i); j++) {
-				Sorties.add(new So(Si.nomSortie(i),Si.getSorties(i,j)));
+		for (int i = 1; i <= Si.nbSorties(); i++) {
+			// System.out.println("On s'interresse à la sortie : " + Si.nomSortie(i));
+			for (int j = 1; j <= Si.nbSlotSortie(i); j++) {
+				Sorties.add(new So(Si.nomSortie(i), Si.getSorties(i, j)));
 			}
-                }
+		}
 
 		boolean fin = false;
-		while(!fin) {
-			AfficherEtatList(Entrees,Sorties);
+		while (!fin) {
+			AfficherEtatList(Entrees, Sorties);
 			fin = Menu(Entrees);
 		}
 	}
 
-	public static void AfficherEtatList(List<En> E, List<So> S){
+	public static void AfficherEtatList(List<En> E, List<So> S) {
 		for (En e : E) {
 			System.out.print(" >" + e.Nom() + " : " + e.E);
 		}
 		System.out.println();
 		for (So c : S) {
-                        System.out.print(" >" + c.Nom() + " : " + c.Val());
-                }
+			System.out.print(" >" + c.Nom() + " : " + c.Val());
+		}
 		System.out.println();
 	}
 
 	public static boolean Menu(List<En> E) {
 		Scanner sc = new Scanner(System.in);
-		System.out.println("Choisissez une entrée de 1 à " + E.size() + " à modifier. \n Un autre entier ferme le programme.");
+		System.out
+				.println("Choisissez une entrée de 1 à " + E.size() + " à modifier. \n Un autre entier ferme le programme.");
 		int r = sc.nextInt();
-		if (r < 1 || r > E.size()) return true;
+		if (r < 1 || r > E.size())
+			return true;
 		else {
-		       E.get(r-1).click();
-	       	       return false;	       
+			E.get(r - 1).click();
+			return false;
 		}
 	}
 
 }
-
