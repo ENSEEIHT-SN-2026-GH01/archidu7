@@ -1,6 +1,8 @@
-package Erwan;
+package simulateur.Erwan;
 
 import java.util.*;
+
+import simulateur.Branchement;
 
 /**
  * Erwan Modélise une opération du langage vhdl.
@@ -44,7 +46,7 @@ import java.util.*;
  * @author Mati AFRIAT -- archidu7
  */
 
-public class Erwan {
+public class Erwan implements Branchement {
 
 	/** Opération du signal. */
 	public Operation Op;

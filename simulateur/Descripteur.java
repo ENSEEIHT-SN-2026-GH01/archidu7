@@ -1,4 +1,4 @@
-package Erwan;
+package simulateur;
 
 public class Descripteur {
 
@@ -27,4 +27,3 @@ public class Descripteur {
 		return indiceFin;
 	}
 }
-

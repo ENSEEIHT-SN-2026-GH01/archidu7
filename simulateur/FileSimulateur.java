@@ -1,7 +1,8 @@
 package simulateur;
 
 import java.util.*;
-import Erwan.*;
+
+import simulateur.Erwan.*;
 
 public class FileSimulateur implements Simulateur {
 

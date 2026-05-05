@@ -1,8 +1,9 @@
 package simulateur;
 
 import java.util.*;
-import Erwan.*;
 import java.util.Scanner;
+
+import simulateur.Erwan.*;
 
 public class Experience3 {
 

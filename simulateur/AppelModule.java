@@ -1,8 +1,8 @@
-package Erwan;
+package simulateur;
 
 import java.util.*;
 
-public class AppelModule {
+public class AppelModule implements Branchement {
 
 	private String NomModule;
 	public List<Descripteur> DE, DS;
@@ -13,7 +13,7 @@ public class AppelModule {
 		this.DS = DS;
 	}
 
-	public Nom() {
+	public String Nom() {
 		return this.NomModule;
 	}
 }

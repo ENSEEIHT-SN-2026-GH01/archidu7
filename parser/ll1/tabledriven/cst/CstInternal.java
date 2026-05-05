@@ -9,9 +9,11 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Noeud interne du CST : correspond à un non-terminal développé par une production.
+ * Noeud interne du CST : correspond à un non-terminal développé par une
+ * production.
  *
- * <p>Utiliser les factory statiques {@link #of} et {@link #epsilon} plutôt que
+ * <p>
+ * Utiliser les factory statiques {@link #of} et {@link #epsilon} plutôt que
  * le constructeur canonique du record.
  */
 public record CstInternal(
@@ -19,10 +21,11 @@ public record CstInternal(
         Production rule,
         List<CstNode> children,
         int startOffset,
-        int endOffset
-) implements CstNode {
+        int endOffset) implements CstNode {
 
-    /** Constructeur compact : valide les non-null et rend {@code children} immuable. */
+    /**
+     * Constructeur compact : valide les non-null et rend {@code children} immuable.
+     */
     public CstInternal {
         Objects.requireNonNull(nt, "nt");
         Objects.requireNonNull(rule, "rule");
@@ -30,7 +33,10 @@ public record CstInternal(
         children = List.copyOf(children);
     }
 
-    @Override public Symbol symbol() { return nt; }
+    @Override
+    public Symbol symbol() {
+        return nt;
+    }
 
     /**
      * Retourne le premier enfant direct dont le symbole est égal à {@code s},
@@ -39,7 +45,8 @@ public record CstInternal(
     @Override
     public Optional<CstNode> first(Symbol s) {
         for (var c : children) {
-            if (c.symbol().equals(s)) return Optional.of(c);
+            if (c.symbol().equals(s))
+                return Optional.of(c);
         }
         return Optional.empty();
     }
@@ -52,16 +59,20 @@ public record CstInternal(
     public List<CstNode> allOf(Symbol s) {
         var result = new ArrayList<CstNode>();
         for (var c : children) {
-            if (c.symbol().equals(s)) result.add(c);
+            if (c.symbol().equals(s))
+                result.add(c);
         }
         return List.copyOf(result);
     }
 
-    /** Retourne {@code true} si au moins un enfant direct a pour symbole {@code s}. */
+    /**
+     * Retourne {@code true} si au moins un enfant direct a pour symbole {@code s}.
+     */
     @Override
     public boolean has(Symbol s) {
         for (var c : children) {
-            if (c.symbol().equals(s)) return true;
+            if (c.symbol().equals(s))
+                return true;
         }
         return false;
     }
@@ -74,7 +85,8 @@ public record CstInternal(
      * Crée un noeud interne à partir d'une liste non-vide d'enfants.
      * Les offsets sont calculés depuis le premier et le dernier enfant.
      *
-     * @throws IllegalArgumentException si {@code children} est vide
+     * @throws IllegalArgumentException
+     *                                      si {@code children} est vide
      */
     public static CstInternal of(NonTerminal nt, Production rule, List<CstNode> children) {
         Objects.requireNonNull(nt, "nt");
@@ -84,7 +96,7 @@ public record CstInternal(
             throw new IllegalArgumentException("Use epsilon() for empty children");
         }
         int start = children.get(0).startOffset();
-        int end   = children.get(children.size() - 1).endOffset();
+        int end = children.get(children.size() - 1).endOffset();
         return new CstInternal(nt, rule, children, start, end);
     }
 
