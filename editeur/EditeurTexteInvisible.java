@@ -1,6 +1,5 @@
 package editeur;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.skin.TextAreaSkin;
 import javafx.scene.text.Font;
 
 /**
