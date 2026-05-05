@@ -239,30 +239,16 @@ public class CelluleTexte {
             if (suivant != null) return suivant.supprimerText(debutSuppr, finSuppr);
             else return this;
         }
-        else if(finSuppr > fin +1){ //suppression sur plusieurs morceaux
+        else {
+            /*recollement pour ne pas avoir de cellules vides */
+            recoller(debut, finSuppr + 1);
 
-            /*appel recurssif */
-            if (suivant != null){
-                suivant.supprimerText(fin + 1, finSuppr);
-                if (suivant.getDebut() > suivant.getFin()) suivant = suivant.suivant; //supression des cellules vides
-            }
-
-            /*supression sur ce morceau */
-            String actuel = morceau.getText();
-             morceau.setText(actuel.substring(0, debutSuppr - debut));
+            /*suppression */
+            String txt = morceau.getText();
+            morceau.setText(txt.substring(0, debutSuppr - debut) + txt.substring(finSuppr - debut));
 
             /*decalage */
-            int delta = debutSuppr - fin - 1;
-            fin += delta; //delta est negatif
-            if (suivant != null) suivant.propagerDecalage(delta);
-
-            return this;
-        }
-        else{
-            String actuel = morceau.getText();
-  
-            morceau.setText(actuel.substring(0, debutSuppr - debut) + actuel.substring(finSuppr - debut, fin - debut + 1));
-            int delta = debutSuppr - finSuppr ;
+            int delta = debutSuppr - finSuppr;
             fin += delta; //delta est negatif
             if (suivant != null) suivant.propagerDecalage(delta);
 
