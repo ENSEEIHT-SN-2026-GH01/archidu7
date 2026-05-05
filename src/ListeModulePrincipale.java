@@ -1,16 +1,19 @@
+import editeur.EditeurTexte;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import java.util.*;
 import java.io.*;
 import java.security.InvalidParameterException;
 
-public class ListeModulePrincipale extends ScrollPane{
-    
+public class ListeModulePrincipale extends ScrollPane {
+
     private List<FichierModuleBouton> modules;
     private VBox liste;
+    private EditeurTexte editeur;
 
-    public ListeModulePrincipale(){
+    public ListeModulePrincipale(EditeurTexte editeur) {
         super();
+        this.editeur = editeur;
         liste = new VBox();
         liste.setPrefWidth(FichierModuleBouton.moduleBoutonLargeur);
         setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
@@ -19,29 +22,28 @@ public class ListeModulePrincipale extends ScrollPane{
         rechargerEnvironnement("./modules/");
     }
 
-    /**Recharge les modules de l'environnement.
-     * 
-     * @param dir Le repertoire courant.
+    /** Recharge les modules de l'environnement.
+     *
+     * @param dir Le répertoire courant.
      */
-    public void rechargerEnvironnement(String dir){
+    public void rechargerEnvironnement(String dir) {
         modules.clear();
 
         String[] repertoire = (new File(dir)).list();
 
         for (String nomFichier : repertoire) {
-            try{
-                modules.add(new FichierModuleBouton(nomFichier));
-            }
-            catch (InvalidParameterException e){
-                //si ce n'est pas un module shdl, on n'ajoute pas
+            try {
+                modules.add(new FichierModuleBouton(nomFichier, editeur));
+            } catch (InvalidParameterException e) {
+                // si ce n'est pas un module shdl, on n'ajoute pas
             }
         }
 
         rechargerAffichage();
     }
 
-    /**Retablie l'affichage des boutons */
-    private void rechargerAffichage(){
+    /** Rétablie l'affichage des boutons */
+    private void rechargerAffichage() {
         liste.getChildren().clear();
         liste.getChildren().addAll(modules);
     }
