@@ -4,15 +4,14 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import parser.lexer.Token;
-import parser.ll1.grammar.NonTerminal;
-import parser.ll1.grammar.Terminal;
 import parser.ll1.tabledriven.CstParser;
 import parser.ll1.tabledriven.cst.CstInternal;
 import parser.ll1.tabledriven.cst.CstLeaf;
 import parser.ll1.tabledriven.cst.CstNode;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import static util.test.Assert.assertNotEquals;
 
 /**
  * Tests d'invariants generiques sur le CST produit (BLOC C).

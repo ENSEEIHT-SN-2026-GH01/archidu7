@@ -7,6 +7,8 @@ import parser.lexer.Token;
 import parser.ll1.tabledriven.CstParser;
 import parser.ll1.tabledriven.ParsingException;
 
+import static util.test.Assert.assertThrows;
+
 public class CstParserSimpleErrorTest {
 
     @Test

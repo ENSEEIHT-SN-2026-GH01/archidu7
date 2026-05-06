@@ -7,6 +7,8 @@ import parser.lexer.Token;
 import parser.ll1.tabledriven.CstParser;
 import parser.ll1.tabledriven.ParsingException;
 
+import static util.test.Assert.assertThrows;
+
 /**
  * Tests CstParser pour les cas d'erreur avec verification des offsets (Task 8.B).
  */

@@ -6,6 +6,8 @@ import parser.lexer.Token;
 import java.util.List;
 import static org.junit.Assert.*;
 
+import static util.test.Assert.assertNotEquals;
+
 public class GrammarStructureTest {
     @Test public void terminalEqualsParToken() {
         assertEquals(new Terminal(Token.AssignOp), new Terminal(Token.AssignOp));

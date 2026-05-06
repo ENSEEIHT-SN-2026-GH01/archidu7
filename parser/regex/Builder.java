@@ -2,25 +2,9 @@ package parser.regex;
 
 import java.util.Stack;
 
-// what needs to be implemented as regex
-// a | b => ok
-// (a) => ok
-// a* => ok
-// a+ => ok
-// \n et \r et \t => ok
-// \ + any a -> a => ok
-// [ab] => ok
-// [a-b] => ok
-// epsilon => ok
-// a => ok
-// . => ok ?
-// ~a
-
-// TODO make some adjustments to have wierd syntax like "()()" give "#" instead of "##" => v2
-
-
 /**
- * Constructeur général des expressions régulières à partir de chaînes de caractères.
+ * Constructeur général des expressions régulières à partir de chaînes de
+ * caractères.
  */
 public class Builder {
   /** Cacartère servant à échapper les autres */
@@ -29,10 +13,12 @@ public class Builder {
   public static final char GROUPING_START = '(';
   /** Caractère marquant la fin d'un groupe */
   public static final char GROUPING_END = ')';
-  
+
   /**
    * Échapper le caractère
-   * @param c le caractère à échapper
+   * 
+   * @param c
+   *            le caractère à échapper
    * @return le caractère échappé
    */
   private static char escape(char c) {
@@ -47,13 +33,16 @@ public class Builder {
     return c;
 
   }
-  
+
   // Empecher de pouvoir l'appeler
-  private Builder(){}
-  
+  private Builder() {
+  }
+
   /**
    * Constructeur de l'expression régulière à partir d'une chaine de caractères
-   * @param s la chaine à transformer en expression régulière
+   * 
+   * @param s
+   *            la chaine à transformer en expression régulière
    * @return l'expression régulière résultante
    */
   public static Regex parseRegex(String s) {
@@ -165,7 +154,8 @@ public class Builder {
    * constructs a Range from the string of a range {@code s} must follow the form
    * {@code "^([^\]](-[^\]])?)*\"}
    * 
-   * @param s the interior of a range block of regex
+   * @param s
+   *            the interior of a range block of regex
    * @return the Regex object associated
    */
   private static Regex parseRange(String s) {
@@ -223,7 +213,8 @@ public class Builder {
   /**
    * Computes the or operation of all the Regex found in {@code stack}
    * 
-   * @param stack the collection of Regex to compute
+   * @param stack
+   *                the collection of Regex to compute
    * @return the or of all the Regex
    */
   private static Regex or(Stack<Regex> stack) {
@@ -244,10 +235,14 @@ public class Builder {
    * Finds the index of the closing of {@code opener}, {@code closer}, in the
    * string {@code s}, starting at index {@code idxDebut}
    * 
-   * @param s        the string where the matching closing is searched
-   * @param opener   the character that opens
-   * @param closer   the character that closes
-   * @param idxDebut the index of the start
+   * @param s
+   *                   the string where the matching closing is searched
+   * @param opener
+   *                   the character that opens
+   * @param closer
+   *                   the character that closes
+   * @param idxDebut
+   *                   the index of the start
    * @return the index of the matching closer
    */
   private static int findClosing(String s, char opener, char closer, int idxDebut) {

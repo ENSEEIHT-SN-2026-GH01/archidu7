@@ -11,6 +11,8 @@ import parser.ll1.tabledriven.cst.CstInternal;
 import parser.ll1.tabledriven.cst.CstLeaf;
 import parser.ll1.tabledriven.cst.CstNode;
 
+import static util.test.Assert.assertThrows;
+
 public class CstParserModuleTest {
 
     // Source minimal valide pour la grammaire SHDL :
