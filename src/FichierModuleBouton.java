@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 import editeur.EditeurTexte;
 import javafx.scene.control.Button;
+import sauvegarde.FileStorage;
 
 /* Bouton représentant un fichier .shdl de la liste de gauche.
  * Au clic, charge le contenu du fichier dans l'éditeur. */
@@ -13,7 +14,7 @@ public class FichierModuleBouton extends Button {
     private final String cheminFichier;
 
     /* Prend un nom de fichier .shdl et une référence vers l'éditeur. */
-    public FichierModuleBouton(String nomFichier, EditeurTexte editeur) throws InvalidParameterException {
+    public FichierModuleBouton(String nomFichier, EditeurTexte editeur, FileStorage storage) throws InvalidParameterException {
 
         int tailleNom = nomFichier.length() - 5;
 
@@ -27,7 +28,6 @@ public class FichierModuleBouton extends Button {
         cheminFichier = "./modules/" + nomFichier;
 
         setOnAction(event -> {
-            TextFileStorage storage = new TextFileStorage();
             try {
                 String contenu = storage.load(cheminFichier);
                 editeur.setText(contenu);

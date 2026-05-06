@@ -83,4 +83,12 @@ public class EditeurTexte extends StackPane{
     public void setText(String contenu){
         deriere.setText(contenu);
     }
+
+    /**Renvoie tous le texte de l'éditeur.
+     *
+     * @return  
+     */
+    public String getText(){
+        return deriere.getText();
+    }
 }

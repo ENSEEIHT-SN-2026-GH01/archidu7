@@ -11,6 +11,7 @@ import java.nio.file.StandardOpenOption;
 public class TextFileStorage implements FileStorage {
 
     private final Charset charset;
+    private String chemin;
 
     // Constructeur par défaut : UTF-8
     public TextFileStorage() {
@@ -39,7 +40,7 @@ public class TextFileStorage implements FileStorage {
             StandardOpenOption.TRUNCATE_EXISTING
         );
 
-        System.out.println("Fichier sauvegardé : " + path.toAbsolutePath());
+        chemin = filename;
     }
 
     @Override
@@ -51,7 +52,17 @@ public class TextFileStorage implements FileStorage {
         }
 
         String content = Files.readString(path, charset);
-        System.out.println("Fichier chargé : " + path.toAbsolutePath());
+        chemin = filename;
         return content;
+    }
+
+    @Override
+    public String getPath(){
+        return chemin;
+    }
+
+    @Override
+    public void setPath(String chemin){
+        this.chemin = chemin;
     }
 }

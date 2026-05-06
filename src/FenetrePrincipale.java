@@ -4,6 +4,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import sauvegarde.FileStorage;
 import sauvegarde.TextFileStorage;
+import boutons.BoutonsPrincipale;
 
 public class FenetrePrincipale extends Scene {
     
@@ -16,7 +17,7 @@ public class FenetrePrincipale extends Scene {
         FileStorage stockage = new TextFileStorage(); 
 
         BoutonsPrincipale boutons = new BoutonsPrincipale(editeur, stockage);
-        ListeModulePrincipale environnement = new ListeModulePrincipale(editeur);
+        ListeModulePrincipale environnement = new ListeModulePrincipale(editeur, stockage);
         
         MenuPrincipale menu = new MenuPrincipale();
         VBox outils = new VBox(menu, boutons);

@@ -22,4 +22,16 @@ public interface FileStorage {
      * @throws IOException en cas d'erreur de lecture ou fichier introuvable
      */
     String load(String filename) throws IOException;
+
+    /**Donne le chemin du fichier actuellement ouvert.
+     * 
+     * @return un chemin vers un fichier ou null si aucun n'est ouvert.
+     */
+    String getPath();
+
+    /**Change le chemin du fichier actuellemnt ouvert.
+     * 
+     * @param chemin Le chemin du nouveau fichier ouvert.
+     */
+    void setPath(String chemin);
 }
