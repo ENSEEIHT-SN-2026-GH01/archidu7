@@ -12,10 +12,9 @@ public class EditeurBaseFormatter {
         }
         if (change.isAdded()){
             String changement = change.getText();
-
             devant.inserrer(change.getRangeStart() - 1, changement);
-            }
+        }
 
-            return change;
+        return change;
     }
 }

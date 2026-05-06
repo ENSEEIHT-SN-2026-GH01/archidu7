@@ -2,22 +2,26 @@ package simulateur.affichage;
 
 import javafx.scene.layout.FlowPane;
 import javafx.scene.text.Text;
-import simulateur.BouttonEntree;
-import simulateur.StructEntree;
+import simulateur.Simulateur;
 
-/**Les boutons d'une entrée. */
+/**Tous boutons d'une entrée. */
 public class VecteurEntreeSimulateur extends FlowPane{
 
-    private Text nom;
+    private Text texte;
 
-    public VecteurEntreeSimulateur(StructEntree composant){
+    /**Construit avec un simulateur et un numero d'entree;
+     * 
+     * @param composant Le simulateur.
+     * @param numero Numero d'entree dans le simulateur.
+     */
+    public VecteurEntreeSimulateur(Simulateur composant, int numero){
         /*Ajout du texte*/
-        nom = new Text(composant.getNom() + " : ");
-        getChildren().add(nom);
+        texte = new Text(composant.nomEntree(numero) + " : ");
+        getChildren().add(texte);
 
         /*Ajout de chaques bits. */
-        for (int i = 1; i <= composant.getNombre(); i++){
-            getChildren().add(new EntreeSimulateur(new BouttonEntree(composant, i)));
+        for (int j = 1; j <= composant.nbSlotEntree(numero); j++){
+            getChildren().add(new EntreeSimulateur(composant.getEntrees(numero, j)));
         }
     }
 }

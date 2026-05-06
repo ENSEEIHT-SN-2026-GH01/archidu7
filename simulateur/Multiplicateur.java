@@ -28,6 +28,7 @@ public class Multiplicateur extends Composant {
         }
 
 	public void ajouter(Connecteur c)  {
+		/*
 		TableauConnecteur Tc = super.getS();
 		TableauConnecteur Tc2 = new TableauConnecteur(Tc.getTaille() + 1);
 		for (int i = 1; i <= Tc.getTaille(); i++) {
@@ -35,6 +36,8 @@ public class Multiplicateur extends Composant {
 		}
 		Tc2.brancher(c,Tc2.getTaille());
 		super.setS(Tc2);
+		*/
+		super.ajouterSortie(c);
 	}
 
 	@Override

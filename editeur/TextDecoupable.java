@@ -125,7 +125,12 @@ public abstract class TextDecoupable extends TextFlow{
         morceaux.segmentation(pointsDecoupe);
     }
 
-
+    /**Affiche (debug).
+     * 
+     */
+    public void afficher(){
+        morceaux.afficher();
+    }
 
     /*méthodes liés au style. */
 

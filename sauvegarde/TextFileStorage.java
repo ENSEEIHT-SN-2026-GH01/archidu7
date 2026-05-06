@@ -52,6 +52,10 @@ public class TextFileStorage implements FileStorage {
         }
 
         String content = Files.readString(path, charset);
+        
+        /*suppression de caractères problèmatiques */
+        content = content.replace((char) 13, ' ');
+
         chemin = filename;
         return content;
     }

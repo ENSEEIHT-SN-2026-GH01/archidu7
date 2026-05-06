@@ -49,22 +49,45 @@ public class StructEntree {
 	}
 
 	private void initialiserListe(int j)  { //TODO Attention ! ne converge pas en cas de rebouclage !!!
+		//System.out.println("j'ai été appelé !");
 		Connecteur C = T.getConnecteur(j);
 		List<Composant> Suivant = new ArrayList<>();
 		List<Composant> Calcul = new ArrayList<>();
+		Map<Composant,Integer> DicoCompo = new HashMap<>();
 		C.getComposant().ajouter(Suivant);
-		while (!Suivant.isEmpty()) {
+		DicoCompo.put(C.getComposant(),1);
+		//int iteration = 0;
+		while (!Suivant.isEmpty() /*&& iteration < 10*/) {
 			List<Composant> Courant = Suivant;
 			Suivant = new ArrayList<>();
 			for(Composant Com : Courant) {
 				for (int i = 1; i <= Com.getNbSortie(); i++) {
-					if (Com.getConnecteurSortie(i) != null &&  Com.getConnecteurSortie(i).getComposant() != null) {
-						Com.getConnecteurSortie(i).getComposant().ajouter(Suivant);
+					if (Com.getConnecteurSortie(i) != null &&  Com.getConnecteurSortie(i).getComposant() != null && !(Com instanceof Multiplicateur)) {
+						Composant CI = Com.getConnecteurSortie(i).getComposant();
+						if (DicoCompo.get(CI) == null) {
+							CI.ajouter(Suivant);
+							DicoCompo.put(CI,1);
+						} else {
+							if (DicoCompo.get(CI) < 3) {
+								DicoCompo.put(CI,DicoCompo.get(CI)+1);
+								CI.ajouter(Suivant);
+							}
+						}
 					}
 				}
 			}
 			Calcul.addAll(Courant);
+			//iteration ++;
 		}
+		System.out.println("Début liste Calcul " + this.nom);
+		for (Composant Compo : Calcul) {
+			System.out.print("Type : " + Compo.getNom() + ",Nombre de Sorties : " + Compo.getNbSortie() + ", Sorties : ");
+			for (int ii = 1; ii <= Compo.getNbSortie() ; ii++) {
+				System.out.print(Compo.getConnecteurSortie(ii).getNom() + ", ");
+			}
+			System.out.println();
+		}
+		System.out.println("Fin liste Calcul");
 		D.put(j,Calcul);
 	}
 

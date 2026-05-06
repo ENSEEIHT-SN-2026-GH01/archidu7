@@ -19,11 +19,11 @@ public enum Etat {
 	public String toString() {
 		switch (this) {
 			case UP:
-				return "O";
+				return "H";
 			case ND:
 				return "-";
 			case DW:
-				return "X";
+				return "L";
 			default:
 				return "~";
 		}

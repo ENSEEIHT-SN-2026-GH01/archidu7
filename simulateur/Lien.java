@@ -1,20 +1,30 @@
 package simulateur;
 
+import java.util.ArrayList;
+
 public class Lien implements Connecteur {
 
 	private Etat etat;
 	private String nom;
 	private Composant origine, composantSuivant;
 
+	private ArrayList<ConnecteurListener> listeners;
+
 	public Lien(String nom) {
 		etat = Etat.ND;
 		this.nom = nom;
 		composantSuivant = null;
 		origine = null;
+		listeners = new ArrayList<>();
 	}
 
 	public void setValeur(Etat b) {
 		etat = b;
+
+		/*notifier les listeners */
+		for (ConnecteurListener connecteurListener : listeners) {
+			connecteurListener.signalModifie(b);
+		}
 	}
 
 	public Etat getValeur() {
@@ -95,4 +105,7 @@ public class Lien implements Connecteur {
 		}
 	}	
 
+	public void addListener(ConnecteurListener listener){
+		listeners.add(listener);
+	}
 }
