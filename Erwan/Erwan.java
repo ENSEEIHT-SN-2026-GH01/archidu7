@@ -27,7 +27,7 @@ import java.util.*;
  * @author  Mati AFRIAT -- archidu7
  */
 
-public class Erwan {
+public class Erwan implements Branchement {
 
 	/** Opération du signal.*/
 	public Operation Op;

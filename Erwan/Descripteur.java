@@ -1,0 +1,62 @@
+package Erwan;
+
+/** Decrire une entree/sortie qu'elle contienne un ou plusieurs signaux.
+ * Cette classe va permettre au simulateur d'extraire les signaux séléctionnés pour être des entrées/sorties.
+ *
+ * @author Mati Afriat -- archidu7
+ */
+public class Descripteur {
+
+	private String Nom;
+	private int indiceDebut, indiceFin;
+
+	/** Décrire un vecteur d'entree ou de sortie en spécifiant son nom et les indices séléctionnés.
+	 * Il est possible de ne selectionner qu'une partie de vecteur.
+	 * @param Nom le nom du vecteur de signaux.
+	 * @param d l'indice du premier signal du vecteur selectionné.
+	 * @param f l'indice du dernier signal du vecteur selectionné.
+	 */
+	public Descripteur(String Nom, int d, int f) {
+		this.Nom = Nom;
+		this.indiceDebut = d;
+		this.indiceFin = f;
+	}
+
+	/** Décrire une entree/sortie ne représentant qu'un signal unique.
+	 * @param Nom le nom du signal.
+	 */
+	public Descripteur(String Nom){
+		this(Nom,0,0);
+	}
+
+	/** Recuperer le nom de l'entree.
+	 * @return le nom de l'entree.
+	 */
+	public String Nom() {
+		return Nom;
+	}
+
+	/** Determiner si une entree contient un unique signal.
+	 * @return true si il est unique.
+	 */
+	public boolean unique() {
+		return indiceDebut == indiceFin;
+	}
+
+	/** Renvoie l'indice du premier signal séléctionné du vecteur.
+	 * Renvoie 0 pour un signal unique.
+	 * @return l'indice.
+	 */
+	public int indiceDebut() {
+		return indiceDebut;
+	}
+
+	/** Renvoie l'indice du dernier signal séléctionné du vecteur.
+         * Renvoie 0 pour un signal unique.
+         * @return l'indice.
+         */
+	public int indiceFin() {
+		return indiceFin;
+	}
+}
+
