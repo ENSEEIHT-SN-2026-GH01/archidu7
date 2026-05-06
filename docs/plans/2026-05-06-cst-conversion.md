@@ -57,42 +57,109 @@ tests/parser/conversion/
 
 ---
 
-## Task 1 — Pré-requis externes (côté Erwan)
+## Task 1 — Pré-requis (Voie A : corrections locales en attendant Erwan)
+
+**Contexte exceptionnel** : Erwan n'est pas joignable. Décision validée avec Alexis le 2026-05-06 : on applique les corrections **localement dans la branche `feature/parser-ll1-table-driven`** et on demande à Erwan une validation **rétroactive** dès qu'il revient. Les commits sont étiquetés explicitement pour qu'il puisse les reverter ou les ré-appliquer chez lui.
 
 **Files :**
-- Modify (côté Erwan) : `simulateur/Erwan/Erwan.java:145`
-- Modify (côté Erwan) : `simulateur/Module.java`
+- Modify : `simulateur/Erwan/Erwan.java:145` (fix `OR()`)
+- Modify : `simulateur/Module.java` (fix ctor 2)
 
-**Cette task ne produit PAS de commit dans la branche d'Alexis.** C'est un point de coordination Discord. Tant qu'elle n'est pas verte, ne pas démarrer Task 2.
+Cette task est exécutée **après** la Task 2 (merge), car les fichiers à modifier viennent du merge.
 
-- [ ] **Step 1 : envoyer le message Discord à Erwan**
+- [ ] **Step 1 : fix `Erwan.OR()` ligne 145**
 
-Message à copier :
-
-> Salut Erwan, j'ai 3 points pour démarrer la conversion :
-> 1. Bug `Erwan.OR()` ligne 145 : tu retournes `new Erwan(Operation.AND, …)` alors que ça devrait être `Operation.OR`. Sinon tout `+` simulera comme un `*`.
-> 2. `Module` ctor 2 (ligne 22-35) ne compile pas : `this(plans, Entrees, Sorties, branchements)` arrive après deux `for`, alors que Java exige `this(...)` en première instruction. Soit tu déplaces la logique dans une méthode privée `splitBranchements`, soit tu supprimes le ctor 2 si non utilisé.
-> 3. Pour l'itération S1 je propose : `Signal_Subset_Opt` doit être ε strictement (pas de `[...]` ni en LHS, ni en RHS, ni en Param). Ça matche le scope que `FileSimulateur` sait simuler. OK pour toi ?
->
-> Une fois tes points 1 et 2 mergés sur `interpretation`, je merge dans ma branche et j'implémente.
-
-- [ ] **Step 2 : attendre le push Erwan**
-
-Vérifier :
-```bash
-git fetch origin
-git log origin/interpretation -10 --oneline
+Édition unique :
+```
+- return new Erwan(Operation.AND, Entrees, Nom);
++ return new Erwan(Operation.OR, Entrees, Nom);
 ```
 
-Attendre un commit dont le message mentionne le fix `OR()` ET le ctor `Module`. Sinon ne pas continuer.
+- [ ] **Step 2 : compiler pour vérifier**
 
-- [ ] **Step 3 : noter l'accord d'Erwan sur la définition "scalaire = SS_OPT vide stricte"**
+```bash
+./build.sh test
+```
 
-Capture d'écran ou copie du message dans `docs/specs/` au besoin. Pas obligatoire de versionner mais doit exister.
+Expected : Build OK (le fichier compile, le ctor 2 de `Module` reste cassé — voir step suivant).
+
+- [ ] **Step 3 : commit du fix OR**
+
+```bash
+git add simulateur/Erwan/Erwan.java
+git commit -m "fix(erwan): OR() retourne Op.OR (et non AND)
+
+Modif LOCALE temporaire en attendant validation retroactive d'Erwan
+(non-dispo le 06/05). Bug ligne 145 : OR() retournait Op.AND, ce qui
+faisait simuler tout '+' comme un '*'. A confirmer/reverter par Erwan
+au prochain merge.
+
+Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
+```
+
+- [ ] **Step 4 : fix `Module` ctor 2 (méthode privée + this(...) en tête)**
+
+Remplacer le ctor 2 de `simulateur/Module.java` par :
+
+```java
+public Module(List<Branchement> Plan, List<Descripteur> Entrees, List<Descripteur> Sorties) {
+    this(splitErwan(Plan), Entrees, Sorties, splitAppels(Plan));
+}
+
+private static List<Erwan> splitErwan(List<Branchement> Plan) {
+    List<Erwan> plans = new LinkedList<>();
+    for (var e : Plan) if (e instanceof Erwan p) plans.add(p);
+    return plans;
+}
+
+private static List<AppelModule> splitAppels(List<Branchement> Plan) {
+    List<AppelModule> branchements = new LinkedList<>();
+    for (var e : Plan) if (e instanceof AppelModule a) branchements.add(a);
+    return branchements;
+}
+```
+
+- [ ] **Step 5 : compiler, vérifier que `Module.java` compile**
+
+```bash
+./build.sh test
+```
+
+Expected : Build OK.
+
+- [ ] **Step 6 : commit du fix Module**
+
+```bash
+git add simulateur/Module.java
+git commit -m "fix(simulateur): Module ctor 2 - this(...) en premiere instruction
+
+Modif LOCALE temporaire en attendant validation retroactive d'Erwan
+(non-dispo le 06/05). Le ctor 2 ne compilait pas : this(...) apres
+deux for. Refactor : helpers prives splitErwan/splitAppels appeles
+depuis l'argument du this(...). A confirmer/reverter par Erwan au
+prochain merge.
+
+Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
+```
+
+- [ ] **Step 7 : préparer le message de validation rétroactive pour Erwan**
+
+À envoyer dès qu'il revient (Discord) :
+
+> Salut Erwan, j'ai dû avancer sans toi aujourd'hui. J'ai fait deux fix dans **ma branche** sur ton code, à valider rétroactivement :
+>
+> 1. `Erwan.OR()` ligne 145 retournait `Op.AND` au lieu de `Op.OR` (probable typo). J'ai corrigé.
+> 2. `Module` ctor 2 ne compilait pas (`this(...)` après deux `for`, interdit par Java). J'ai refactor avec deux helpers privés `splitErwan`/`splitAppels`. Comportement identique.
+>
+> Commits étiquetés "modif locale temporaire" pour que tu puisses revert/re-apply chez toi. Tu valides ? Ou tu préfères ta propre version ?
+>
+> Aussi, OK pour S1 = `Signal_Subset_Opt` strictement ε (pas de `[...]` LHS/RHS/Param) ?
 
 ---
 
 ## Task 2 — Merge `origin/interpretation` et vérification non-régression parser
+
+**⚠️ Voie A : exécuter Task 2 AVANT Task 1.** L'ordre des tasks dans ce plan n'est pas l'ordre d'exécution. Voie A : 2 → 1 → 3 → 4 → ... → 12.
 
 **Files :**
 - Modify (résolution conflits) : `parser/ll1/tabledriven/cst/CstInternal.java`, `parser/ll1/tabledriven/cst/CstLeaf.java`
