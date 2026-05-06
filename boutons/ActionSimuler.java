@@ -28,7 +28,7 @@ public class ActionSimuler implements EventHandler<ActionEvent>{
             fen.setTitle("simulation");
             fen.show();
         } catch (Exception e){
-            System.out.println("erreur " + e.getMessage() + "\n" + editeur.getText());
+            System.out.println("Erreur : " + e.getMessage());
         }
     }
 }
