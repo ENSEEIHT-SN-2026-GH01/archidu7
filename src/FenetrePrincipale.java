@@ -1,24 +1,37 @@
-import editeur.coloration.GestionnaireColorateur;
 import editeur.EditeurTexte;
+import editeur.coloration.GestionnaireColorateur;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.scene.*;
+import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import parser.lexer.Lexer;
+import sauvegarde.FileStorage;
+import sauvegarde.TextFileStorage;
+import boutons.BoutonsPrincipale;
 
-public class FenetrePrincipale extends Scene{
-
+public class FenetrePrincipale extends Scene {
+    
     private GestionnaireColorateur colorateur;
     private Lexer lexer;
-    
-    public FenetrePrincipale(){
-        VBox outils = new VBox(new MenuPrincipale(), new BoutonsPrincipale());
 
-        Parent environnement = new ListeModulePrincipale();
+    public FenetrePrincipale() { 
+
+        super(new BorderPane(), 1000, 500);
+        BorderPane root = (BorderPane) this.getRoot();
+
         EditeurTexte editeur = new EditeurTexte();
+        FileStorage stockage = new TextFileStorage(); 
 
-        super(new BorderPane(editeur, outils, null, null, environnement), 1000, 500);
+        BoutonsPrincipale boutons = new BoutonsPrincipale(editeur, stockage);
+        ListeModulePrincipale environnement = new ListeModulePrincipale(editeur, stockage);
+        
+        MenuPrincipale menu = new MenuPrincipale();
+        VBox outils = new VBox(menu, boutons);
+ 
+        root.setCenter(editeur);
+        root.setTop(outils);
+        root.setLeft(environnement);
 
         colorateur = new GestionnaireColorateur(editeur);
         lexer = new Lexer();
