@@ -1,0 +1,1 @@
+module mux (a, b, sel) o = a * /sel + b * sel end module
