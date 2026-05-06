@@ -6,7 +6,11 @@ import static org.junit.Assert.*;
 import parser.conversion.Conversion;
 import parser.conversion.ConversionException;
 import parser.conversion.ConversionException.Reason;
+import parser.lexer.Lexem;
+import parser.lexer.Token;
+import parser.ll1.grammar.Terminal;
 import parser.ll1.tabledriven.CstParser;
+import parser.ll1.tabledriven.cst.CstLeaf;
 import parser.ll1.tabledriven.cst.CstNode;
 
 public class ConversionErrorsTest {
@@ -73,6 +77,25 @@ public class ConversionErrorsTest {
         ConversionException ex = convertAndCatch("module m (a[0..3]) c = a end module");
         assertNotNull(ex);
         assertEquals(Reason.VECTOR_SUBSET_NOT_SUPPORTED, ex.reason());
+    }
+
+    // ------------------------------------------------------------------
+    // I6 : malformed CST -> ConversionException(MALFORMED_CST)
+    // Un CstLeaf passe directement a Conversion.convert() : avant fix,
+    // on obtient ClassCastException (cast brut) ; apres fix, MALFORMED_CST.
+    // ------------------------------------------------------------------
+
+    @Test
+    public void malformedCst_leafAsRoot_throwsMalformedCst() {
+        Lexem<Token> lexem = new Lexem<>(Token.ModuleKW);
+        lexem.storeMatched(0, "module");
+        CstNode leaf = new CstLeaf(new Terminal(Token.ModuleKW), lexem);
+        try {
+            Conversion.convert(leaf);
+            fail("Attendu ConversionException avec MALFORMED_CST");
+        } catch (ConversionException ex) {
+            assertEquals(Reason.MALFORMED_CST, ex.reason());
+        }
     }
 
     @Test

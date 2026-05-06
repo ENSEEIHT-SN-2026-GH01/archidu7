@@ -34,7 +34,13 @@ public final class Names {
                 sig.startOffset(), "Signal",
                 ConversionException.Reason.MALFORMED_CST,
                 "Signal sans Identifiant enfant"));
-        return ((CstLeaf) id).lexem().getText();
+        if (!(id instanceof CstLeaf idLeaf)) {
+            throw new ConversionException(
+                id.startOffset(), "Identifiant",
+                ConversionException.Reason.MALFORMED_CST,
+                "Enfant Identifiant de Signal n'est pas CstLeaf");
+        }
+        return idLeaf.lexem().getText();
     }
 
     public static String extractScalarFromIdAndSubset(CstNode idLeaf, CstNode subsetOpt) {
@@ -44,6 +50,12 @@ public final class Names {
                 ConversionException.Reason.VECTOR_SUBSET_NOT_SUPPORTED,
                 "Vecteur non supporte en S1 (offset " + idLeaf.startOffset() + ")");
         }
-        return ((CstLeaf) idLeaf).lexem().getText();
+        if (!(idLeaf instanceof CstLeaf leaf)) {
+            throw new ConversionException(
+                idLeaf.startOffset(), "Identifiant",
+                ConversionException.Reason.MALFORMED_CST,
+                "Identifiant en LHS n'est pas CstLeaf");
+        }
+        return leaf.lexem().getText();
     }
 }
