@@ -27,17 +27,17 @@ Modules SHDL composés exclusivement d'assignations **combinatoires scalaires** 
 - `Module → ModuleKW Identifiant LeftPar Param (Separ Param)* RightPar Instance+ EndKW ModuleKW`
 - `Param → Signal` avec `Signal_Subset_Opt = ε`
 - `Instance → Identifiant SignalAssignment` avec `Signal_Subset_Opt = ε` sur le LHS
-- `SignalAssignment → AssignOp SumOfTermsCompound` avec `Concat_SumOfTerms_Star = ε`
+- `SignalAssignment → AssignOp SumOfTermsCompound` avec `Concat_SumOfTerms_Star = ε` (AssignOp = `=`)
 - `SumOfTerms → Term (OrOp Term)*`
 - `Term → Factor (AndOp Factor)*`
-- `Factor → LeftPar SumOfTerms RightPar | NotOp Signal | Signal` avec `Signal_Subset_Opt = ε`
+- `Factor → LeftPar SumOfTerms RightPar | NotOp Signal | Signal` avec `Signal_Subset_Opt = ε` (NotOp = `/`)
 
 ### 2.2 Hors scope (rejeté → `ConversionException`)
 
 Tout le reste est syntaxiquement valide mais sémantiquement refusé en S1 :
 
 - `Signal_Subset_Opt ≠ ε` quel que soit l'emplacement (LHS, RHS, Param). Couvre `[N]`, `[N..M]`, `[N:M]`.
-- `Concat_SumOfTerms_Star ≠ ε` (`||` dans un `SignalAssignment`).
+- `Concat_SumOfTerms_Star ≠ ε` (`&` dans un `SignalAssignment`).
 - `MemoryAssignment` (`:=`).
 - `Operation → ModuleCall` et `Instance → Dollar Identifiant ModuleCall` (`$nom(...)`).
 - `Factor → LiteralValue` (`.0` / `.1`) — refusé en S1, ouvert en S2 quand Mati clarifiera la sémantique des constantes côté `FileSimulateur`.
@@ -141,11 +141,11 @@ Si `Or_Operand_Star = ε`, le `SumOfTerms` se réduit à un `Term` ; on émet le
 
 ### 5.4 Constantes en RHS — refusées en S1
 
-`c <= .1` produirait `AFFECTATION("c", LITTERAL("1"))` (ce que fait `Erwan.CONSTANTE`), et `FileSimulateur` traiterait alors `"1"` comme une entrée nommée — bug silencieux côté Mati. En S1, `Factor → LiteralValue` lève `ConversionException`. Réservé à S2 (avec correction Mati).
+`c = .1` produirait `AFFECTATION("c", LITTERAL("1"))` (ce que fait `Erwan.CONSTANTE`), et `FileSimulateur` traiterait alors `"1"` comme une entrée nommée — bug silencieux côté Mati. En S1, `Factor → LiteralValue` lève `ConversionException`. Réservé à S2 (avec correction Mati).
 
 ### 5.5 Double assignation — refusée
 
-`c <= a; c <= b` est syntaxiquement valide. `FileSimulateur.construction()` traite la 2ᵉ assignation de manière non-spécifiée (le `Dico.existe()` court-circuite la 2ᵉ visite, mais l'union des entrées subsiste — le résultat est un mélange). En S1, `ModuleBuilder` maintient un `Set<String>` des LHS déjà vus, et lève `ConversionException` à la 2ᵉ apparition.
+`c = a c = b` (deux Instances) est syntaxiquement valide. `FileSimulateur.construction()` traite la 2ᵉ assignation de manière non-spécifiée (le `Dico.existe()` court-circuite la 2ᵉ visite, mais l'union des entrées subsiste — le résultat est un mélange). En S1, `ModuleBuilder` maintient un `Set<String>` des LHS déjà vus, et lève `ConversionException` à la 2ᵉ apparition.
 
 ### 5.6 Référence à un signal non-déclaré — non détectée en S1
 
@@ -165,7 +165,7 @@ Hérite de `RuntimeException` (cohérent avec `ParsingException`). Champs immuta
 - `String nodeKind()` — symbole du nœud déclencheur (NT name ou Token name).
 - `Reason reason()` — enum énumérant les rejets S1 :
   - `VECTOR_SUBSET_NOT_SUPPORTED` (LHS, RHS ou Param avec `[...]`)
-  - `CONCAT_NOT_SUPPORTED` (`||`)
+  - `CONCAT_NOT_SUPPORTED` (`&`)
   - `MEMORY_ASSIGNMENT_NOT_SUPPORTED` (`:=`)
   - `MODULE_CALL_NOT_SUPPORTED` (LHS `Dollar` ou RHS `Operation → ModuleCall`)
   - `LITERAL_IN_RHS_NOT_SUPPORTED` (`.0`/`.1` en Factor)
@@ -187,7 +187,7 @@ Trois couches, JUnit 4 (cohérent avec l'existant), dans `tests/parser/conversio
 
 Un test par "shape" d'expression scalaire :
 - `a` → `LITTERAL("a")`
-- `!a` → `NOT(LITTERAL("a"))`
+- `/a` → `NOT(LITTERAL("a"))`
 - `a * b` → `AND([a, b])`
 - `a + b` → `OR([a, b])` (vérifie `Op == OR`, sentinelle anti-régression sur le bug `Erwan.OR()`)
 - `a * b * c` → `AND([a, b, c])` (n-aire)
@@ -195,7 +195,7 @@ Un test par "shape" d'expression scalaire :
 - `a + b * c` → `OR(a, AND(b, c))` (précédence)
 - `a * (b + c)` → `AND(a, OR(b, c))` (parens)
 - `(a)` → `LITTERAL("a")` (parens dégénérées)
-- `!a * !b` → `AND(NOT(a), NOT(b))`
+- `/a * /b` → `AND(NOT(a), NOT(b))`
 - `a` réutilisé → `LITTERAL` distincts mais `Nom` identique
 - arbre profond (≥4 niveaux de parens) → ne stack-overflow pas
 
@@ -211,18 +211,18 @@ Un test par "shape" d'expression scalaire :
 ### 7.3 Tests d'erreur (~8 tests)
 
 Un test négatif par production hors S1 :
-- `c <= a || b` → `CONCAT_NOT_SUPPORTED`
+- `c = a & b` → `CONCAT_NOT_SUPPORTED`
 - `c := a on clk` → `MEMORY_ASSIGNMENT_NOT_SUPPORTED`
 - `$add(a, b, c)` → `MODULE_CALL_NOT_SUPPORTED`
-- `c <= .1` → `LITERAL_IN_RHS_NOT_SUPPORTED`
-- `c[0] <= a` → `VECTOR_SUBSET_NOT_SUPPORTED`
-- `c <= a[3]` → `VECTOR_SUBSET_NOT_SUPPORTED`
+- `c = .1` → `LITERAL_IN_RHS_NOT_SUPPORTED`
+- `c[0] = a` → `VECTOR_SUBSET_NOT_SUPPORTED`
+- `c = a[3]` → `VECTOR_SUBSET_NOT_SUPPORTED`
 - chaque erreur expose `offset()` correct (vérifié par calcul manuel)
 - pas de NPE pour aucune source SHDL parseable
 
 ### 7.4 Smoke test e2e (1 test, **écrit en premier**)
 
-`module et(a, b) c <= a * b end module` :
+`module et (a, b) c = a * b end module` :
 1. `CstParser.parse(source)` → CST
 2. `Conversion.convert(cst)` → `Module`
 3. `new FileSimulateur(module.Plan)` ne plante pas
@@ -276,7 +276,7 @@ Commits petits et fréquents (un par étape TDD : test rouge → implémentation
 ## 11. Non-objectifs (S2 et au-delà)
 
 - Vectoriel (extension `recupSignal` côté Mati + extension de `ExpressionBuilder` pour `ARANGE/ANDR/ORR/NOTR`).
-- Concat `||` (nouvelle factory IR + extension Mati).
+- Concat `&` (nouvelle factory IR + extension Mati).
 - `MemoryAssignment` (nouvelle factory IR + classe `Bascule` côté Mati + horloge + traitement séquentiel dans `FileSimulateur`).
 - `ModuleCall` (TODO côté Erwan, bouchons `APPELMODULE`/`MODULE`).
 - Table de symboles + détection signaux non-déclarés.
