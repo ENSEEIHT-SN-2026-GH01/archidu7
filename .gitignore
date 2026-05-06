@@ -10,6 +10,9 @@ tmp/
 *.swp
 *.bak
 *.jar
+!gradle/wrapper/gradle-wrapper.jar
+build/
+.gradle/
 local.properties
 .factorypath
 src-gen/
