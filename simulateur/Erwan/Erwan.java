@@ -149,7 +149,7 @@ public class Erwan implements Branchement {
 			else
 				Nom += " + " + NE;
 		}
-		return new Erwan(Operation.AND, Entrees, Nom);
+		return new Erwan(Operation.OR, Entrees, Nom);
 	}
 
 	/**
