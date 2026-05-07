@@ -158,6 +158,22 @@ public class Erwan implements Branchement {
                 return R;
         }
 	
+	/** Lecture numérique dans le cas de signaux appartenant à un vecteur.
+	 * il faut utiliser cette méthode meme si on ne souhaire lire que un seul signal.
+	 * @param Nom le nom du vecteur duquel on souhaite lire.
+	 * @param IndiceDebut l'indice à partir duquel on souhaite lire.
+	 * @param IndiceFin l'indice jusqu'auquel on veut lire, inclu. Attention, dans le cas on l'on ne souhaite lire qu'un signal, c'est égal à IndiceDebut.
+	 * @return la liste des signaux modélisés en Erwan.
+	 */
+	public static List<Erwan> LITTERANGE(String Nom, int IndiceDebut, int IndiceFin) {
+		List<Erwan> R = new ArrayList<>();
+		for(int i = IndiceDebut; i<= IndiceFin; i++) {
+			Erwan E = LITTERAL(Nom);
+			E.Numero = new Integer(i);
+			R.add(E);
+		}
+		return R;
+	}
 
 	/** Opération "ET" dans le cas d'un vecteur. 
 	 * Cette méthode permet de simplifier l'opération ET bit à bit de deux vecteur, ou d'un vecteur et d'un signal.
