@@ -105,6 +105,10 @@ public class StructEntree {
 		return nom;
 	}
 
+	public String getNom(int i) {
+		return T.getConnecteur(i).getNom();
+	}
+
 	/** Nombre de signaux dans l'entree.
 	 * @return le nombre de signaux dans l'entree.
 	 */

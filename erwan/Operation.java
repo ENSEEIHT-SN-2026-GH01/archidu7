@@ -1,4 +1,4 @@
-package Erwan;
+package erwan;
 
 public enum Operation {
 

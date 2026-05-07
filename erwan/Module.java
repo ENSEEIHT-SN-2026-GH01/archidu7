@@ -1,6 +1,6 @@
-package Erwan;
+package erwan;
 
-import java.util.*.
+import java.util.*;
 
 public class Module {
 

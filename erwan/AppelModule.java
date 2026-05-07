@@ -1,4 +1,4 @@
-package Erwan;
+package erwan;
 
 import java.util.*;
 
@@ -13,7 +13,7 @@ public class AppelModule implements Branchement {
 		this.DS = DS;
 	}
 
-	public Nom() {
+	public String Nom() {
 		return this.NomModule;
 	}
 }

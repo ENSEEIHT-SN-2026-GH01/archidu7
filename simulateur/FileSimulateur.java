@@ -1,7 +1,7 @@
 package simulateur;
 
 import java.util.*;
-import Erwan.*;
+import erwan.*;
 
 public class FileSimulateur implements Simulateur{
 
@@ -15,6 +15,64 @@ public class FileSimulateur implements Simulateur{
 		//TODO Creer les struct Entree et Sortie
 		//TODO ajouter les signaux littéraux au dico
 		//TODO generer les sigaux non littéraux et les enr au dico
+	}
+
+	public FileSimulateur(erwan.Module M){
+		this(M.Plan);
+		List<StructEntree> EntreeUtilisateur = new ArrayList<>();
+		List<StructEntree> EntreeModule;
+		List<StructSortie> SortieUtilisateur = new ArrayList<>();
+		List<StructSortie> SortieModule = new ArrayList<>();
+		for (Descripteur DE : M.Entrees) {
+			boolean trouve = false;
+			TableauConnecteur T  = new TableauConnecteur(DE.indiceFin() - DE.indiceDebut() + 1);
+			int curseurEntree = 1;
+			for (String Nom : DE.Noms()) {
+				int curseur = 0;
+	 			while (!trouve && curseur < EntreesG.size()){
+					if (EntreesG.get(curseur).getNom().equals(Nom)) {
+						EntreesG.remove(curseur);
+						trouve = true;
+					}
+					curseur += 1;
+				}
+				if (!trouve) throw new RuntimeException("Il manque une entree : " + Nom +". \nVeuillez verifier que ce signal est lu et n'est pas déjà généré par le circuit.");		
+				T.brancher(Dico.getConnecteur(Nom),curseurEntree);
+				curseurEntree += 1;
+			}
+			EntreeUtilisateur.add(new StructEntree(DE.Nom(),T));
+		}
+		EntreeModule = EntreesG;
+		EntreesG = EntreeUtilisateur;
+
+		for (Descripteur DE : M.Sorties) {
+                        boolean trouve = false;
+                        TableauConnecteur T  = new TableauConnecteur(DE.indiceFin() - DE.indiceDebut() + 1);
+                        int curseurSortie = 1;
+                        for (String Nom : DE.Noms()) {
+                                int curseur = 0;
+                                while (!trouve && curseur < EntreesG.size()){
+                                        if (SortiesG.get(curseur).getNom().equals(Nom)) {
+                                                SortiesG.remove(curseur);
+                                                trouve = true;
+                                        }
+                                        curseur += 1;
+                                }
+                                if (!Dico.existe(Nom)) throw new RuntimeException("Il manque une sortie : " + Nom +". \nVeuillez verifier que ce signal est  et n'est pas déjà généré par le circuit.");
+				//System.out.println("On cherche : " + Nom);
+                                T.brancher(Dico.getConnecteur(Nom),curseurSortie);
+				//System.out.println("on recupère : " + Dico.getConnecteur(Nom).getNom());
+                                curseurSortie += 1;
+                        }
+                        SortieUtilisateur.add(new StructSortie(DE.Nom(),T));
+                }
+                SortieModule = SortiesG;
+		SortiesG = SortieUtilisateur;
+
+		//TODO Appel module !!! TODO
+
+
+
 	}
 
 	public int nbEntree(){
@@ -112,7 +170,7 @@ public class FileSimulateur implements Simulateur{
 		//System.out.println(" >>> Création du signal <<< : " + Signal.Nom());
 		Connecteur Sig = recupSignal(Signal.Entrees.get(0),E);
 		//TODO à finir
-		Connecteur SN = Dico.getConnecteur(Signal.Nom());
+		Connecteur SN = Dico.getConnecteurE(Signal);  // <-- modif ici TODO
 		Multiplicateur M;
 		if (Sig.getComposant() == null) {
 			M = new Multiplicateur(Sig,SN);
@@ -126,7 +184,7 @@ public class FileSimulateur implements Simulateur{
 				M.ajouter(SN);
 			}
 		}
-		Dico.ajouter(Sig,Signal.Nom());
+		Dico.ajouter(SN,Signal.Nom());
 	}
 
 	private Connecteur recupSignal(Erwan S, Set<String> E) {
@@ -134,28 +192,28 @@ public class FileSimulateur implements Simulateur{
 			//System.out.println("Lien déjà Connu : " + S.Nom());
 			if (S.Op == Operation.LITTERAL) E.add(S.Nom());
 			/*else {
-				if (Dico.getConnecteur(S.Nom()).getOrigine() == null) {
+				if (Dico.getConnecteur//TODO(S.Nom()).getOrigine() == null) { 
 					System.out.println(S.Nom() + " < INVISIBLE");
 				}
 			}*/
-			return Dico.getConnecteur(S.Nom()).getSignal(Dico);
+			return Dico.getConnecteurE(S).getSignal(Dico); // <-- modif ici TODO
 		} else {
 			//System.out.println("Lien pas connu : " + S.Nom());
 			switch (S.Op) {
 				case Operation.LITTERAL:
 					E.add(S.Nom());
 					//System.out.println("Entree détectée : " + S.Nom());
-					return Dico.getConnecteur(S.Nom());
+					return Dico.getConnecteurE(S); // <-- modif ici TODO
 				case Operation.NOT:
 					Connecteur Entree = recupSignal(S.Entrees.get(0),E);
-					Connecteur Sortie = Dico.getConnecteur(S.Nom());
+					Connecteur Sortie = Dico.getConnecteurE(S); // <-- midif ici TODO
 					//System.out.println("NOT détectée : " + S.Nom());
 					Composant N = new Not(Entree,Sortie);
 					return Sortie;
 				case Operation.AND :
 					//System.out.println("AND détectée : " + S.Nom());
 					List<Connecteur> LAEntrees = new ArrayList<>();
-					Connecteur Sortie1 = Dico.getConnecteur(S.Nom());
+					Connecteur Sortie1 = Dico.getConnecteurE(S); // <-- mofif ici TODO
 					for (Erwan e : S.Entrees) {
 						LAEntrees.add(recupSignal(e,E));
 					}
@@ -164,7 +222,7 @@ public class FileSimulateur implements Simulateur{
 				case Operation.OR :
 					//System.out.println("OR détectée : " + S.Nom());
 					List<Connecteur> LEntrees = new ArrayList<>();
-                                        Connecteur Sortie2 = Dico.getConnecteur(S.Nom());
+                                        Connecteur Sortie2 = Dico.getConnecteurE(S); // <- mofi ici TODO
                                         for (Erwan e : S.Entrees) {
                                                 LEntrees.add(recupSignal(e,E));
                                         }

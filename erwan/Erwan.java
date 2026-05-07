@@ -1,4 +1,4 @@
-package Erwan;
+package erwan;
 import java.util.*;
 
 /** Erwan Modélise une opération du langage vhdl.
@@ -35,7 +35,7 @@ public class Erwan implements Branchement {
 	/** Les signaux représentant les entrées du signal.*/
 	public List<Erwan> Entrees;
 
-	private String Nom;
+	public String Nom;
 
 	/** Dans le cas d'un vecteur, représente l'index du signal.
 	 * vaut null si le signal ne fait pas parti d'un vecteur. */

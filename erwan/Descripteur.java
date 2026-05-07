@@ -1,4 +1,6 @@
-package Erwan;
+package erwan;
+
+import java.util.*;
 
 /** Decrire une entree/sortie qu'elle contienne un ou plusieurs signaux.
  * Cette classe va permettre au simulateur d'extraire les signaux séléctionnés pour être des entrées/sorties.
@@ -57,6 +59,22 @@ public class Descripteur {
          */
 	public int indiceFin() {
 		return indiceFin;
+	}
+
+	/** Renvoie la liste des noms des signaux contenus dans le vecteur.
+	 * @return une liste de string des nom des signaux.
+	 */
+	public List<String> Noms() {
+		List<String> L = new ArrayList<>();
+		if (unique()) {
+			L.add(Nom);
+			return L;
+		} else {
+			for(int i = indiceDebut; i <= indiceFin; i++) {
+				L.add(Nom + "[" + i + "]");
+			}
+			return L;
+		}
 	}
 }
 
