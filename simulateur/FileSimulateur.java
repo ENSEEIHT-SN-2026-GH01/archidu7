@@ -24,11 +24,11 @@ public class FileSimulateur implements Simulateur{
 		List<StructSortie> SortieUtilisateur = new ArrayList<>();
 		List<StructSortie> SortieModule = new ArrayList<>();
 		for (Descripteur DE : M.Entrees) {
-			boolean trouve = false;
 			TableauConnecteur T  = new TableauConnecteur(DE.indiceFin() - DE.indiceDebut() + 1);
 			int curseurEntree = 1;
 			for (String Nom : DE.Noms()) {
 				int curseur = 0;
+				boolean trouve = false;
 	 			while (!trouve && curseur < EntreesG.size()){
 					if (EntreesG.get(curseur).getNom().equals(Nom)) {
 						EntreesG.remove(curseur);
@@ -46,15 +46,18 @@ public class FileSimulateur implements Simulateur{
 		EntreesG = EntreeUtilisateur;
 
 		for (Descripteur DE : M.Sorties) {
-                        boolean trouve = false;
                         TableauConnecteur T  = new TableauConnecteur(DE.indiceFin() - DE.indiceDebut() + 1);
                         int curseurSortie = 1;
                         for (String Nom : DE.Noms()) {
                                 int curseur = 0;
-                                while (!trouve && curseur < EntreesG.size()){
+                        	boolean trouve = false;
+				//System.out.println("Rech de : " + Nom);
+                                while (!trouve && curseur < SortiesG.size()){
+					//System.out.println(" >> Tentative de match : " + SortiesG.get(curseur).getNom());
                                         if (SortiesG.get(curseur).getNom().equals(Nom)) {
                                                 SortiesG.remove(curseur);
                                                 trouve = true;
+						//System.out.println("trouvé");
                                         }
                                         curseur += 1;
                                 }
@@ -70,6 +73,17 @@ public class FileSimulateur implements Simulateur{
 		SortiesG = SortieUtilisateur;
 
 		//TODO Appel module !!! TODO
+		System.out.print("Il reste ces entree reposant sur des modules : ");
+		for (StructEntree SE : EntreeModule ){
+			System.out.print(SE.getNom() + ", ");
+		}
+		System.out.println();
+		System.out.print("Il reste ces sorties à fournir à des modules : ");
+                for (StructSortie SS : SortieModule ){
+                        System.out.print(SS.getNom() + ", ");
+                }
+                System.out.println();
+
 
 
 

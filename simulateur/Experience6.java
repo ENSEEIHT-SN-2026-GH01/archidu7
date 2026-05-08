@@ -143,10 +143,12 @@ public class Experience6 {
 								LR("Entree",0,0), LR("Entree",1,1)
 								)) 
 						)));
+		PlanCircuit.add(A("A",L("a")));
 		Descripteur DS = new Descripteur("Sortie",0,3);
 	       	Descripteur DE = new Descripteur("Entree",0,1);
 		List<Descripteur> E = new ArrayList<>();
 		E.add(DE);
+		//E.add(new Descripteur("Fause_Entree"));
 		List<Descripteur> S = new ArrayList<>();
 		S.add(DS);
 		erwan.Module M = new erwan.Module(PlanCircuit,E,S,null);
@@ -161,14 +163,14 @@ public class Experience6 {
 		List<En> Entrees = new ArrayList<>();
 		List<So> Sorties = new ArrayList<>();
 		for(int i = 1; i <= Si.nbEntree(); i++) {
-			//System.out.println("On s'interresse à l'entree : " + Si.nomEntree(i));
+			System.out.println("On s'interresse à l'entree : " + Si.nomEntree(i));
 			for(int j = 1; j <= Si.nbSlotEntree(i); j++){
 				Entrees.add(new En(Si.nomEntree(i), Si.getEntrees(i,j)));
 				//System.out.println("Entree Ajoutée avec succès !");
 			}
 		}
 		for(int i = 1; i <= Si.nbSorties(); i++){
-			//System.out.println("On s'interresse à la sortie : " + Si.nomSortie(i));
+			System.out.println("On s'interresse à la sortie : " + Si.nomSortie(i));
 			for(int j = 1; j <= Si.nbSlotSortie(i); j++) {
 				Sorties.add(new So(Si.nomSortie(i),Si.getSorties(i,j)));
 			}
