@@ -1,0 +1,85 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage[margin=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{titlesec}
+
+\setlist{nosep,leftmargin=1.2em}
+\titlespacing*{\section}{0pt}{0.6em}{0.3em}
+\titlespacing*{\subsection}{0pt}{0.4em}{0.2em}
+\titleformat{\section}{\normalfont\bfseries\large}{\thesection}{0.5em}{}
+\titleformat{\subsection}{\normalfont\bfseries}{\thesubsection}{0.5em}{}
+\setlength{\parskip}{0.3em}
+\setlength{\parindent}{0pt}
+
+\title{\vspace{-1.5cm}Rapport individuel --- It\'eration 3}
+\author{Louis-Marie Simonneaux (\texttt{lsx4897}) --- Projet Long SHDL}
+\date{10 mai 2026}
+
+\begin{document}
+\maketitle
+\vspace{-1.5em}
+
+\section*{Contexte et objectif de l'it\'eration}
+
+Mon axe reste la \textbf{repr\'esentation graphique du circuit}. \`A l'issue de l'it\'eration~2, ma fen\^etre de simulation \'etait branch\'ee sur l'API \texttt{Simulateur/Lien/Composant} de l'axe simulateur, avec un circuit de test cod\'e en dur (4~portes AND).
+
+Pendant que je travaillais, l'axe simulateur a entrepris une \textbf{refonte profonde de son IR} : le \texttt{Lien} est devenu \texttt{Connecteur}, le \texttt{TableauLien} est devenu \texttt{TableauConnecteur}, la \texttt{FileListe} est devenue \texttt{FileSimulateur}, et un nouveau dictionnaire \texttt{DicoConnecteur} indexe les signaux par nom. Plus important pour moi, le concept de \og module composite \fg{} que j'avais commenc\'e \`a impl\'ementer (\texttt{Module extends Composant}) a \'et\'e remplac\'e par un trio \texttt{Structure}~/ \texttt{StructEntree}~/ \texttt{StructSortie}, plus expressif et coh\'erent avec la sortie du convertisseur de l'axe parser.
+
+\textbf{L'objectif de l'it\'eration~3 \'etait donc d'adapter mes trois fichiers d'interface (\texttt{FenetreSimulation}, \texttt{SimulateurCarresRonds}, \texttt{SimulationCarresRonds}) \`a cette nouvelle API} et de les int\'egrer dans le dossier \texttt{simulateur/} commun, plut\^ot que dans mon dossier personnel \texttt{LM/}.
+
+\section*{Activit\'es r\'ealis\'ees}
+
+\begin{itemize}
+  \item \textbf{Migration vers le dossier \texttt{simulateur/}} : abandon du dossier personnel \texttt{LM/} et d\'eplacement de mes trois fichiers dans le module commun, ce qui les rend disponibles \`a l'ensemble de l'\'equipe et permet leur compilation conjointe avec les autres composants.
+  \item \textbf{Adaptation \`a la nouvelle API du simulateur} (commit \texttt{97a810e}, +215~lignes) :
+  \begin{itemize}
+    \item r\'e\'ecriture de \texttt{FenetreSimulation.java} (151~lignes) pour utiliser \texttt{SimulateurCarresRonds} \`a la place de l'ancien \texttt{Simulateur} ;
+    \item cr\'eation de \texttt{SimulateurCarresRonds.java} (53~lignes), couche d'adaptation entre l'IR du simulateur et la rang\'ee de boutons ronds/carr\'es. C'est la nouvelle fronti\`ere entre mon IHM et le moteur.
+    \item cr\'eation de \texttt{SimulationCarresRonds.java} (9~lignes) comme classe d'entr\'ee \texttt{extends Application}, qui d\'el\`egue \`a \texttt{FenetreSimulation}.
+  \end{itemize}
+  \item \textbf{Scripts de build et d'ex\'ecution} (commit \texttt{dbd3815}) : ajout de \texttt{simulateur/Build.sh} et \texttt{simulateur/Start.sh}. Le script de build compile l'ensemble des sources du simulateur (\texttt{And}, \texttt{Or}, \texttt{Not}, \texttt{Connecteur}, \texttt{DicoConnecteur}, \texttt{Multipli\-cateur}, \texttt{Structure}, \texttt{StructEntree}, \texttt{StructSortie}, \dots) plus mes trois fichiers d'interface, avec le \texttt{module-path} JavaFX correctement positionn\'e.
+  \item \textbf{Maintenance de la documentation et du \texttt{.gitignore}} : exclusion du dossier de documentation g\'en\'er\'ee localement (\texttt{*.html}, \texttt{*.class}) pour \'eviter la pollution des branches.
+  \item \textbf{Correction post-int\'egration} (10~mai) : les exemples \texttt{modules/and.shdl} et \texttt{modules/module.shdl} servant de tests de bout en bout pour l'application int\'egr\'ee \'etaient r\'edig\'es avec la cl\^oture \texttt{end} alors que la grammaire LL(1) finalis\'ee impose \texttt{end~module}. Correction faite, ce qui d\'ebloque le bouton \og simuler \fg{} de la fen\^etre principale pour ces deux exemples.
+\end{itemize}
+
+\section*{R\'esultats}
+
+\begin{itemize}
+  \item \textbf{Fen\^etre de simulation compatible avec la version courante du simulateur de l'\'equipe} : compilation et lancement reproductibles via \texttt{cd simulateur \&\& bash Build.sh \&\& bash Start.sh}.
+  \item \textbf{Code regroup\'e dans \texttt{simulateur/}} : plus de duplication entre \texttt{LM/} et le dossier commun, plus de divergence d'API entre ma fen\^etre et le moteur de simulation.
+  \item \textbf{Param\'etrage du circuit interne via une couche d'adaptation} (\texttt{SimulateurCarresRonds}) : la fen\^etre n'a plus besoin de connaître la moindre classe interne du simulateur en dehors de cette interface, ce qui isole l'IHM des futurs refactorings du moteur.
+\end{itemize}
+
+\section*{Difficult\'es et r\'eussites}
+
+La principale difficult\'e a \'et\'e de naviguer une refonte de l'API qui ne m'avait pas \'et\'e annonc\'ee : plusieurs noms de classes avaient chang\'e (\texttt{Lien~$\to$~Connecteur}, \texttt{TableauLien~$\to$~Tableau\-Connecteur}, \texttt{FileListe~$\to$~FileSimulateur}), et mon esquisse de \texttt{Module} \'etait obsol\`ete. J'ai pris le parti de ne pas tenter de sauver mes propres classes mais de me caler sur la nouvelle API : c'est plus court \`a impl\'ementer, et cela \'evite que mon IHM devienne le seul module \`a faire diverger la conception. Cette d\'ecision a permis de livrer un \og adapter \fg{} (\texttt{SimulateurCarresRonds}) qui est aujourd'hui le seul point de couplage entre la fen\^etre et le moteur.
+
+La r\'eussite annexe a \'et\'e de fournir des \textbf{scripts \texttt{Build.sh} / \texttt{Start.sh}} reproductibles : ces deux scripts ont permis aux autres membres de l'\'equipe de v\'erifier rapidement que ma fen\^etre fonctionne sur leur poste, sans \^etre familiers du \texttt{module-path} JavaFX.
+
+\section*{Limites et travaux pour la suite}
+
+\begin{itemize}
+  \item La fen\^etre \texttt{FenetreSimulation} reste autonome (lan\c{c}able via \texttt{Start.sh}) et n'est pas encore appel\'ee depuis la \texttt{FenetrePrincipale} de la branche \texttt{GUI}, qui ouvre actuellement sa propre fen\^etre \texttt{FenetreSimulateur} via le bouton \og simuler \fg{}. Une convergence est \`a discuter : soit ma fen\^etre devient la fen\^etre par d\'efaut, soit elle est retir\'ee au profit de \texttt{simulateur/affichage/FenetreSimulateur} si celle-ci est jug\'ee plus avanc\'ee.
+  \item Le circuit affich\'e est toujours param\'etr\'e \og 9~entr\'ees, 9~sorties \fg{}, ind\'epen\-damment du module r\'eel charg\'e. Une it\'eration suivante devrait synchroniser ce dimensionnement avec le \texttt{Module} effectivement convertit par le parser.
+\end{itemize}
+
+\section*{Manuel utilisateur}
+
+\textbf{Pr\'e-requis} : JDK~21+ (testé sur Temurin~25), JavaFX~17 dans \texttt{javafx-sdk-17.0.18/} \`a la racine du d\'ep\^ot.
+
+\textbf{Compiler et lancer la fen\^etre de simulation} (depuis la branche \texttt{simulation}) :
+\begin{verbatim}
+  cd simulateur
+  bash Build.sh
+  bash Start.sh
+\end{verbatim}
+
+\textbf{Utilisation} : la rang\'ee sup\'erieure de carr\'es repr\'esente les 9~entr\'ees ; cliquer pour basculer entre UP, DW et ND. La rang\'ee inf\'erieure de ronds affiche les sorties calcul\'ees apr\`es propagation \`a travers les composants enregistr\'es dans le \texttt{SimulateurCarresRonds}.
+
+\end{document}
