@@ -1,8 +1,8 @@
-PHONY : build clean test
+.PHONY : build clean test
 
 default: build
 
-ROOT = $(shell git rev-parse --show-toplevel)
+ROOT = $(CURDIR)
 SOURCE_FOLDER = $(ROOT)/src
 BINARY_FOLDER = $(ROOT)/bin
 TEST_FOLDER = $(ROOT)/tests
