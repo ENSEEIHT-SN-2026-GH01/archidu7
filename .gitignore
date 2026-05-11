@@ -15,3 +15,6 @@ local.properties
 src-gen/
 *.xml
 *.zip
+.vscode/
+lib/
+.DS_Store

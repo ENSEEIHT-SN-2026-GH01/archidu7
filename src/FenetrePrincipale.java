@@ -11,24 +11,24 @@ import sauvegarde.TextFileStorage;
 import boutons.BoutonsPrincipale;
 
 public class FenetrePrincipale extends Scene {
-    
+
     private GestionnaireColorateur colorateur;
     private Lexer lexer;
 
-    public FenetrePrincipale() { 
+    public FenetrePrincipale() {
 
         super(new BorderPane(), 1000, 500);
         BorderPane root = (BorderPane) this.getRoot();
 
         EditeurTexte editeur = new EditeurTexte();
-        FileStorage stockage = new TextFileStorage(); 
+        FileStorage stockage = new TextFileStorage();
 
         BoutonsPrincipale boutons = new BoutonsPrincipale(editeur, stockage);
         ListeModulePrincipale environnement = new ListeModulePrincipale(editeur, stockage);
-        
-        MenuPrincipale menu = new MenuPrincipale();
+
+        MenuPrincipal menu = new MenuPrincipal();
         VBox outils = new VBox(menu, boutons);
- 
+
         root.setCenter(editeur);
         root.setTop(outils);
         root.setLeft(environnement);
@@ -38,8 +38,8 @@ public class FenetrePrincipale extends Scene {
         editeur.addListener(new EditeurListener());
     }
 
-    public class EditeurListener implements ChangeListener<String>{
-        public void changed(ObservableValue<? extends String> unused, String old, String nouvelle){
+    public class EditeurListener implements ChangeListener<String> {
+        public void changed(ObservableValue<? extends String> unused, String old, String nouvelle) {
             colorateur.gerrerAll(lexer.tokenize(nouvelle));
         }
     }
