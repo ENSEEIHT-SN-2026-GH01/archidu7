@@ -7,7 +7,7 @@ public class Constante extends Composant {
 
 	public Constante(Connecteur c, boolean b)  {
 		super(0,1);
-		this.Val = b ? Etat.UP : ETAT.DW;
+		this.Val = b ? Etat.UP : Etat.DW;
 		super.brancherSortie(c,1);
 		this.calculer();
 	}

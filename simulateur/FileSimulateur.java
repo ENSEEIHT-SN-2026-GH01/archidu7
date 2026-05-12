@@ -1,13 +1,14 @@
 package simulateur;
 
-import java.util.*;
 import erwan.*;
+import java.util.*;
 
 public class FileSimulateur implements Simulateur{
 
 	private List<StructEntree> EntreesG;
 	private List<StructSortie> SortiesG;
 	private DicoConnecteur Dico;
+	private List<Simulateur> ModulesAppeles;
 
 	public FileSimulateur(List<Erwan> Plan){
 		Dico = new DicoConnecteur();
@@ -18,11 +19,134 @@ public class FileSimulateur implements Simulateur{
 	}
 
 	public FileSimulateur(erwan.Module M){
+		List<Connecteur> SignauxParModule;
 		this(M.Plan);
+		//Vérification des appels Modules
+                if (M.Branchements != null) {
+                        ModulesAppeles = new ArrayList<>();
+                        for (AppelModule A : M.Branchements) {
+                                //Vérification des formats entrées et sorties
+                                if (A.DE.size() != A.module.Entrees.size()) throw new RuntimeException("Pas le bon nombre d'entrées durant l'appel du module" + A.module.Nom);
+                                if (A.DS.size() != A.module.Sorties.size()) throw new RuntimeException("Pas le bon nombre de sortie lors de l'appel du module " + A.module.Nom);
+                                //Il reste encore la vérification du nombre de signaux par entrée/sortie TODO.
+                                for (int curs = 0; curs < A.DE.size(); curs ++) {
+                                        Descripteur De1 = A.DE.get(curs);
+                                        Descripteur De2 = A.module.Entrees.get(curs);
+                                        if ((De1.nbSignaux() != De2.nbSignaux())) throw new RuntimeException("pas le bon nombre de signaux pour l'entree :" + De2.Nom() + ", du module :" + A.module.Nom);
+                                }
+                                for (int curs = 0; curs < A.DS.size(); curs ++) {
+                                        Descripteur De1 = A.DS.get(curs);
+                                        Descripteur De2 = A.module.Sorties.get(curs);
+                                        if (De1.nbSignaux() != De2.nbSignaux()) throw new RuntimeException("pas le bon nombre de signaux pour la sortie :" + De2.Nom() + ", du module : " + A.module.Nom);
+                                }
+                                //On s'est assuré de la bonne formation de l'appel.
+                        }
+			//On s'occupe des sorties de notre module qui sont des entrées pour les modules appelés.
+			SignauxParModule = new ArrayList<>(); //Signaux générées par des modules, pas encores existants, pour des modules
+			for (AppelModule A : M.Branchements) {
+				Simulateur Smodule = new FileSimulateur(A.module);
+				ModulesAppeles.add(Smodule);
+				for (int curs = 0; curs < A.DE.size(); curs++){
+					Descripteur DS = A.DE.get(curs);   //Il s'agit de descripteur de sortie de notre circuit.
+					int curs2 = 0;
+					for (Erwan signal : DS.Erwans()) {
+						Connecteur CS = null;
+						if (!Dico.existe(signal.Nom())) SignauxParModule.add(CS = Dico.getConnecteurE(signal));
+						else CS = Dico.getConnecteurE(signal).getSignal(Dico);
+						BouttonEntree CE = Smodule.getEntrees(curs,curs2);
+						Composant CA = new EntreeModule(CS,CE);
+						//Verifier et retirer de SortieG au cas où 
+						//Permet de verifier à la fin les signaux générés por riens.
+						//TODO
+						int curseur = 0;
+            					boolean trouve = false;
+						//System.out.println("Rech de : " + Nom);
+                				while (!trouve && curseur < SortiesG.size()){
+							//System.out.println(" >> Tentative de match : " + SortiesG.get(curseur).getNom());
+							if (SortiesG.get(curseur).getNom().equals(signal.Nom())) {
+               	   						SortiesG.remove(curseur);
+               	 	    					trouve = true;
+								//System.out.println("trouvé");
+                					}
+                					curseur += 1;
+						}
+					}
+				}
+			}
+		}
 		List<StructEntree> EntreeUtilisateur = new ArrayList<>();
-		List<StructEntree> EntreeModule;
+		List<StructEntree> entreeModule;
 		List<StructSortie> SortieUtilisateur = new ArrayList<>();
-		List<StructSortie> SortieModule = new ArrayList<>();
+		List<StructSortie> SortieModule;
+		/* TODO 
+		 * Avis à la population.
+		 * Il faudrait faire un parcours des entres/sorties des appelmodule pour générer des liens et structentre correspondants.
+		 */
+
+		//Sorties avant les entrées car on rajoute un petit composant ...
+		for (Descripteur DE : M.Sorties) {
+            TableauConnecteur T  = new TableauConnecteur(DE.indiceFin() - DE.indiceDebut() + 1);
+            int curseurSortie = 1;
+            for (String Nom : DE.Noms()) {
+                int curseur = 0;
+            	boolean trouve = false;
+				//System.out.println("Rech de : " + Nom);
+                while (!trouve && curseur < SortiesG.size()){
+				//System.out.println(" >> Tentative de match : " + SortiesG.get(curseur).getNom());
+				if (SortiesG.get(curseur).getNom().equals(Nom)) {
+                    SortiesG.remove(curseur);
+                    trouve = true;
+					//System.out.println("trouvé");
+                }
+                curseur += 1;
+            }
+            if (!Dico.existe(Nom)) throw new RuntimeException("Il manque une sortie : " + Nom +". \nVeuillez verifier que ce signal est  et n'est pas déjà généré par le circuit.");
+			//System.out.println("On cherche : " + Nom);
+				Connecteur CS = Dico.getConnecteur(Nom);
+				Composant petitPlus = new EntreeModule(CS);
+                T.brancher(CS,curseurSortie);
+				//System.out.println("on recupère : " + Dico.getConnecteur(Nom).getNom());
+                curseurSortie += 1;
+            }
+            SortieUtilisateur.add(new StructSortie(DE.Nom(),T));
+        }
+        SortieModule = SortiesG;
+		SortiesG = SortieUtilisateur;
+
+		if(this.ModulesAppeles != null){
+
+			//Reparcourir les simulateur et faire pareil avec les entrées.
+			//Verifier et retirer de EntreeG pour verifier que les signaux sont correctemrnt générés.
+			//TODO
+			for (int indexModule = 0; indexModule < M.Branchements.size(); indexModule ++) {
+				AppelModule A = M.Branchements.get(indexModule);
+				Simulateur Smodule = ModulesAppeles.get(indexModule);
+				//TODO A finir !!!
+				for (int curs = 0; curs < A.DS.size();curs ++) {  //On parcours les sorties des modules qui sont des entrées de notre circuit
+					Descripteur DE = A.DS.get(curs);
+					int curs2 = 0;
+					for (Erwan signal : DE.Erwans()) {
+						Connecteur CE = null;
+						if (!Dico.existe(signal.Nom())) System.out.println("Entrée jamais lue ! : " + signal.Nom());
+						else {
+							CE = Dico.getConnecteurE(signal);
+							if (CE.getOrigine() != null) throw new RuntimeException("Ce signal est lu et généré ! :" + signal.Nom());
+							Connecteur CS = Smodule.getSorties(curs,curs2);
+							Composant Csuite = CS.getComposant();
+							if ((Csuite == null )|| !(Csuite instanceof EntreeModule) ){
+								throw new RuntimeException("Pb de conception, c'est la faute de Mati.");
+							}
+							EntreeModule Em = (EntreeModule) Csuite;
+							TableauConnecteur T = new TableauConnecteur(1);
+							T.brancher(CE,1);
+							Em.setEntree(new BouttonEntree(new StructEntree(signal.Nom(), T), 1));
+							//Chercher et retirer les signaux des listes SignauxParModule et EntreeG(entreeModule) pour determiner les signaux non générés.
+						}
+					}
+				}
+            }
+		}
+
 		for (Descripteur DE : M.Entrees) {
 			TableauConnecteur T  = new TableauConnecteur(DE.indiceFin() - DE.indiceDebut() + 1);
 			int curseurEntree = 1;
@@ -42,39 +166,12 @@ public class FileSimulateur implements Simulateur{
 			}
 			EntreeUtilisateur.add(new StructEntree(DE.Nom(),T));
 		}
-		EntreeModule = EntreesG;
+		entreeModule = EntreesG;
 		EntreesG = EntreeUtilisateur;
-
-		for (Descripteur DE : M.Sorties) {
-                        TableauConnecteur T  = new TableauConnecteur(DE.indiceFin() - DE.indiceDebut() + 1);
-                        int curseurSortie = 1;
-                        for (String Nom : DE.Noms()) {
-                                int curseur = 0;
-                        	boolean trouve = false;
-				//System.out.println("Rech de : " + Nom);
-                                while (!trouve && curseur < SortiesG.size()){
-					//System.out.println(" >> Tentative de match : " + SortiesG.get(curseur).getNom());
-                                        if (SortiesG.get(curseur).getNom().equals(Nom)) {
-                                                SortiesG.remove(curseur);
-                                                trouve = true;
-						//System.out.println("trouvé");
-                                        }
-                                        curseur += 1;
-                                }
-                                if (!Dico.existe(Nom)) throw new RuntimeException("Il manque une sortie : " + Nom +". \nVeuillez verifier que ce signal est  et n'est pas déjà généré par le circuit.");
-				//System.out.println("On cherche : " + Nom);
-                                T.brancher(Dico.getConnecteur(Nom),curseurSortie);
-				//System.out.println("on recupère : " + Dico.getConnecteur(Nom).getNom());
-                                curseurSortie += 1;
-                        }
-                        SortieUtilisateur.add(new StructSortie(DE.Nom(),T));
-                }
-                SortieModule = SortiesG;
-		SortiesG = SortieUtilisateur;
 
 		//TODO Appel module !!! TODO
 		System.out.print("Il reste ces entree reposant sur des modules : ");
-		for (StructEntree SE : EntreeModule ){
+		for (StructEntree SE : entreeModule ){
 			System.out.print(SE.getNom() + ", ");
 		}
 		System.out.println();
@@ -83,10 +180,51 @@ public class FileSimulateur implements Simulateur{
                         System.out.print(SS.getNom() + ", ");
                 }
                 System.out.println();
+		/*
+		for (AppelModule A : M.Branchements) {
+			if(A.DE.size() != A.module.Entrees.size()) throw new RuntimeException("Erreur dans un appel module !\n Pb dans le nb d'entrées !");
+			if(A.DS.size() != A.module.Sorties.size()) throw new RuntimeException("Erreur dans un appel module !\n Pb dans le nb de sorties !");
+			Simulateur Sinterne = new FileSimulateur(A.module);
+			ModulesAppeles.add(Sinterne);
+			//TODO recup entrees et sorties + Branchements et tt.
+			int curseurEntree1 = 1; //Selecteur de l'entrée.
+									
+			for (Descripteur DE : A.DS) {   //Attention, ici on s'occupe des EntresModules, qui sont des entrés 
+							//vers ce circuit depuis un module interne.
+							//Il s'agit donc de sortie de ces modules internes.
 
-
-
-
+				int curseurEntree2 = 1; // Selecteur du signal dans l'entrée.
+				if ((DE.indiceFin() - DE.indiceDebut() + 1) != Sinterne.nbSlotSortie(curseurEntree1)) {
+					throw new RuntimeException("nb de signaux non correspodants en sortie d'un module");
+				}
+				for (String Nom : DE.Nom()) {
+					int curs = 0;
+					boolean trouve = false;
+					while (!trouve && curs < EntreeModule.size()){
+						if (EntreeModule.get(curs).getNom().equals(Nom)) {
+							trouve = true;
+							StructEntree SE = EntreeModule.remove(curs);
+							Connecteur C = Sinterne.getSortie(curseurEntree1,curseurEntree2);
+							BouttonEntree B = new BouttonEntree(SE,1);
+							Composant EM = new EntreeModule(C,B);
+							curseurEntree2 += 1;
+						}
+						curs += 1;
+					}
+					if (!trouve) {
+						Connecteur C = Sinterne.getSortie(curseurEntree1,curseurEntree2);
+						//TODO continuer ici
+						//if (DE.unique())
+						TableauConnecteur T = new TableauConnecteur(1);
+						T.brancher(new Lien(Nom),1);
+						StructEntree  SE = new StructEntree(Nom,T)
+						BouttonEntree B = new BouttonEntree(SE,1);
+						//TODO ca ne marchera pas.
+					}
+					curseurEntree1 += 1;
+				}
+			}
+		}*/
 	}
 
 	public int nbEntree(){
@@ -102,7 +240,7 @@ public class FileSimulateur implements Simulateur{
 	}
 
 	public String nomSortie(int i){
-                return SortiesG.get(i-1).getNom(); //TODO
+        return SortiesG.get(i-1).getNom(); //TODO
         }
 	
 
@@ -135,47 +273,47 @@ public class FileSimulateur implements Simulateur{
 	
 	
 	private void construction(List<Erwan> Plan) {
-		Set<String> NomEntrees = new HashSet<>();
-		Set<String> NomSorties = new HashSet<>();
+		Set<String> SignauxLues = new HashSet<>();
+		Set<String> SignauxGeneres = new HashSet<>();
 		for (Erwan S : Plan) {
 			if (S.Op != Operation.AFFECTATION) throw new RuntimeException("Pb de structure");
-			NomSorties.add(S.Nom());
+			SignauxGeneres.add(S.Nom());
 			//System.out.println("Sortie détectée : " + S.Nom());
-			construire(S,NomEntrees);
+			construire(S,SignauxLues);
 		}
-		/*for (String s : NomEntrees) {
+		/*for (String s : SignauxLues) {
 			System.out.println("Le signal " + s + " est lue");
 		}
-		for (String s : NomSorties) {
-                        System.out.println("Le signal " + s + " est généré");
-                }*/
-		Set<String> inter = new HashSet<>(NomEntrees);
-		inter.retainAll(NomSorties);
+		for (String s : SignauxGeneres) {
+            System.out.println("Le signal " + s + " est généré");
+        }*/
+		Set<String> inter = new HashSet<>(SignauxLues);
+		inter.retainAll(SignauxGeneres);
 		/*for (String s : inter) {
-                        System.out.println("Le signal " + s + " est lue et généré");
-                }*/
-		NomEntrees.removeAll(inter);
-		NomSorties.removeAll(inter);
-		/*for (String s : NomEntrees) {
-                        System.out.println("Le signal " + s + " est conservé pour l'entrée");
-                }
-                for (String s : NomSorties) {
-                        System.out.println("Le signal " + s + " est conservé pour la sortie");
-                }*/
+            System.out.println("Le signal " + s + " est lue et généré");
+        }*/
+		SignauxLues.removeAll(inter);
+		SignauxGeneres.removeAll(inter);
+		/*for (String s : SignauxLues) {
+            System.out.println("Le signal " + s + " est conservé pour l'entrée");
+        }
+        for (String s : SignauxGeneres) {
+            System.out.println("Le signal " + s + " est conservé pour la sortie");
+        }*/
 		//TODO 1ere version sans prendre en compte les vecteurs !!!
 		//System.out.println("Fin construction ! \nDébut de créations des strctures d'entrées et de sorties !");
 		this.EntreesG = new ArrayList<>();
 		this.SortiesG = new ArrayList<>();
-		for (String nom : NomEntrees) {
+		for (String nom : SignauxLues) {
 			TableauConnecteur T = new TableauConnecteur(1);
 			T.brancher(Dico.getConnecteur(nom),1);
 			this.EntreesG.add(new StructEntree(nom,T));
 		}
-		for (String nom : NomSorties) {
-                        TableauConnecteur T = new TableauConnecteur(1);
-                        T.brancher(Dico.getConnecteur(nom),1);
-                        this.SortiesG.add(new StructSortie(nom,T));
-                }
+		for (String nom : SignauxGeneres) {
+            TableauConnecteur T = new TableauConnecteur(1);
+            T.brancher(Dico.getConnecteur(nom),1);
+            this.SortiesG.add(new StructSortie(nom,T));
+        }
 		//System.out.println("La Construction s'est bien passée !");
 	}
 
@@ -236,11 +374,11 @@ public class FileSimulateur implements Simulateur{
 				case Operation.OR :
 					//System.out.println("OR détectée : " + S.Nom());
 					List<Connecteur> LEntrees = new ArrayList<>();
-                                        Connecteur Sortie2 = Dico.getConnecteurE(S); // <- mofi ici TODO
-                                        for (Erwan e : S.Entrees) {
-                                                LEntrees.add(recupSignal(e,E));
-                                        }
-                                        Composant O = new Or(LEntrees, Sortie2);
+                    Connecteur Sortie2 = Dico.getConnecteurE(S); // <- mofi ici TODO
+                    for (Erwan e : S.Entrees) {
+                        LEntrees.add(recupSignal(e,E));
+                    }
+                    Composant O = new Or(LEntrees, Sortie2);
 					return Sortie2;
 				default:
 					throw new RuntimeException("Pb de création dans le Erwan : " + S.Nom());

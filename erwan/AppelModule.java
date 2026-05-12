@@ -4,16 +4,17 @@ import java.util.*;
 
 public class AppelModule implements Branchement {
 
-	private String NomModule;
+	public Module module;
 	public List<Descripteur> DE, DS;
 
-	public AppelModule(String Nom, List<Descripteur> DE, List<Descripteur> DS) {
-		this.NomModule = Nom;
+	public AppelModule(Module module, List<Descripteur> DE, List<Descripteur> DS) {
+		this.module = module;
 		this.DE = DE;
 		this.DS = DS;
 	}
-
+/*
 	public String Nom() {
 		return this.NomModule;
 	}
+	*/
 }

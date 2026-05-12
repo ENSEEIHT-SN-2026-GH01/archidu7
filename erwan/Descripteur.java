@@ -76,5 +76,19 @@ public class Descripteur {
 			return L;
 		}
 	}
+
+	public List<Erwan> Erwans() {
+                List<Erwan> L = new ArrayList<>();
+                if (unique()) {
+                        L.add(Erwan.LITTERAL(Nom));
+                } else {
+                        L.addAll(Erwan.LITTERANGE(Nom,indiceDebut,indiceFin));
+                }
+                return L;
+        }
+
+	public int nbSignaux(){
+		return indiceFin - indiceDebut + 1;
+	}
 }
 

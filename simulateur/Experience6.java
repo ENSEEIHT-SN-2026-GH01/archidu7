@@ -151,7 +151,7 @@ public class Experience6 {
 		//E.add(new Descripteur("Fause_Entree"));
 		List<Descripteur> S = new ArrayList<>();
 		S.add(DS);
-		erwan.Module M = new erwan.Module(PlanCircuit,E,S,null);
+		erwan.Module M = new erwan.Module("Expérience 6",PlanCircuit,E,S,null);
 		//PlanCircuit.add(A("d",E(L(N(L("a")),L("b")))));
 		//PlanCircuit.add(A("e",E(L(L("a"),N(L("b"))))));
 		//PlanCircuit.add(A("f",E(L(L("a"),L("b")))));
