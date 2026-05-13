@@ -219,6 +219,13 @@ public class Erwan implements Branchement {
                 return R;
         }
 
+	public static List<Erwan> ANDR(List<List<Erwan>> Entrees){
+		int Taille = 0;
+		for (List<Erwan> Entree : Entrees) {
+			if(Entree.size() > Taille) Taille = Entree.size();
+		}
+		return ANDR(Taille,Entrees);
+
 	/** Opération "OU" dans le cas d'un vecteur.
          * Cette méthode permet de simplifier l'opération OU bit à bit de deux vecteur, ou d'un vecteur et d'un signal.
          * En suposant la taille des vecteur etant de 'n' on peut mettre autant de vecteur de taille n et 1 que l'on souhaite dans les Entrees.
@@ -252,6 +259,13 @@ public class Erwan implements Branchement {
                 return R;
         }
 
+	public static List<Erwan> ORR(List<List<Erwan>> Entrees) {
+		int Taille = 0;
+                for (List<Erwan> Entree : Entrees) {
+                        if(Entree.size() > Taille) Taille = Entree.size();
+                }
+                return ORR(Taille,Entrees);
+
 	/** Opération "NON" dans le cas d'un vecteur.
          * Cette méthode permet de simplifier l'opération NON bit à bit d'un vecteur.
          * On précise aussi la taille pour la détection d'erreur.
@@ -267,6 +281,10 @@ public class Erwan implements Branchement {
 			R.add(s);
                 }
 		return R;
+	}
+	
+	public static List<Erwan> NOTR(List<Erwan> Entrees) {
+		return NOTR(Entrees.size(),Entrees);
 	}
 
 	/** Génération d'un vecteur Constant.
@@ -286,6 +304,10 @@ public class Erwan implements Branchement {
                 }
                 return R;
         }
+	
+	public static List<Erwan> CONSTANTER(List<Boolean> Constantes){
+		return CONSTANTER(Constantes.size(),Constantes);
+	}
 
 	/** Generation d'un signal constant à UP.
 	 * @return Assez évident.
