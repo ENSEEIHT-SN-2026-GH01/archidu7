@@ -1,0 +1,83 @@
+plugins {
+    id 'application'
+    id 'com.gradleup.shadow' version '8.3.5'
+}
+
+group = 'fr.n7'
+version = '0.1.0'
+
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(25) }
+}
+
+repositories { mavenCentral() }
+
+def fxVersion = '21.0.5'
+def fxModules = ['base', 'controls', 'graphics', 'fxml']
+
+configurations {
+    fxLinux
+    fxWin
+    fxMac
+}
+
+dependencies {
+    fxModules.each { mod ->
+        compileOnly "org.openjfx:javafx-${mod}:${fxVersion}:linux"
+    }
+    implementation 'junit:junit:4.13.2'
+    implementation 'org.hamcrest:hamcrest-core:1.3'
+
+    fxModules.each { mod ->
+        fxLinux "org.openjfx:javafx-${mod}:${fxVersion}:linux"
+        fxWin   "org.openjfx:javafx-${mod}:${fxVersion}:win"
+        fxMac   "org.openjfx:javafx-${mod}:${fxVersion}:mac"
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['.']
+            include 'src/**/*.java'
+            include 'boutons/**/*.java'
+            include 'editeur/**/*.java'
+            include 'parser/**/*.java'
+            include 'simulateur/**/*.java'
+            include 'util/**/*.java'
+            include 'sauvegarde/**/*.java'
+            exclude '**/*.legacy'
+            exclude 'parser/ll1/parser/**'
+        }
+        resources {
+            srcDirs = ['.']
+            include 'assets/**'
+        }
+    }
+}
+
+application { mainClass = 'Launcher' }
+
+tasks.named('compileJava') { options.encoding = 'UTF-8' }
+
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+def makeShadow(String taskName, String classifier, Object fxConfig) {
+    tasks.register(taskName, ShadowJar) {
+        archiveBaseName = 'shdl-simulateur'
+        archiveVersion = ''
+        archiveClassifier = classifier
+        from sourceSets.main.output
+        configurations = [project.configurations.runtimeClasspath, fxConfig]
+        mergeServiceFiles()
+        manifest { attributes('Main-Class': 'Launcher') }
+    }
+}
+
+makeShadow('shadowJarLinux',   'linux',   configurations.fxLinux)
+makeShadow('shadowJarWindows', 'windows', configurations.fxWin)
+makeShadow('shadowJarMacos',   'macos',   configurations.fxMac)
+
+tasks.register('shadowJarAll') {
+    dependsOn 'shadowJarLinux', 'shadowJarWindows', 'shadowJarMacos'
+}
