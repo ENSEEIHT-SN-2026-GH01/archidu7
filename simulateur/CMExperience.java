@@ -4,7 +4,7 @@ import java.util.*;
 import erwan.*;
 import java.util.Scanner;
 
-public class MExperience {
+public class CMExperience {
 
 	private static class En {
 		private String Nom;
@@ -129,23 +129,23 @@ public class MExperience {
 
 		List<Erwan> PlanCircuitSousModule = new ArrayList<>();
 		PlanCircuitSousModule.addAll(
-				AR("SortieM",0,3,RANGE( 
+				AR("Sortie",0,3,RANGE( 
 						ER(1,LR(
-								NR(1,LR("EntreM",0,0)), NR(1,LR("EntreM",1,1))
+								NR(1,LR("Entree",0,0)), NR(1,LR("Entree",1,1))
 								)), 
 						ER(1,LR(
-								NR(1,LR("EntreM",0,0)), LR("EntreM",1,1)
+								NR(1,LR("Entree",0,0)), LR("Entree",1,1)
 								)) , 
 						ER(1,LR(
-								LR("EntreM",0,0), NR(1,LR("EntreM",1,1))
+								LR("Entree",0,0), NR(1,LR("Entree",1,1))
 								)) ,
 						ER(1,LR(
-								LR("EntreM",0,0), LR("EntreM",1,1)
+								LR("Entree",0,0), LR("Entree",1,1)
 								)) 
 						)));
 		PlanCircuitSousModule.add(A("A",L("a")));
-		Descripteur DS = new Descripteur("SortieM",0,3);
-	       	Descripteur DE = new Descripteur("EntreM",0,1);
+		Descripteur DS = new Descripteur("Sortie",0,3);
+	       	Descripteur DE = new Descripteur("Entree",0,1);
 		List<Descripteur> E = new ArrayList<>();
 		E.add(DE);
 		//E.add(new Descripteur("Fause_Entree"));

@@ -55,6 +55,7 @@ public class FileSimulateur implements Simulateur{
 						else CS = Dico.getConnecteurE(signal).getSignal(Dico);
 						BouttonEntree CE = Smodule.getEntrees(curs+1,curs2+1);
 						Composant CA = new EntreeModule(CS,CE);
+						System.out.println("\n <>>> Nouveau Branchement : " + CS.getNom() + " de " + M.Nom + " avec " + CE.getNom() + "\n");
 						//Verifier et retirer de SortieG au cas où 
 						//Permet de verifier à la fin les signaux générés por riens.
 						//TODO
