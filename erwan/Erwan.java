@@ -74,6 +74,12 @@ public class Erwan implements Branchement {
                 Entrees.add(Entree);
                 return new Erwan(Operation.AFFECTATION,Entrees,Nom);
 	}
+	
+	public static Erwan AFFECTATION(String Nom,int numero, Erwan Entree) {
+		List<Erwan> E = new ArrayList<>();
+		E.add(Entree);
+		return ARANGE(Nom,numero,numero,E).get(0);
+	}
 
 	/** Modélisation d'un signal résultant d'un ET logique.
 	 * @param Entrees Il s'agit de la liste des signaux sur lesquelles on effectue l'operation.
@@ -125,6 +131,10 @@ public class Erwan implements Branchement {
 	public static Erwan LITTERAL(String Nom) {
                 return new Erwan(Operation.LITTERAL,null,Nom);
         }
+
+	public static Erwan LITTERAL(String Nom, int numero) {
+		return LITTERANGE(Nom,numero, numero).get(0);
+	}
 
 	/** Modélisation d'un signal constant.
 	 * C'est une spécialisation de LITTERAL.
@@ -225,6 +235,7 @@ public class Erwan implements Branchement {
 			if(Entree.size() > Taille) Taille = Entree.size();
 		}
 		return ANDR(Taille,Entrees);
+	}
 
 	/** Opération "OU" dans le cas d'un vecteur.
          * Cette méthode permet de simplifier l'opération OU bit à bit de deux vecteur, ou d'un vecteur et d'un signal.
@@ -265,6 +276,7 @@ public class Erwan implements Branchement {
                         if(Entree.size() > Taille) Taille = Entree.size();
                 }
                 return ORR(Taille,Entrees);
+	}
 
 	/** Opération "NON" dans le cas d'un vecteur.
          * Cette méthode permet de simplifier l'opération NON bit à bit d'un vecteur.
