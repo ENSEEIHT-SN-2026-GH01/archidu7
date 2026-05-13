@@ -11,6 +11,7 @@ public class Module {
 	public List<AppelModule> Branchements;
 
 	public Module(String Nom, List<Erwan> Plan, List<Descripteur> Entrees, List<Descripteur> Sorties, List<AppelModule> Branchements) {
+		this.Nom = Nom;
 		this.Plan = Plan;
 		this.Entrees = Entrees;
 		this.Sorties = Sorties;

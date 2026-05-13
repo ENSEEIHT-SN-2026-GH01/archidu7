@@ -19,8 +19,8 @@ public class FileSimulateur implements Simulateur{
 	}
 
 	public FileSimulateur(erwan.Module M){
-		List<Connecteur> SignauxParModule;
 		this(M.Plan);
+		List<Connecteur> SignauxParModule = new ArrayList<>();
 		//Vérification des appels Modules
                 if (M.Branchements != null) {
                         ModulesAppeles = new ArrayList<>();
@@ -42,7 +42,7 @@ public class FileSimulateur implements Simulateur{
                                 //On s'est assuré de la bonne formation de l'appel.
                         }
 			//On s'occupe des sorties de notre module qui sont des entrées pour les modules appelés.
-			SignauxParModule = new ArrayList<>(); //Signaux générées par des modules, pas encores existants, pour des modules
+			//SignauxParModule = new ArrayList<>(); //Signaux générées par des modules, pas encores existants, pour des modules
 			for (AppelModule A : M.Branchements) {
 				Simulateur Smodule = new FileSimulateur(A.module);
 				ModulesAppeles.add(Smodule);
@@ -53,7 +53,7 @@ public class FileSimulateur implements Simulateur{
 						Connecteur CS = null;
 						if (!Dico.existe(signal.Nom())) SignauxParModule.add(CS = Dico.getConnecteurE(signal));
 						else CS = Dico.getConnecteurE(signal).getSignal(Dico);
-						BouttonEntree CE = Smodule.getEntrees(curs,curs2);
+						BouttonEntree CE = Smodule.getEntrees(curs+1,curs2+1);
 						Composant CA = new EntreeModule(CS,CE);
 						//Verifier et retirer de SortieG au cas où 
 						//Permet de verifier à la fin les signaux générés por riens.
@@ -70,6 +70,7 @@ public class FileSimulateur implements Simulateur{
                 					}
                 					curseur += 1;
 						}
+						curs2 ++;
 					}
 				}
 			}
@@ -109,6 +110,7 @@ public class FileSimulateur implements Simulateur{
                 curseurSortie += 1;
             }
             SortieUtilisateur.add(new StructSortie(DE.Nom(),T));
+			System.out.println("\nModule : " + M.Nom + "\nSortie ajouté pour l'utilisateur : " + DE.Nom() + " avec " + DE.nbSignaux() + ".\n");
         }
         SortieModule = SortiesG;
 		SortiesG = SortieUtilisateur;
@@ -131,7 +133,7 @@ public class FileSimulateur implements Simulateur{
 						else {
 							CE = Dico.getConnecteurE(signal);
 							if (CE.getOrigine() != null) throw new RuntimeException("Ce signal est lu et généré ! :" + signal.Nom());
-							Connecteur CS = Smodule.getSorties(curs,curs2);
+							Connecteur CS = Smodule.getSorties(curs+1,curs2+1);
 							Composant Csuite = CS.getComposant();
 							if ((Csuite == null )|| !(Csuite instanceof EntreeModule) ){
 								throw new RuntimeException("Pb de conception, c'est la faute de Mati.");
@@ -140,6 +142,7 @@ public class FileSimulateur implements Simulateur{
 							TableauConnecteur T = new TableauConnecteur(1);
 							T.brancher(CE,1);
 							Em.setEntree(new BouttonEntree(new StructEntree(signal.Nom(), T), 1));
+							curs2 ++;
 							//Chercher et retirer les signaux des listes SignauxParModule et EntreeG(entreeModule) pour determiner les signaux non générés.
 						}
 					}
@@ -160,11 +163,22 @@ public class FileSimulateur implements Simulateur{
 					}
 					curseur += 1;
 				}
+				curseur = 0;
+				if (SignauxParModule != null) {
+					while(!trouve && curseur < SignauxParModule.size()){
+						if(SignauxParModule.get(curseur).getNom().equals(Nom)) {
+							trouve = true;
+							SignauxParModule.remove(curseur);
+						}
+						curseur += 1;
+					}
+				}
 				if (!trouve) throw new RuntimeException("Il manque une entree : " + Nom +". \nVeuillez verifier que ce signal est lu et n'est pas déjà généré par le circuit.");		
 				T.brancher(Dico.getConnecteur(Nom),curseurEntree);
 				curseurEntree += 1;
 			}
 			EntreeUtilisateur.add(new StructEntree(DE.Nom(),T));
+			System.out.println("\nModule : " + M.Nom + "\nEntree ajouté pour l'utilisateur : " + DE.Nom() + " avec " + DE.nbSignaux() + ".\n");
 		}
 		entreeModule = EntreesG;
 		EntreesG = EntreeUtilisateur;
@@ -224,6 +238,12 @@ public class FileSimulateur implements Simulateur{
 					curseurEntree1 += 1;
 				}
 			}
+		}*/
+		/*for (StructEntree SE : EntreesG){
+			System.out.println("Entree retenue : " + SE.getNom() + " avec :" + SE.getNombre() + " signaux.");
+		}
+		for (StructSortie SS : SortiesG){
+			System.out.println("Entree retenue : " + SS.getNom() + " avec :" + SS.getNombre() + " signaux.");
 		}*/
 	}
 
