@@ -61,7 +61,8 @@ Chaque 'arbre' de Erwan commence par une affectation (AFFECTATION), et les Erwan
 Les affectation sont les seuls signaux que l'on peut nommer nous même (façon de parler, il faut tout de même suivre le choix de l'utilisateur qui écrit le code shdl). Les autres signaux on nécessairement le nom de leur fonction logique, par exemple :
 - a * /b
 - /a * (/b + c + (d * e))
-Un Erwan de lecture logique aura le nom du signal qu'il lit, un Erwan de et aura les nom de ses entrés séparés de +, etc...
+
+Un Erwan de lecture logique aura le nom du signal qu'il lit, un Erwan de OU aura les nom de ses entrés séparés de +, etc...
 Ces noms sont générés automatiquement de par la structure de l'arbre.
 
 Chacun de ces arbre génère des signaux 'nommés' pas l'utilisateur. 
