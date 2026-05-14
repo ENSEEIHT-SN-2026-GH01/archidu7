@@ -12,7 +12,7 @@ import java.util.*;
       - l'opération qu'il modélise avec le(s) Erwan d'entrée <br>
  * Le Erwan "père", soit celui qui n'est pas contenu dans un autre Erwan sera celui de l'affectation, 
  * tandis que le "dernier descendant", celui qui ne contient pas d'autre Erwan, sera celui d'une lecture "numérique":
- * soit celle d'une entrée, d'une constante, ou d'un signal généré. 
+ * soit celle d'une entrée, d'une constante, ou d'un signal généré.
  * Entre ces deux types de Erwan on a les Erwan des Opérations logiques. </p>
  *
  * <p> Pour generer ces Erwan, aucun constructeur n'est mis à disposition. 
@@ -21,8 +21,17 @@ import java.util.*;
  * <p> Le langage implémanté pour ce projet comprend la possibilité de créer des "vecteur" de signaux, 
  * soit un regroupement cohérant de signaux ayant un seul nom mais etant identifiable par un indice.
  * Ici cela sera modélisé comme des sigaux indépendants, 
- * mais cela ne se repercutera pas vraiment sur la syntax pour generer ces signaux. <br>
- * Ceci sera détaillé plus tard ! TODO </p>
+ * <br> Les vecteur on leur propres methodes statics pour etres généres et manipulées.
+ * Il peuvent aussi être atomisés et manipulés indice par indice mais cela demande d'utiliser la variante adaptée.
+ * <br> Les méthodes permettant de faire les opération ET et OU sur des vecteur prennent mélangés des signaux et des vecteur,
+ * à condition que ceux ci soient dans une liste. 
+ * Dans ce cas on pourra utiliser la methode toList sur les signaux our les transformer en liste.
+ * <br> Certaines methodes de vecteurs sont en double, avec une entree Taille présente ou non. 
+ * Ces methodes sont parfaitements identique, celle qui n'ont pas le paramettre taille la gère en interne.
+ * La variante avec taille permet d'une part de mieux maitriser ce que l'on fait, d'autre part de maximiser la retrocompatinilité.
+ * De toute façon la variante sans appelle celle avec.</p>
+ *
+ * <p> Bon Courage ! </p>
  *
  * @author  Mati AFRIAT -- archidu7
  */
@@ -50,8 +59,20 @@ public class Erwan implements Branchement {
 
 	private Erwan(Operation Op, List<Erwan> Entrees, String Nom, int num) {
 		this(Op, Entrees,Nom);
-                this.Numero = new Integer(num);
+                this.Numero = num;
         }
+
+	/** Transformer un signal en une liste contenant ce signal.
+	 * Cette methode est utile dans le cas ou l'on souhaite faire des opération entre des vecteurs et des signaux.
+	 * Les methodes traitant les vecteurs prenant en entrée une liste de liste de signaux,
+	 * il faut transformer les signaux en liste de signaux ne comprenant que ce signal.
+	 * @return Une liste ne comprenant que ce signal.
+	 */
+	public List<Erwan> toList() {
+		List<Erwan> L = new ArrayList<>();
+		L.add(this);
+		return L;
+	}
 
 	/** Permet d'obtenir le nom d'un signal.
 	 * Cette méthode permet de prendre en compte si un signal fait parti d'un vecteur.
@@ -75,6 +96,15 @@ public class Erwan implements Branchement {
                 return new Erwan(Operation.AFFECTATION,Entrees,Nom);
 	}
 	
+	/** Affectation de la valeur d'un signal appartenant à un vecteur à un autre signal.
+         * Cela permet de "changer le nom" d'un signal,
+         * puisque les autre signaux ont un nom qui dépend exclusivement du nom de leur(s) entrée(s) et de leur opération.
+         * C'est l'origine de tout signal généré.
+         * @param Nom C'est le nom du vecteur dans lequel on  souhaite intégrer le signal "copié".
+	 * @param numero c'est l'indice du signal dans le vecteur.
+         * @param Entree De type Erwan, Entree modélise le signal que l'on copie.
+         * @return La modélisation du signal ainsi copié.
+         */
 	public static Erwan AFFECTATION(String Nom,int numero, Erwan Entree) {
 		List<Erwan> E = new ArrayList<>();
 		E.add(Entree);
@@ -132,6 +162,11 @@ public class Erwan implements Branchement {
                 return new Erwan(Operation.LITTERAL,null,Nom);
         }
 
+	/** Modélisation d'un signal resultant d'une lecture logique d'un signal appartenant à un vecteur.
+         * @param Nom C'est le nom du vecteur dans lequel se trouve le signal que l'on souhaite LIRE.
+	 * @param numero c'est l'indice du signal dans le vecteur.
+         * @return La modélisation du signal ainsi généré.
+         */
 	public static Erwan LITTERAL(String Nom, int numero) {
 		return LITTERANGE(Nom,numero, numero).get(0);
 	}
@@ -160,7 +195,7 @@ public class Erwan implements Branchement {
 		int i = IndiceDebut;
 		for(Erwan e : Entrees) {
 			Erwan E = AFFECTATION(Nom,e);
-			E.Numero = new Integer(i);
+			E.Numero = i;
 			R.add(E);
 			i = i + 1;
 		}
@@ -179,7 +214,7 @@ public class Erwan implements Branchement {
 		List<Erwan> R = new ArrayList<>();
 		for(int i = IndiceDebut; i<= IndiceFin; i++) {
 			Erwan E = LITTERAL(Nom);
-			E.Numero = new Integer(i);
+			E.Numero = i;
 			R.add(E);
 		}
 		return R;
@@ -229,6 +264,13 @@ public class Erwan implements Branchement {
                 return R;
         }
 
+	/** Operation ET pour un vecteur.
+	 * Similaire à l'autre methode homonime, celle ci gère automatiquement la taille des vecteur manipulées.
+	 * Elle accepte méllangée des signaux (taille 1) et d'autres vecteur d'une autre taille.
+	 * Attention deux vecteur de deux tailles différentes strictement supérieur à 1 entraine une erreur.
+	 * @param Entrees la liste des vecteurs
+	 * @return la liste des signaux générés.
+	 */
 	public static List<Erwan> ANDR(List<List<Erwan>> Entrees){
 		int Taille = 0;
 		for (List<Erwan> Entree : Entrees) {
@@ -270,6 +312,13 @@ public class Erwan implements Branchement {
                 return R;
         }
 
+	/** Operation OU pour un vecteur.
+         * Similaire à l'autre methode homonime, celle ci gère automatiquement la taille des vecteur manipulées.
+         * Elle accepte méllangée des signaux (taille 1) et d'autres vecteur d'une autre taille.
+         * Attention deux vecteur de deux tailles différentes strictement supérieur à 1 entraine une erreur.
+         * @param Entrees la liste des vecteurs
+         * @return la liste des signaux générés.
+         */
 	public static List<Erwan> ORR(List<List<Erwan>> Entrees) {
 		int Taille = 0;
                 for (List<Erwan> Entree : Entrees) {
@@ -295,6 +344,11 @@ public class Erwan implements Branchement {
 		return R;
 	}
 	
+	/** Operation NON pour un vecteur.
+         * Similaire à l'autre methode homonime, celle ci gère automatiquement la taille des vecteur manipulées.
+         * @param Entrees le vecteur
+         * @return la liste des signaux générés.
+         */
 	public static List<Erwan> NOTR(List<Erwan> Entrees) {
 		return NOTR(Entrees.size(),Entrees);
 	}
@@ -317,6 +371,10 @@ public class Erwan implements Branchement {
                 return R;
         }
 	
+	/** Génération d'un vecteur constant, gestion de taille automatique.
+         * @param Constantes la liste des Constantes.
+         * @return la liste des signaux générés.
+         */
 	public static List<Erwan> CONSTANTER(List<Boolean> Constantes){
 		return CONSTANTER(Constantes.size(),Constantes);
 	}
