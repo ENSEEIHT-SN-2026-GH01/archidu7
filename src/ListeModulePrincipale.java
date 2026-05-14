@@ -24,15 +24,17 @@ public class ListeModulePrincipale extends ScrollPane {
         setContent(liste);
         modules = new ArrayList<FichierModuleBouton>();
 
-        /*creation du dossier modules dans l'environnement s'il n'existe pas. */
+        /* creation du dossier modules dans l'environnement s'il n'existe pas. */
         new File("./modules/").mkdir();
 
         rechargerEnvironnement("./modules/");
     }
 
-    /** Recharge les modules de l'environnement.
+    /**
+     * Recharge les modules de l'environnement.
      *
-     * @param dir Le répertoire courant.
+     * @param dir
+     *                Le répertoire courant.
      */
     public void rechargerEnvironnement(String dir) {
         modules.clear();

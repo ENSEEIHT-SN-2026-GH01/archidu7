@@ -14,7 +14,8 @@ public class FichierModuleBouton extends Button {
     private final String cheminFichier;
 
     /* Prend un nom de fichier .shdl et une référence vers l'éditeur. */
-    public FichierModuleBouton(String nomFichier, EditeurTexte editeur, FileStorage storage) throws InvalidParameterException {
+    public FichierModuleBouton(String nomFichier, EditeurTexte editeur, FileStorage storage)
+            throws InvalidParameterException {
 
         int tailleNom = nomFichier.length() - 5;
 
