@@ -3,7 +3,32 @@ package erwan;
 import java.util.*;
 
 /** Decrire une entree/sortie qu'elle contienne un ou plusieurs signaux.
- * Cette classe va permettre au simulateur d'extraire les signaux séléctionnés pour être des entrées/sorties.
+ * <p> Cette classe va permettre au simulateur d'extraire les signaux séléctionnés pour être des entrées/sorties.<p>
+ *
+ * <p> D'une part, cette classe permet de décrire et indiquer à un simulateur les signaux qui sont des entrée, ou sortie.
+ * C'est à dire que l'on utilisera un descripteur pour decrire les entrées et un autre pour décrire les sorties.<br>
+ * Ceci permet nottament de dicider qu'un signal lu et généré peut aussi être une sortie,
+ * mais également de décréter l'ordre des entrées sorties. Concrètement, cela permet de dire que tel signal (rs grp de signaux),
+ * est la première entrée, celui-ci le second ... et idem pour les sorties.
+ * Tout cela est indispensable pour les appel module où l'on veut faire des correspodance entre des signaux d'un circuit
+ * avec des entrées et sortie d'un autre.</p>
+ *
+ * <p> D'autre part, cette classe permet également de décrire des échanges de signaux lors d'appels modules : 
+ * Quand on fait appel à un module, on fournit des signaux de notre circuit au modules, 
+ * dans ses entrées et dans ses sorties. <br>
+ * Ces signaux sont cepandant des noms du circuit appelant,
+ * et le simulateur ne sais pas quels signaux fournir si on ne dit que que l'on fait appel à un module.
+ * Pour cette raison quand on fera l'appel à un module et que l'on utilisera la classe AppelModule,
+ * on utilisera également des Descripteur pour préciser quels signaux sont fournit et quels signaux sont générés par le module.
+ * <br>
+ * Attention à ne pas confondre les descripteurs des appels modules, qui représentent les signaux fournits au module,
+ * et les descripteur du sous module qui représentes les entrées et sorties du module.
+ * Ces derniers ne doivent être en aucun cas modifiés lors d'un appel module car ils contiennent les noms des entreées en interne,
+ * ces nom permettent de les retrouvé dans le circuit généré par le code shdl du sous module. </p>
+ *
+ * <p> Bonne Chance </p>
+ *
+ * 
  *
  * @author Mati Afriat -- archidu7
  */
@@ -77,6 +102,9 @@ public class Descripteur {
 		}
 	}
 
+	/** La liste des signaux sous forme de Erwan.
+	 * @return un liste de Erwan modélisant les signaux.
+	 */
 	public List<Erwan> Erwans() {
                 List<Erwan> L = new ArrayList<>();
                 if (unique()) {
@@ -87,6 +115,9 @@ public class Descripteur {
                 return L;
         }
 
+	/** Le nombre de signaux contenus dans l'entree/sortie.
+	 * @return le nombre.
+	 */
 	public int nbSignaux(){
 		return indiceFin - indiceDebut + 1;
 	}
