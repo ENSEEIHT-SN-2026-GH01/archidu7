@@ -8,10 +8,12 @@ Pour cela il y a deux package :
 - le package erwan
 - le package simulateur
 
-## Creation de la descrition
+
+## Creation de la description (erwan)
 
 La classe Module décrit l'ensemble d'un circuit, comprenant les différents branchements à effectuer,
 ainsi que les signaux parmi ceux généré et lus par le circuit qui sont des sorties et des entrées.
+
 
 ### Entrées et Sorties
 
@@ -27,6 +29,7 @@ Attention même si le module n'a qu'une entrée il faudra quand même fournir un
 Ces listes correspondent aux DE (DescripteursEntrees) et DS (DescripteurSorties) de Module.
 
 
+
 ### Branchements
 
 Les branchement sont l'ensembles des liaisons que l'on va faire entres des composant pour transformer un signal selon une fonction logique.
@@ -34,4 +37,19 @@ Dans un module on distingue deux types de branchement:
 - la manipulation directe de signaux interne au module
 - l'appel à d'autre module en fournissant des signaux en entrée et en récupérant dans d'autre signaux en sortie.
 
-À suivre...
+#### Manipulation de signaux (Erwan)
+
+La manipulation de signaux interne se fait à l'aide de la class Erwan.
+L'idée de cette classe est de décrire un circuit de manière arborescente :
+Chaque objet Erwan contient le nom du signal qu'il représente, l'operation qu'il fait et les entrées sur lesquelles il applique l'opération.
+Une opération du type énuméré Operation peut prendre les valeurs :
+- LITTERAL (Lecture logique)
+- NOT      (Inversion logique)
+- OR       (Ou logique)
+- AND      (Et logique)
+- AFFECTATION (Une sorte de copie, permettant de nommer un signal)
+
+En pratique, pour générer un Erwan il faut passer par une fabrique static. De plus il n'existe pas de modificateur sur Erwan :
+on construit donc un circuit d'un seul coup de manière "recursive".
+
+
