@@ -52,4 +52,11 @@ Une opération du type énuméré Operation peut prendre les valeurs :
 En pratique, pour générer un Erwan il faut passer par une fabrique static. De plus il n'existe pas de modificateur sur Erwan :
 on construit donc un circuit d'un seul coup de manière "recursive".
 
+Chaque 'arbre' de Erwan commence par une affectation (AFFECTATION), et les Erwan 'feuille' sont necessairement des lectures logique (LITTERAL).
+Les affectation sont les seuls signaux que l'on peut nommer nous même (façon de parler, il faut tout de même suivre le choix de l'utilisateur qui écrit le code shdl). Les autres signaux on nécessairement le nom de leur fonction logique, par exemple :
+- a * /b
+- /a * (/b + c + (d * e))
+Un Erwan de lecture logique aura le nom du signal qu'il lit, un Erwan de et aura les nom de ses entrés séparés de +, etc...
+Ces noms sont générés automatiquement de par la structure de l'arbre.
 
+Chacun de ces arbre génère des signaux 'nommés' pas l'utilisateur. 
