@@ -49,4 +49,9 @@ public class Not implements Regex {
   public boolean isNotCompatible() {
     return false;
   }
+
+  @Override
+  public String toString() {
+    return "~(" + insideRegex + ")";
+  }
 }

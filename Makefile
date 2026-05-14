@@ -42,6 +42,8 @@ test: build $(TEST_SRC)
 
 	@cd $(TEST_FOLDER) && javac -d $(TEST_BINARY_FOLDER) -cp $(TEST_CLASSPATH) $(TEST_SRC)
 
+	@cd $(TEST_BINARY_FOLDER) && java -cp $(TEST_CLASSPATH):$(TEST_BINARY_FOLDER) -ea org.junit.runner.JUnitCore $(subst .java,,$(subst /,.,$(subst $(TEST_FOLDER)/,,$(TEST_SRC))))
+
 clean:
 	@rm -fr $(BINARY_FOLDER)
 	@rm -fr $(TEST_BINARY_FOLDER)
