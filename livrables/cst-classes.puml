@@ -1,0 +1,71 @@
+@startuml cst-classes
+!pragma layout smetana
+skinparam classAttributeIconSize 0
+skinparam classFontSize 11
+skinparam defaultFontName Sans
+skinparam linetype ortho
+hide empty members
+
+package "ll1.grammar" {
+  class Grammar
+  class Production
+  class NonTerminal
+  class Terminal
+}
+
+package "ll1.tabledriven" {
+  class TableBuilder {
+    +build(g: Grammar): ParsingTable
+  }
+  class ParsingTable {
+    -entries: Map<TableKey,Production>
+    +lookup(nt, t): Optional<Production>
+  }
+  class CstParser {
+    +parse(src: String): CstNode
+  }
+  class ParsingException
+}
+
+package "ll1.tabledriven.cst" <<sealed>> {
+  interface CstNode <<sealed>>
+  class CstLeaf <<record>>
+  class CstInternal <<record>>
+}
+
+package "conversion" {
+  class Conversion {
+    +convert(cst: CstNode): Module
+  }
+  class ModuleBuilder
+  class ExpressionBuilder
+  class ConversionException
+}
+
+package "simulateur" {
+  class Module
+}
+
+Grammar *-- Production
+Production o-- NonTerminal
+Production o-- Terminal
+
+TableBuilder ..> Grammar
+TableBuilder ..> ParsingTable
+CstParser ..> ParsingTable
+CstParser ..> CstNode : produit
+CstParser ..> ParsingException : throws
+
+CstNode <|.. CstLeaf
+CstNode <|.. CstInternal
+CstInternal o-- "*" CstNode
+CstLeaf o-- Terminal
+CstInternal o-- NonTerminal
+
+Conversion ..> CstNode : consomme
+Conversion ..> Module : produit
+Conversion ..> ConversionException : throws
+Conversion *-- ModuleBuilder
+ModuleBuilder *-- ExpressionBuilder
+
+@enduml
