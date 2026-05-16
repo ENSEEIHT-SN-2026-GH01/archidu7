@@ -5,18 +5,21 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Region;
+import javafx.scene.input.MouseButton;
 import simulateur.*;
 
-//TODO : ajout de l'état indeterminé.
 /** Bouton qui commande un bit d'une entrée. */
 public class EntreeSimulateur extends ToggleButton {
 
     public static final Image imageUndef = new Image("assets/interupteur_undef.png", 48, 48, true, false);
     public static final Image imageOff = new Image("assets/interupteur_off.png", 48, 48, true, false);
     public static final Image imageOn = new Image("assets/interupteur_on.png", 48, 48, true, false);
+    public static final Image horlogeOff = new Image("assets/horloge_off.png", 48, 48, true, false);
+    public static final Image horlogeOn = new Image("assets/horloge_on.png", 48, 48, true, false);
 
     private ImageView vue;
     private BouttonEntree corps;
+    private boolean estHorloge = false;
 
     /**
      * Cree le bouton connecté au BoutonCorps interne.
@@ -41,6 +44,13 @@ public class EntreeSimulateur extends ToggleButton {
             }
         });
 
+        /*Definir comme horloge par un click droit. */
+        setOnMouseClicked(event -> {
+            if (event.getButton() == MouseButton.SECONDARY) {
+                setHorloge();
+            }
+        });
+
         setStyle(
                 "-fx-background-color: transparent; " +
                         "-fx-border-color: transparent;");
@@ -49,5 +59,15 @@ public class EntreeSimulateur extends ToggleButton {
         setPadding(Insets.EMPTY);
         setPrefSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
         setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+    }
+
+    /** */
+    public void setHorloge(){
+        
+        estHorloge = true;
+
+        //reset
+       vue.setImage(horlogeOff);
+       corps.set(Etat.DW);
     }
 }
