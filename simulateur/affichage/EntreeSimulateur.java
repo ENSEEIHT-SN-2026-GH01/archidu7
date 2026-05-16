@@ -21,8 +21,6 @@ public class EntreeSimulateur extends ToggleButton {
     public static final Image horlogeOff = new Image("assets/horloge_off.png", 48, 48, true, false);
     public static final Image horlogeOn = new Image("assets/horloge_on.png", 48, 48, true, false);
 
-    private static final long periode = 200;
-
     private ImageView vue;
     private BouttonEntree corps;
     private boolean estHorloge = false;
@@ -82,7 +80,7 @@ public class EntreeSimulateur extends ToggleButton {
         if (!estHorloge){
             selectedProperty().removeListener(listenerEntree);
             horlogeExecution = new Timer();
-            horlogeExecution.schedule(new TicHorloge(), 0, periode);
+            horlogeExecution.schedule(new TicHorloge(), 0, ConfigurationSimulation.periodeHorloge);
             estHorloge = true;
 
             parent = getScene().getWindow(); //pour le nettoyage
