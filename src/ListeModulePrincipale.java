@@ -23,6 +23,10 @@ public class ListeModulePrincipale extends ScrollPane {
         setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         setContent(liste);
         modules = new ArrayList<FichierModuleBouton>();
+
+        /*creation du dossier modules dans l'environnement s'il n'existe pas. */
+        new File("./modules/").mkdir();
+
         rechargerEnvironnement("./modules/");
     }
 

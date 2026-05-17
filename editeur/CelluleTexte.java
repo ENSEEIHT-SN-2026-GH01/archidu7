@@ -11,12 +11,12 @@ public class CelluleTexte {
     private int fin; //indice du dernier element.
     private Text morceau;
     private CelluleTexte suivant;
-    private int font;
+    private Font font;
 
     private int indiceListeTexte; //indice dans la liste du TextFlow associé.
     private final ObservableList<Node> listeTexte; //La liste du TextFlow associé.
 
-    public CelluleTexte(int deb, int f, String texte, int indice, ObservableList<Node> liste, int fontSize){
+    public CelluleTexte(int deb, int f, String texte, int indice, ObservableList<Node> liste, Font font){
         debut = deb;
         fin = f;
         morceau = new Text(texte);
@@ -26,10 +26,10 @@ public class CelluleTexte {
         listeTexte = liste;
         listeTexte.add(indiceListeTexte, morceau);
 
-        //à gérer autre part plus tard
-        morceau.setFont(Font.font("Monospaced", fontSize));
+        //font
+        morceau.setFont(font);
         morceau.setStyle("-fx-font-weight: 700");
-        font = fontSize;
+        this.font = font;
     }
 
     public int getDebut(){
@@ -239,30 +239,16 @@ public class CelluleTexte {
             if (suivant != null) return suivant.supprimerText(debutSuppr, finSuppr);
             else return this;
         }
-        else if(finSuppr > fin +1){ //suppression sur plusieurs morceaux
+        else {
+            /*recollement pour ne pas avoir de cellules vides */
+            recoller(debut, finSuppr + 1);
 
-            /*appel recurssif */
-            if (suivant != null){
-                suivant.supprimerText(fin + 1, finSuppr);
-                if (suivant.getDebut() > suivant.getFin()) suivant = suivant.suivant; //supression des cellules vides
-            }
-
-            /*supression sur ce morceau */
-            String actuel = morceau.getText();
-             morceau.setText(actuel.substring(0, debutSuppr - debut));
+            /*suppression */
+            String txt = morceau.getText();
+            morceau.setText(txt.substring(0, debutSuppr - debut) + txt.substring(finSuppr - debut));
 
             /*decalage */
-            int delta = debutSuppr - fin - 1;
-            fin += delta; //delta est negatif
-            if (suivant != null) suivant.propagerDecalage(delta);
-
-            return this;
-        }
-        else{
-            String actuel = morceau.getText();
-  
-            morceau.setText(actuel.substring(0, debutSuppr - debut) + actuel.substring(finSuppr - debut, fin - debut + 1));
-            int delta = debutSuppr - finSuppr ;
+            int delta = debutSuppr - finSuppr;
             fin += delta; //delta est negatif
             if (suivant != null) suivant.propagerDecalage(delta);
 
@@ -276,5 +262,32 @@ public class CelluleTexte {
         System.out.print("|" + fin);
         if (suivant != null) suivant.afficher();
         else System.out.println();
+    }
+
+
+    /* à partir d'içi, nous avons des méthodes liés au style */
+
+    /**Change la taille de police.
+     * 
+     * @param size la nouvelle taille.
+     */
+    public void setFont(double size){
+        font = new Font(font.getStyle(), size);
+        morceau.setFont(font);
+        if (suivant != null){
+            suivant.setFont(size);
+        }
+    }
+
+    /**Change la police.
+     * 
+     * @param newFont La nouvelle police.
+     */
+    public void setFont(Font newFont){
+        font = newFont;
+        morceau.setFont(font);
+        if (suivant != null){
+            suivant.setFont(newFont);
+        }
     }
 }

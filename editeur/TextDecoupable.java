@@ -1,4 +1,5 @@
 package editeur;
+import javafx.scene.text.Font;
 import javafx.scene.text.TextFlow;
 
 /**Class de texte decoupable en morceau. Abstraite car innutile tant que l'on
@@ -8,15 +9,19 @@ public abstract class TextDecoupable extends TextFlow{
 
     protected CelluleTexte morceaux; //tete de liste
     protected CelluleTexte cache; //dernière cellule qui a été renvoyé par une des méthode de CelluleText
+    protected Font font;
 
     public TextDecoupable(int fontSize){
-        morceaux = new CelluleTexte(0, -1, "", 0, getChildren(), fontSize);
-        setLineSpacing(0.11875 * fontSize - 1.02);
+        font = Font.font("monospace", fontSize);
+        morceaux = new CelluleTexte(0, -1, "", 0, getChildren(), font);
+        corrigeLineSpace(fontSize);
         cache = morceaux;
     }
 
     public TextDecoupable(String txt, int fontSize){
-        morceaux = new CelluleTexte(0, txt.length() - 1, txt, 0, getChildren(), fontSize);
+        font = Font.font("monospace", fontSize);
+        morceaux = new CelluleTexte(0, txt.length() - 1, txt, 0, getChildren(), font);
+        corrigeLineSpace(fontSize);
         cache = morceaux;
     }
 
@@ -33,9 +38,8 @@ public abstract class TextDecoupable extends TextFlow{
      * @param txt Le nouveau texte.
      */
     public void setText(String txt){
-        int fontSize = (int) morceaux.getMorceau().getFont().getSize();
         getChildren().clear();
-        morceaux = new CelluleTexte(0, txt.length() + 1, txt, 0, getChildren(), fontSize);
+        morceaux = new CelluleTexte(0, txt.length() + 1, txt, 0, getChildren(), font);
         cache = morceaux;
     }
 
@@ -119,5 +123,38 @@ public abstract class TextDecoupable extends TextFlow{
      */
     public void segmentation(int[] pointsDecoupe){
         morceaux.segmentation(pointsDecoupe);
+    }
+
+    /**Affiche (debug).
+     * 
+     */
+    public void afficher(){
+        morceaux.afficher();
+    }
+
+    /*méthodes liés au style. */
+
+    private void corrigeLineSpace(double fontSize){
+        setLineSpacing(0.11875 * fontSize - 1.02);
+    }
+
+    /**Change taille de la police.
+     * 
+     * @param nouvelle
+     */
+    public void setFont(double nouvelle){
+        font = Font.font(font.getFamily(), nouvelle);
+        morceaux.setFont(nouvelle);
+        corrigeLineSpace(nouvelle);
+    }
+
+    /**Change la police.
+     * 
+     * @param nouvelle
+     */
+    public void setFont(Font nouvelle){
+        font = nouvelle;
+        morceaux.setFont(nouvelle);
+        corrigeLineSpace(nouvelle.getSize());
     }
 }
