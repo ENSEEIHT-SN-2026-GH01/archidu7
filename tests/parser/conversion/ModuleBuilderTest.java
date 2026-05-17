@@ -267,4 +267,26 @@ public class ModuleBuilderTest {
         assertEquals("s[1] doit lire a", "a", src1.Nom);
         assertEquals("s[1] doit lire a[1]", Integer.valueOf(1), src1.Numero);
     }
+
+    /**
+     * Composition signature + vecteurs : un paramètre vecteur en entrée et un
+     * en sortie doivent traverser buildSignature avec les bons indices.
+     * module m (a[3..0] : s[1..0]) → Entrees=[a 0..3], Sorties=[s 0..1].
+     */
+    @Test
+    public void signature_vectorParams_indicesCorrects() {
+        Module m = build("module m (a[3..0] : s[1..0]) s[1..0] = a[1..0] end module");
+        assertEquals("Entrees doit contenir 1 descripteur", 1, m.Entrees.size());
+        assertEquals("Sorties doit contenir 1 descripteur", 1, m.Sorties.size());
+        erwan.Descripteur e = m.Entrees.get(0);
+        assertEquals("a", e.Nom());
+        assertEquals(0, e.indiceDebut());
+        assertEquals(3, e.indiceFin());
+        assertEquals(4, e.nbSignaux());
+        erwan.Descripteur s = m.Sorties.get(0);
+        assertEquals("s", s.Nom());
+        assertEquals(0, s.indiceDebut());
+        assertEquals(1, s.indiceFin());
+        assertEquals(2, s.nbSignaux());
+    }
 }

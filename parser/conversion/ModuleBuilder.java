@@ -97,8 +97,6 @@ public final class ModuleBuilder {
     private static Signature buildSignature(CstInternal mod) {
         List<Descripteur> entrees = new ArrayList<>();
         List<Descripteur> sorties = new ArrayList<>();
-        // colonOffset : offset du premier ':' vu (ou -1 si aucun), pour détecter un double ':'
-        int colonOffset = -1;
         boolean colonSeen = false;
 
         // Premier paramètre : directement enfant de mod
@@ -152,7 +150,6 @@ public final class ModuleBuilder {
                             + separInt.startOffset() + ")");
                 }
                 colonSeen = true;
-                colonOffset = separInt.startOffset();
             }
 
             // Lecture du paramètre suivant
