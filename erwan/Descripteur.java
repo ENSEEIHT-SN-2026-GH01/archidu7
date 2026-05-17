@@ -53,7 +53,7 @@ public class Descripteur {
 	 * @param Nom le nom du signal.
 	 */
 	public Descripteur(String Nom){
-		this(Nom,0,0);
+		this(Nom,-1,-1);
 	}
 
 	/** Recuperer le nom de l'entree.
@@ -67,7 +67,7 @@ public class Descripteur {
 	 * @return true si il est unique.
 	 */
 	public boolean unique() {
-		return indiceDebut == indiceFin;
+		return indiceDebut == -1;
 	}
 
 	/** Renvoie l'indice du premier signal séléctionné du vecteur.

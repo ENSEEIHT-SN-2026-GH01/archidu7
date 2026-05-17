@@ -158,7 +158,8 @@ public class NamesTest {
 
     /**
      * Signal scalaire {@code a} → Descripteur avec Nom()="a", nbSignaux()=1,
-     * indiceDebut()=0, indiceFin()=0.
+     * unique()=true. Un scalaire est marqué par le sentinelle d'indice -1
+     * (cf. erwan.Descripteur).
      */
     @Test
     public void descriptorOf_scalar_nomEtUnique() {
@@ -166,8 +167,8 @@ public class NamesTest {
         Descripteur d = Names.descriptorOf(sig);
         assertEquals("a", d.Nom());
         assertEquals(1, d.nbSignaux());
-        assertEquals(0, d.indiceDebut());
-        assertEquals(0, d.indiceFin());
+        assertEquals(-1, d.indiceDebut());
+        assertEquals(-1, d.indiceFin());
         assertTrue(d.unique());
     }
 
