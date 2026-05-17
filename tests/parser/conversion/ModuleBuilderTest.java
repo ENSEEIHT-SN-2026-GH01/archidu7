@@ -374,4 +374,92 @@ public class ModuleBuilderTest {
             assertEquals(Reason.MODULE_CALL_CYCLE, ex.reason());
         }
     }
+
+    /**
+     * Cycle de longueur 1 : un module qui s'appelle lui-même → MODULE_CALL_CYCLE.
+     */
+    @Test
+    public void moduleCall_selfReference_throwsCycle() {
+        CstNode cstA = CstParser.parse("module a (x : y) $a(x : y) end module");
+        try {
+            Conversion.convert(cstA, java.util.List.of());
+            fail("Attendu ConversionException MODULE_CALL_CYCLE");
+        } catch (ConversionException ex) {
+            assertEquals(Reason.MODULE_CALL_CYCLE, ex.reason());
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Tests — corrections post-audit adversarial (I1, I2, C3)
+    // -----------------------------------------------------------------------
+
+    /**
+     * I1 — appel d'un module sans ':' dans sa signature (donc sans sorties
+     * déclarées) : MODULE_ARITY_MISMATCH, avec un message explicite sur
+     * l'absence de sortie plutôt qu'un décompte d'arité trompeur.
+     */
+    @Test
+    public void moduleCall_calledHasNoColon_throwsClearArityError() {
+        CstNode cstFa = CstParser.parse("module fa (a, b, s) s = a + b end module");
+        CstNode cstTop = CstParser.parse("module top (a, b : s) $fa(a, b : s) end module");
+        try {
+            Conversion.convert(cstTop, java.util.List.of(cstFa));
+            fail("Attendu ConversionException MODULE_ARITY_MISMATCH");
+        } catch (ConversionException ex) {
+            assertEquals(Reason.MODULE_ARITY_MISMATCH, ex.reason());
+            assertTrue("le message doit signaler l'absence de sortie : " + ex.getMessage(),
+                ex.getMessage().contains("aucune sortie"));
+        }
+    }
+
+    /**
+     * I2 — un signal piloté par les sorties de deux appels distincts doit
+     * lever DUPLICATE_LHS (double pilotage silencieux auparavant).
+     */
+    @Test
+    public void twoCalls_sameOutputSignal_throwsDuplicateLhs() {
+        CstNode cstFa = CstParser.parse("module fa (a, b : s) s = a + b end module");
+        CstNode cstTop = CstParser.parse(
+            "module top (x, y : s) $fa(x, y : s) $fa(y, x : s) end module");
+        try {
+            Conversion.convert(cstTop, java.util.List.of(cstFa));
+            fail("Attendu ConversionException DUPLICATE_LHS");
+        } catch (ConversionException ex) {
+            assertEquals(Reason.DUPLICATE_LHS, ex.reason());
+        }
+    }
+
+    /**
+     * I2 — un signal piloté à la fois par la sortie d'un appel et par une
+     * affectation doit lever DUPLICATE_LHS.
+     */
+    @Test
+    public void callOutputAndAssignment_sameSignal_throwsDuplicateLhs() {
+        CstNode cstFa = CstParser.parse("module fa (a, b : s) s = a + b end module");
+        CstNode cstTop = CstParser.parse(
+            "module top (x, y : s) $fa(x, y : s) s = x end module");
+        try {
+            Conversion.convert(cstTop, java.util.List.of(cstFa));
+            fail("Attendu ConversionException DUPLICATE_LHS");
+        } catch (ConversionException ex) {
+            assertEquals(Reason.DUPLICATE_LHS, ex.reason());
+        }
+    }
+
+    /**
+     * C3 — MODULE_NOT_FOUND porte l'offset du site d'appel, pas 0.
+     */
+    @Test
+    public void moduleCall_unknownModule_reportsCallSiteOffset() {
+        CstNode cstTop = CstParser.parse(
+            "module top (a, b : s) $missing(a, b : s) end module");
+        try {
+            Conversion.convert(cstTop, java.util.List.of());
+            fail("Attendu ConversionException MODULE_NOT_FOUND");
+        } catch (ConversionException ex) {
+            assertEquals(Reason.MODULE_NOT_FOUND, ex.reason());
+            assertTrue("l'offset doit pointer le site d'appel, pas 0 (C3)",
+                ex.offset() > 0);
+        }
+    }
 }

@@ -217,7 +217,8 @@ public final class ModuleBuilder {
                 new ConversionException(inst.startOffset(), "Instance",
                     ConversionException.Reason.MALFORMED_CST,
                     "Instance ($) sans enfant ModuleCall"));
-            return handleModuleCall(moduleCallNode, calledName, resolver, branchements);
+            return handleModuleCall(moduleCallNode, calledName, resolver, branchements,
+                lhsSeen, id.startOffset());
         }
         CstNode id = inst.first(new Terminal(Token.Identifiant)).orElseThrow(() ->
             new ConversionException(inst.startOffset(), "Instance",
@@ -246,7 +247,8 @@ public final class ModuleBuilder {
                 new ConversionException(op.startOffset(), "Operation",
                     ConversionException.Reason.MALFORMED_CST,
                     "Operation avec ModuleCall sans enfant ModuleCall"));
-            return handleModuleCall(moduleCallNode, nom, resolver, branchements);
+            return handleModuleCall(moduleCallNode, nom, resolver, branchements,
+                lhsSeen, id.startOffset());
         }
         CstNode subsetNode = op.first(NonTerminal.Signal_Subset_Opt).orElseThrow(() ->
             new ConversionException(op.startOffset(), "Operation",
@@ -340,11 +342,33 @@ public final class ModuleBuilder {
      * Partie commune aux deux formes d'appel de module (forme A {@code $nom(...)}
      * et forme B {@code nom(...)}): résout le module appelé, construit
      * l'[AppelModule] et l'ajoute à {@code branchements}.
+     *
+     * <p>Les signaux du circuit appelant pilotés par les sorties de l'appel
+     * (les {@code DS} de l'AppelModule) sont enregistrés dans {@code lhsSeen}
+     * au même titre que les LHS d'affectation : un signal piloté deux fois —
+     * que ce soit par deux appels ou par un appel et une affectation — lève
+     * {@link ConversionException.Reason#DUPLICATE_LHS}.
+     *
+     * @param callOffset offset de l'Identifiant du module appelé (diagnostic)
      */
     private static List<Erwan> handleModuleCall(CstNode moduleCallNode, String calledName,
-            ModuleResolver resolver, List<AppelModule> branchements) {
-        Module called = resolver.resolve(calledName);
+            ModuleResolver resolver, List<AppelModule> branchements,
+            Set<String> lhsSeen, int callOffset) {
+        Module called = resolver.resolve(calledName, callOffset);
         AppelModule am = ModuleCallBuilder.build(moduleCallNode, called);
+        // Déduplication : les sorties de l'appel pilotent des signaux du circuit
+        // appelant. Descripteur.Noms() produit les mêmes clés que lhsBits
+        // (scalaire → "nom", bit de vecteur → "nom[i]").
+        for (Descripteur ds : am.DS) {
+            for (String bit : ds.Noms()) {
+                if (!lhsSeen.add(bit)) {
+                    throw new ConversionException(callOffset, "ModuleCall",
+                        ConversionException.Reason.DUPLICATE_LHS,
+                        "Double assignation du signal '" + bit
+                            + "' (sortie de l'appel au module '" + calledName + "')");
+                }
+            }
+        }
         branchements.add(am);
         return List.of();
     }

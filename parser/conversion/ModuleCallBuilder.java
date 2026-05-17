@@ -141,6 +141,17 @@ public final class ModuleCallBuilder {
         List<Descripteur> DE = new ArrayList<>(allDescs.subList(0, colonIndex + 1));
         List<Descripteur> DS = new ArrayList<>(allDescs.subList(colonIndex + 1, allDescs.size()));
 
+        // Le module appelé doit déclarer des sorties pour être utilisable comme
+        // sous-module. Sorties vide ⇔ signature sans ':' : on le signale
+        // explicitement plutôt que de laisser le contrôle d'arité produire un
+        // message trompeur sur le nombre d'entrées.
+        if (called.Sorties.isEmpty()) {
+            throw new ConversionException(mc.startOffset(), "ModuleCall",
+                ConversionException.Reason.MODULE_ARITY_MISMATCH,
+                "Le module appelé '" + called.Nom + "' ne déclare aucune sortie : "
+                    + "il manque probablement un ':' dans sa signature");
+        }
+
         // Validation d'arité
         if (DE.size() != called.Entrees.size()) {
             throw new ConversionException(mc.startOffset(), "ModuleCall",

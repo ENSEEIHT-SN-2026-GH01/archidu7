@@ -91,17 +91,29 @@ public final class ModuleResolver {
     }
 
     /**
+     * Résout le module principal par nom, sans site d'appel (offset 0).
+     *
+     * @see #resolve(String, int)
+     */
+    public Module resolve(String nom) {
+        return resolve(nom, 0);
+    }
+
+    /**
      * Résout un module par nom.
      *
      * <p>Mémoïse le résultat : deux appels avec le même nom retournent la même
      * instance de {@link Module}.
      *
-     * @param nom le nom du module à résoudre
+     * @param nom    le nom du module à résoudre
+     * @param offset offset du site d'appel ({@code $nom(...)} / {@code nom(...)})
+     *               reporté dans les exceptions pour le diagnostic ; 0 si aucun
+     *               site d'appel (module principal)
      * @return l'instance construite
      * @throws ConversionException MODULE_NOT_FOUND si le nom n'est pas indexé ;
      *         MODULE_CALL_CYCLE si le nom est déjà en cours de résolution.
      */
-    public Module resolve(String nom) {
+    public Module resolve(String nom, int offset) {
         // Mémoïsation : déjà calculé
         if (cache.containsKey(nom)) {
             return cache.get(nom);
@@ -109,16 +121,14 @@ public final class ModuleResolver {
 
         // Détection de cycle
         if (resolutionStack.contains(nom)) {
-            // offset 0 : l'échec est détecté par recherche de nom, pas depuis un nœud CST
-            throw new ConversionException(0, "ModuleResolver",
+            throw new ConversionException(offset, "ModuleResolver",
                 ConversionException.Reason.MODULE_CALL_CYCLE,
                 "Cycle de definition detecte pour le module '" + nom + "'");
         }
 
         // Nom absent de l'index
         if (!index.containsKey(nom)) {
-            // offset 0 : l'échec est détecté par recherche de nom, pas depuis un nœud CST
-            throw new ConversionException(0, "ModuleResolver",
+            throw new ConversionException(offset, "ModuleResolver",
                 ConversionException.Reason.MODULE_NOT_FOUND,
                 "Module '" + nom + "' introuvable");
         }
