@@ -4,6 +4,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import parser.conversion.Names;
+import parser.conversion.Names.SignalRef;
+import parser.conversion.Subset;
 import parser.conversion.ConversionException;
 import parser.conversion.ConversionException.Reason;
 import parser.ll1.grammar.NonTerminal;
@@ -20,6 +22,10 @@ public class NamesTest {
                    .first(NonTerminal.Param).orElseThrow()
                    .first(NonTerminal.Signal).orElseThrow();
     }
+
+    // -----------------------------------------------------------------------
+    // Tests existants — extractScalarFromSignalNT
+    // -----------------------------------------------------------------------
 
     @Test
     public void extractScalarFromSignalNT_scalarSignal_returnsName() {
@@ -42,5 +48,133 @@ public class NamesTest {
         } catch (ConversionException ex) {
             assertEquals(Reason.VECTOR_SUBSET_NOT_SUPPORTED, ex.reason());
         }
+    }
+
+    // -----------------------------------------------------------------------
+    // Tests nouveaux — signalRef + subsetOf
+    // -----------------------------------------------------------------------
+
+    @Test
+    public void signalRef_scalar_nomCorrect() {
+        CstNode sig = firstSignal("module m (a) c = a end module");
+        SignalRef ref = Names.signalRef(sig);
+        assertEquals("a", ref.nom());
+    }
+
+    @Test
+    public void signalRef_scalar_subsetIsScalar() {
+        CstNode sig = firstSignal("module m (a) c = a end module");
+        SignalRef ref = Names.signalRef(sig);
+        assertFalse(ref.subset().isVector());
+        assertEquals(1, ref.subset().width());
+    }
+
+    @Test
+    public void signalRef_singleIndex_nomEtSubset() {
+        CstNode sig = firstSignal("module m (a[3]) c = a end module");
+        SignalRef ref = Names.signalRef(sig);
+        assertEquals("a", ref.nom());
+        assertTrue(ref.subset().isVector());
+        assertEquals(3, ref.subset().hi());
+        assertEquals(3, ref.subset().lo());
+        assertEquals(1, ref.subset().width());
+    }
+
+    @Test
+    public void signalRef_rangeDoubleDot_nomEtSubset() {
+        CstNode sig = firstSignal("module m (a[3..0]) c = a end module");
+        SignalRef ref = Names.signalRef(sig);
+        assertEquals("a", ref.nom());
+        assertTrue(ref.subset().isVector());
+        assertEquals(3, ref.subset().hi());
+        assertEquals(0, ref.subset().lo());
+        assertEquals(4, ref.subset().width());
+    }
+
+    @Test
+    public void signalRef_rangeColon_nomEtSubset() {
+        CstNode sig = firstSignal("module m (a[3:0]) c = a end module");
+        SignalRef ref = Names.signalRef(sig);
+        assertEquals("a", ref.nom());
+        assertTrue(ref.subset().isVector());
+        assertEquals(3, ref.subset().hi());
+        assertEquals(0, ref.subset().lo());
+        assertEquals(4, ref.subset().width());
+    }
+
+    // -----------------------------------------------------------------------
+    // Tests d'erreur — branches défensives signalRef / subsetOf
+    // -----------------------------------------------------------------------
+
+    /**
+     * Passer un nœud NT Param (et non Signal) à signalRef doit lever
+     * ConversionException(MALFORMED_CST).
+     */
+    @Test
+    public void signalRef_noeudNonSignal_leveConversionException() {
+        CstNode root = CstParser.parse("module m (a) c = a end module");
+        CstNode param = root.first(NonTerminal.Module).orElseThrow()
+                            .first(NonTerminal.Param).orElseThrow();
+        try {
+            Names.signalRef(param);
+            fail("expected ConversionException");
+        } catch (ConversionException ex) {
+            assertEquals(Reason.MALFORMED_CST, ex.reason());
+        }
+    }
+
+    /**
+     * Passer un nœud NT Signal (et non Signal_Subset_Opt) à subsetOf doit lever
+     * ConversionException(MALFORMED_CST).
+     */
+    @Test
+    public void subsetOf_noeudNonSignalSubsetOpt_leveConversionException() {
+        CstNode root = CstParser.parse("module m (a) c = a end module");
+        CstNode signal = root.first(NonTerminal.Module).orElseThrow()
+                             .first(NonTerminal.Param).orElseThrow()
+                             .first(NonTerminal.Signal).orElseThrow();
+        try {
+            Names.subsetOf(signal);
+            fail("expected ConversionException");
+        } catch (ConversionException ex) {
+            assertEquals(Reason.MALFORMED_CST, ex.reason());
+        }
+    }
+
+    @Test
+    public void subsetScalar_constanteEgaleA_SCALAR() {
+        Subset s = Subset.SCALAR;
+        assertFalse(s.isVector());
+        assertEquals(0, s.hi());
+        assertEquals(0, s.lo());
+        assertEquals(1, s.width());
+    }
+
+    /** Subset scalaire construit avec hi/lo non nuls : le constructeur compact normalise à 0. */
+    @Test
+    public void subsetScalaire_hiLoNonNuls_normaliseA0() {
+        Subset s = new Subset(false, 5, 9);
+        assertFalse(s.isVector());
+        assertEquals(0, s.hi());
+        assertEquals(0, s.lo());
+        assertEquals(1, s.width());
+    }
+
+    @Test
+    public void subsetSingle_width1() {
+        Subset s = Subset.single(7);
+        assertTrue(s.isVector());
+        assertEquals(7, s.hi());
+        assertEquals(7, s.lo());
+        assertEquals(1, s.width());
+    }
+
+    @Test
+    public void subsetRange_widthCalcule() {
+        Subset s = Subset.range(7, 4);
+        assertTrue(s.isVector());
+        assertEquals(7, s.hi());
+        assertEquals(4, s.lo());
+        assertEquals(4, s.width());
     }
 }

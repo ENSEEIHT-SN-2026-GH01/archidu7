@@ -29,6 +29,6 @@ public class ConversionExceptionTest {
     @Test
     public void allReasonsExposedByEnum() {
         Reason[] reasons = Reason.values();
-        assertEquals(7, reasons.length);
+        assertEquals(8, reasons.length);
     }
 }
