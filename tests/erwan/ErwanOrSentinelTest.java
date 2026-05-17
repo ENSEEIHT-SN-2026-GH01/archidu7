@@ -1,4 +1,4 @@
-package tests.simulateur.Erwan;
+package tests.erwan;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -6,8 +6,8 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.List;
 
-import simulateur.Erwan.Erwan;
-import simulateur.Erwan.Operation;
+import erwan.Erwan;
+import erwan.Operation;
 
 /**
  * Sentinelle anti-regression : verifie que Erwan.OR() retourne bien Op.OR.

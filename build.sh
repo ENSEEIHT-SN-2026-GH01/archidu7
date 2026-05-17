@@ -15,7 +15,7 @@ mkdir -p bin
 echo ">> Compilation parser ..."
 SRC=$(mktemp)
 trap 'rm -f "$SRC"' EXIT
-find parser util simulateur -name "*.java" -not -path "simulateur/affichage/*" > "$SRC"
+find parser util erwan simulateur -name "*.java" -not -path "simulateur/affichage/*" > "$SRC"
 "$JAVAC" -d bin -cp "$CP" @"$SRC"
 
 if [ "${1:-}" = "test" ]; then

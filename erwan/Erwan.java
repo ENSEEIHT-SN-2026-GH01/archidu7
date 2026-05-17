@@ -140,7 +140,7 @@ public class Erwan implements Branchement {
                         if (Nom == null) Nom = new String(NE);
                         else Nom += " + " + NE;
 		}
-                return new Erwan(Operation.AND,Entrees,Nom);
+                return new Erwan(Operation.OR,Entrees,Nom);
         }
 	
 	/** Modélisation d'un signal résultant d'un NON logique.

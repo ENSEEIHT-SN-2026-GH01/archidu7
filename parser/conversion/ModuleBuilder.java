@@ -12,8 +12,8 @@ import parser.ll1.grammar.Terminal;
 import parser.ll1.tabledriven.cst.CstInternal;
 import parser.ll1.tabledriven.cst.CstLeaf;
 import parser.ll1.tabledriven.cst.CstNode;
-import simulateur.Erwan.Erwan;
-import simulateur.Module;
+import erwan.Erwan;
+import erwan.Module;
 
 public final class ModuleBuilder {
 
@@ -74,7 +74,12 @@ public final class ModuleBuilder {
             star = nextStar;
         }
 
-        return new Module(plan, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        String moduleName = mod.first(new Terminal(Token.Identifiant))
+            .filter(n -> n instanceof CstLeaf)
+            .map(n -> ((CstLeaf) n).lexem().getText())
+            .orElse("");
+        return new Module(moduleName, plan, Collections.emptyList(),
+            Collections.emptyList(), Collections.emptyList());
     }
 
     private static void validateParams(CstInternal mod) {

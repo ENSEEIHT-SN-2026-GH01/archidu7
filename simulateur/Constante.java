@@ -18,6 +18,7 @@ public class Constante extends Composant {
                 }
         }
 
+	/*
 	public void ajouter(Connecteur c)  {
 		TableauConnecteur Tc = super.getS();
 		TableauConnecteur Tc2 = new TableauConnecteur(Tc.getTaille() + 1);
@@ -27,6 +28,7 @@ public class Constante extends Composant {
 		Tc2.brancher(c,Tc2.getTaille());
 		super.setS(Tc2);
 	}
+	*/
 
 	public String getNom() {
 		return "Constante";

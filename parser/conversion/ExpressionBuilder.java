@@ -8,7 +8,7 @@ import parser.ll1.grammar.Terminal;
 import parser.ll1.tabledriven.cst.CstInternal;
 import parser.ll1.tabledriven.cst.CstLeaf;
 import parser.ll1.tabledriven.cst.CstNode;
-import simulateur.Erwan.Erwan;
+import erwan.Erwan;
 
 public final class ExpressionBuilder {
 

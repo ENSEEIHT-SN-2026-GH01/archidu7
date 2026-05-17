@@ -12,7 +12,7 @@ import parser.ll1.tabledriven.CstParser;
 import parser.ll1.tabledriven.cst.CstNode;
 import simulateur.Etat;
 import simulateur.FileSimulateur;
-import simulateur.Module;
+import erwan.Module;
 
 /**
  * Test e2e (finding I9) : pipeline complet String SHDL → FileSimulateur → table de vérité.

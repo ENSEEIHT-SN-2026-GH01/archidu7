@@ -3,7 +3,7 @@ package parser.conversion;
 import parser.ll1.grammar.NonTerminal;
 import parser.ll1.tabledriven.cst.CstInternal;
 import parser.ll1.tabledriven.cst.CstNode;
-import simulateur.Module;
+import erwan.Module;
 
 public final class Conversion {
 

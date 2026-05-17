@@ -9,9 +9,9 @@ import parser.conversion.ConversionException.Reason;
 import parser.ll1.grammar.NonTerminal;
 import parser.ll1.tabledriven.CstParser;
 import parser.ll1.tabledriven.cst.CstNode;
-import simulateur.Erwan.Erwan;
-import simulateur.Erwan.Operation;
-import simulateur.Module;
+import erwan.Erwan;
+import erwan.Operation;
+import erwan.Module;
 
 public class ModuleBuilderTest {
 

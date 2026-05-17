@@ -7,8 +7,8 @@ import parser.conversion.ExpressionBuilder;
 import parser.ll1.grammar.NonTerminal;
 import parser.ll1.tabledriven.CstParser;
 import parser.ll1.tabledriven.cst.CstNode;
-import simulateur.Erwan.Erwan;
-import simulateur.Erwan.Operation;
+import erwan.Erwan;
+import erwan.Operation;
 
 public class ExpressionBuilderTest {
 

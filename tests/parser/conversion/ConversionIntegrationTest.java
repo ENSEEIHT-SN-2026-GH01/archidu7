@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import parser.conversion.Conversion;
 import parser.ll1.tabledriven.CstParser;
 import parser.ll1.tabledriven.cst.CstNode;
-import simulateur.Module;
+import erwan.Module;
 
 /**
  * Tests d'integration : lit chaque fixture .shdl depuis le disque

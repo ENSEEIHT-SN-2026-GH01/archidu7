@@ -7,7 +7,7 @@ import parser.conversion.Conversion;
 import parser.ll1.tabledriven.CstParser;
 import parser.ll1.tabledriven.cst.CstNode;
 import simulateur.FileSimulateur;
-import simulateur.Module;
+import erwan.Module;
 
 public class ConversionSmokeTest {
 
