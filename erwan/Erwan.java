@@ -1,6 +1,5 @@
-package simulateur.Erwan;
+package erwan;
 import java.util.*;
-import simulateur.*;
 
 /** Erwan Modélise une opération du langage vhdl.
  * <p> Cette classe permet de faire la jonction entre l'interpretation et la simulation.</p>

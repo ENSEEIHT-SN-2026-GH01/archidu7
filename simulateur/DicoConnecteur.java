@@ -2,7 +2,7 @@ package simulateur;
 
 import java.util.Map;
 import java.util.HashMap;
-import simulateur.Erwan.Erwan;
+import erwan.*;
 /** Permet d'acceder par le nom à tous les signaux d'un circuit.
  * <p> Cette classe se comporte comme un dictionnaire : si on lui fourni un nom elle donnera un "connecteur" qui permettra de rattacher deux composant.
  * Ce connecteur représente un signal logique.

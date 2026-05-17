@@ -5,10 +5,10 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
 import simulateur.FileSimulateur;
-import simulateur.Module;
 import simulateur.affichage.FenetreSimulateur;
 import parser.conversion.Conversion;
 import parser.ll1.tabledriven.CstParser;
+import erwan.Module;
 
 public class ActionSimuler implements EventHandler<ActionEvent>{
     
@@ -22,7 +22,7 @@ public class ActionSimuler implements EventHandler<ActionEvent>{
     public void handle(ActionEvent evt){
         try{
             Module aSimuler = Conversion.convert(CstParser.parse(editeur.getText()));
-            FenetreSimulateur sim = new FenetreSimulateur(new FileSimulateur(aSimuler.Plan));
+            FenetreSimulateur sim = new FenetreSimulateur(new FileSimulateur(aSimuler));
             Stage fen = new Stage();
             fen.setScene(sim);
             fen.setTitle("simulation");

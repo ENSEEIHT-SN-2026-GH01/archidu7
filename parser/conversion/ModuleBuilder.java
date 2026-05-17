@@ -12,24 +12,35 @@ import parser.ll1.grammar.Terminal;
 import parser.ll1.tabledriven.cst.CstInternal;
 import parser.ll1.tabledriven.cst.CstLeaf;
 import parser.ll1.tabledriven.cst.CstNode;
-import simulateur.Erwan.*;
-import simulateur.Module;
+import erwan.AppelModule;
+import erwan.Descripteur;
+import erwan.Erwan;
+import erwan.Module;
 
 public final class ModuleBuilder {
 
     private ModuleBuilder() {}
 
-    public static Module build(CstNode moduleNode) {
+    /**
+     * Construit un {@link erwan.Module} depuis un nœud CST {@code Module}.
+     *
+     * @param moduleNode nœud {@code CstInternal(Module)} issu du parser
+     * @param resolver   résolveur de modules utilisé pour résoudre les modules
+     *                   appelés par les instances {@code $module(...)} / {@code module(...)} ;
+     *                   fournit la résolution mémoïsée et la détection de cycles
+     */
+    public static Module build(CstNode moduleNode, ModuleResolver resolver) {
         if (!(moduleNode instanceof CstInternal mod) || mod.nt() != NonTerminal.Module) {
             throw new ConversionException(moduleNode.startOffset(), String.valueOf(moduleNode.symbol()),
                 ConversionException.Reason.MALFORMED_CST, "Attendu CstInternal(Module)");
         }
 
-        // Validation structurelle des parametres (scalaires ou vecteurs)
-        validateParams(mod);
+        // Construction de la signature (entrees/sorties) depuis les parametres
+        Signature sig = buildSignature(mod);
 
         // Plan : aplatir Instance_Plus + Instance_Star
         List<Erwan> plan = new ArrayList<>();
+        List<AppelModule> branchements = new ArrayList<>();
         Set<String> lhsSeen = new HashSet<>();
 
         CstNode instancePlus = mod.first(NonTerminal.Instance_Plus).orElseThrow(() ->
@@ -45,7 +56,7 @@ public final class ModuleBuilder {
         plan.addAll(buildInstance(ip.first(NonTerminal.Instance).orElseThrow(() ->
             new ConversionException(ip.startOffset(), "Instance_Plus",
                 ConversionException.Reason.MALFORMED_CST,
-                "Instance_Plus sans enfant Instance")), lhsSeen));
+                "Instance_Plus sans enfant Instance")), lhsSeen, resolver, branchements));
 
         CstNode starNode = ip.first(NonTerminal.Instance_Star).orElseThrow(() ->
             new ConversionException(ip.startOffset(), "Instance_Plus",
@@ -61,7 +72,7 @@ public final class ModuleBuilder {
             plan.addAll(buildInstance(star.first(NonTerminal.Instance).orElseThrow(() ->
                 new ConversionException(starOffset, "Instance_Star",
                     ConversionException.Reason.MALFORMED_CST,
-                    "Instance_Star non-epsilon sans enfant Instance")), lhsSeen));
+                    "Instance_Star non-epsilon sans enfant Instance")), lhsSeen, resolver, branchements));
             CstNode nextStarNode = star.first(NonTerminal.Instance_Star).orElseThrow(() ->
                 new ConversionException(starOffset, "Instance_Star",
                     ConversionException.Reason.MALFORMED_CST,
@@ -74,15 +85,27 @@ public final class ModuleBuilder {
             star = nextStar;
         }
 
-        String moduleName = mod.first(new Terminal(Token.Identifiant))
-            .filter(n -> n instanceof CstLeaf)
-            .map(n -> ((CstLeaf) n).lexem().getText())
-            .orElse("");
-        return new Module(moduleName, plan, Collections.emptyList(),
-            Collections.emptyList(), Collections.emptyList());
+        String moduleName = Names.moduleName(mod);
+        return new Module(moduleName, plan, sig.entrees(), sig.sorties(), Collections.unmodifiableList(branchements));
     }
 
-    private static void validateParams(CstInternal mod) {
+    /** Résultat de l'analyse de la liste de paramètres d'un module. */
+    private record Signature(List<Descripteur> entrees, List<Descripteur> sorties) {}
+
+    /**
+     * Parcourt {@code Param Separ_Param_Star} du nœud Module et construit la {@link Signature}.
+     * <ul>
+     *   <li>Aucun {@code Colon} → tous les params dans {@code entrees}, {@code sorties} vide.</li>
+     *   <li>Un {@code Colon} → params avant → {@code entrees}, après → {@code sorties}.</li>
+     *   <li>Plus d'un {@code Colon} → {@link ConversionException#MODULE_BAD_SEPARATORS}.</li>
+     * </ul>
+     */
+    private static Signature buildSignature(CstInternal mod) {
+        List<Descripteur> entrees = new ArrayList<>();
+        List<Descripteur> sorties = new ArrayList<>();
+        boolean colonSeen = false;
+
+        // Premier paramètre : directement enfant de mod
         CstNode firstParam = mod.first(NonTerminal.Param).orElseThrow(() ->
             new ConversionException(mod.startOffset(), "Module",
                 ConversionException.Reason.MALFORMED_CST,
@@ -92,12 +115,14 @@ public final class ModuleBuilder {
                 ConversionException.Reason.MALFORMED_CST,
                 "Enfant Param n'est pas CstInternal(Param)");
         }
-        // signalRef appele pour sa validation structurelle du noeud Signal ; resultat non utilise
-        Names.signalRef(fpInt.first(NonTerminal.Signal).orElseThrow(() ->
+        Descripteur firstDesc = Names.descriptorOf(fpInt.first(NonTerminal.Signal).orElseThrow(() ->
             new ConversionException(fpInt.startOffset(), "Param",
                 ConversionException.Reason.MALFORMED_CST,
                 "Param sans enfant Signal")));
+        // Avant tout ':', va dans entrees
+        entrees.add(firstDesc);
 
+        // Parcours de Separ_Param_Star
         CstNode spsNode = mod.first(NonTerminal.Separ_Param_Star).orElseThrow(() ->
             new ConversionException(mod.startOffset(), "Module",
                 ConversionException.Reason.MALFORMED_CST,
@@ -107,8 +132,33 @@ public final class ModuleBuilder {
                 ConversionException.Reason.MALFORMED_CST,
                 "Enfant Separ_Param_Star n'est pas CstInternal(Separ_Param_Star)");
         }
+
         while (!sps.children().isEmpty()) {
             final int spsOffset = sps.startOffset();
+
+            // Lecture du séparateur (Comma ou Colon)
+            CstNode separNode = sps.first(NonTerminal.Separ).orElseThrow(() ->
+                new ConversionException(spsOffset, "Separ_Param_Star",
+                    ConversionException.Reason.MALFORMED_CST,
+                    "Separ_Param_Star non-epsilon sans enfant Separ"));
+            if (!(separNode instanceof CstInternal separInt) || separInt.nt() != NonTerminal.Separ) {
+                throw new ConversionException(separNode.startOffset(), String.valueOf(separNode.symbol()),
+                    ConversionException.Reason.MALFORMED_CST,
+                    "Enfant Separ n'est pas CstInternal(Separ)");
+            }
+            boolean isColon = separInt.has(new Terminal(Token.Colon));
+            if (isColon) {
+                if (colonSeen) {
+                    // Deuxième ':' interdit
+                    throw new ConversionException(separInt.startOffset(), "Module",
+                        ConversionException.Reason.MODULE_BAD_SEPARATORS,
+                        "La signature ne peut contenir qu'un seul ':' (second ':' à l'offset "
+                            + separInt.startOffset() + ")");
+                }
+                colonSeen = true;
+            }
+
+            // Lecture du paramètre suivant
             CstNode p = sps.first(NonTerminal.Param).orElseThrow(() ->
                 new ConversionException(spsOffset, "Separ_Param_Star",
                     ConversionException.Reason.MALFORMED_CST,
@@ -118,11 +168,17 @@ public final class ModuleBuilder {
                     ConversionException.Reason.MALFORMED_CST,
                     "Enfant Param n'est pas CstInternal(Param)");
             }
-            // signalRef appele pour sa validation structurelle du noeud Signal ; resultat non utilise
-            Names.signalRef(pInt.first(NonTerminal.Signal).orElseThrow(() ->
+            Descripteur desc = Names.descriptorOf(pInt.first(NonTerminal.Signal).orElseThrow(() ->
                 new ConversionException(pInt.startOffset(), "Param",
                     ConversionException.Reason.MALFORMED_CST,
                     "Param sans enfant Signal")));
+            if (colonSeen) {
+                sorties.add(desc);
+            } else {
+                entrees.add(desc);
+            }
+
+            // Avancer dans la chaîne récursive
             CstNode nextSpsNode = sps.first(NonTerminal.Separ_Param_Star).orElseThrow(() ->
                 new ConversionException(spsOffset, "Separ_Param_Star",
                     ConversionException.Reason.MALFORMED_CST,
@@ -134,18 +190,35 @@ public final class ModuleBuilder {
             }
             sps = nextSps;
         }
+
+        return new Signature(Collections.unmodifiableList(entrees), Collections.unmodifiableList(sorties));
     }
 
-    private static List<Erwan> buildInstance(CstNode instanceNode, Set<String> lhsSeen) {
+    private static List<Erwan> buildInstance(CstNode instanceNode, Set<String> lhsSeen,
+            ModuleResolver resolver, List<AppelModule> branchements) {
         if (!(instanceNode instanceof CstInternal inst) || inst.nt() != NonTerminal.Instance) {
             throw new ConversionException(instanceNode.startOffset(), String.valueOf(instanceNode.symbol()),
                 ConversionException.Reason.MALFORMED_CST, "Attendu CstInternal(Instance)");
         }
         // Instance -> Identifiant Operation | Dollar Identifiant ModuleCall
         if (inst.has(new Terminal(Token.Dollar))) {
-            throw new ConversionException(inst.startOffset(), "Instance",
-                ConversionException.Reason.MODULE_CALL_NOT_SUPPORTED,
-                "Appel module ($nom(...)) non supporte en S1 (offset " + inst.startOffset() + ")");
+            // Form A : $calledName(args)
+            CstNode id = inst.first(new Terminal(Token.Identifiant)).orElseThrow(() ->
+                new ConversionException(inst.startOffset(), "Instance",
+                    ConversionException.Reason.MALFORMED_CST,
+                    "Instance ($) sans enfant Identifiant"));
+            if (!(id instanceof CstLeaf idLeaf)) {
+                throw new ConversionException(id.startOffset(), "Identifiant",
+                    ConversionException.Reason.MALFORMED_CST,
+                    "Identifiant de nom de module n'est pas CstLeaf");
+            }
+            String calledName = idLeaf.lexem().getText();
+            CstNode moduleCallNode = inst.first(NonTerminal.ModuleCall).orElseThrow(() ->
+                new ConversionException(inst.startOffset(), "Instance",
+                    ConversionException.Reason.MALFORMED_CST,
+                    "Instance ($) sans enfant ModuleCall"));
+            return handleModuleCall(moduleCallNode, calledName, resolver, branchements,
+                lhsSeen, id.startOffset());
         }
         CstNode id = inst.first(new Terminal(Token.Identifiant)).orElseThrow(() ->
             new ConversionException(inst.startOffset(), "Instance",
@@ -169,9 +242,13 @@ public final class ModuleBuilder {
         }
         // Operation -> ModuleCall | Signal_Subset_Opt Assignment
         if (op.has(NonTerminal.ModuleCall)) {
-            throw new ConversionException(op.startOffset(), "Operation",
-                ConversionException.Reason.MODULE_CALL_NOT_SUPPORTED,
-                "Appel module en RHS non supporte en S1 (offset " + op.startOffset() + ")");
+            // Form B : nom(args) — l'Identifiant est le nom du module appelé
+            CstNode moduleCallNode = op.first(NonTerminal.ModuleCall).orElseThrow(() ->
+                new ConversionException(op.startOffset(), "Operation",
+                    ConversionException.Reason.MALFORMED_CST,
+                    "Operation avec ModuleCall sans enfant ModuleCall"));
+            return handleModuleCall(moduleCallNode, nom, resolver, branchements,
+                lhsSeen, id.startOffset());
         }
         CstNode subsetNode = op.first(NonTerminal.Signal_Subset_Opt).orElseThrow(() ->
             new ConversionException(op.startOffset(), "Operation",
@@ -259,5 +336,40 @@ public final class ModuleBuilder {
             // ARANGE requiert IndiceDebut <= IndiceFin
             return Erwan.ARANGE(nom, lhsSubset.minIndex(), lhsSubset.maxIndex(), rhs.bits());
         }
+    }
+
+    /**
+     * Partie commune aux deux formes d'appel de module (forme A {@code $nom(...)}
+     * et forme B {@code nom(...)}): résout le module appelé, construit
+     * l'[AppelModule] et l'ajoute à {@code branchements}.
+     *
+     * <p>Les signaux du circuit appelant pilotés par les sorties de l'appel
+     * (les {@code DS} de l'AppelModule) sont enregistrés dans {@code lhsSeen}
+     * au même titre que les LHS d'affectation : un signal piloté deux fois —
+     * que ce soit par deux appels ou par un appel et une affectation — lève
+     * {@link ConversionException.Reason#DUPLICATE_LHS}.
+     *
+     * @param callOffset offset de l'Identifiant du module appelé (diagnostic)
+     */
+    private static List<Erwan> handleModuleCall(CstNode moduleCallNode, String calledName,
+            ModuleResolver resolver, List<AppelModule> branchements,
+            Set<String> lhsSeen, int callOffset) {
+        Module called = resolver.resolve(calledName, callOffset);
+        AppelModule am = ModuleCallBuilder.build(moduleCallNode, called);
+        // Déduplication : les sorties de l'appel pilotent des signaux du circuit
+        // appelant. Descripteur.Noms() produit les mêmes clés que lhsBits
+        // (scalaire → "nom", bit de vecteur → "nom[i]").
+        for (Descripteur ds : am.DS) {
+            for (String bit : ds.Noms()) {
+                if (!lhsSeen.add(bit)) {
+                    throw new ConversionException(callOffset, "ModuleCall",
+                        ConversionException.Reason.DUPLICATE_LHS,
+                        "Double assignation du signal '" + bit
+                            + "' (sortie de l'appel au module '" + calledName + "')");
+                }
+            }
+        }
+        branchements.add(am);
+        return List.of();
     }
 }

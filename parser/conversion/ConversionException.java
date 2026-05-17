@@ -6,10 +6,15 @@ public class ConversionException extends RuntimeException {
         VECTOR_WIDTH_MISMATCH,
         CONCAT_NOT_SUPPORTED,
         MEMORY_ASSIGNMENT_NOT_SUPPORTED,
-        MODULE_CALL_NOT_SUPPORTED,
         LITERAL_IN_RHS_NOT_SUPPORTED,
         DUPLICATE_LHS,
-        MALFORMED_CST
+        MALFORMED_CST,
+        MODULE_NOT_FOUND,
+        MODULE_CALL_CYCLE,
+        MODULE_CALL_INVALID_ARG,
+        MODULE_BAD_SEPARATORS,
+        MODULE_ARITY_MISMATCH,
+        DUPLICATE_MODULE_DEFINITION
     }
 
     private final int offset;

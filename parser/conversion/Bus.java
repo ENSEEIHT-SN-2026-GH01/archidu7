@@ -1,7 +1,7 @@
 package parser.conversion;
 
 import java.util.List;
-import simulateur.Erwan.Erwan;
+import erwan.Erwan;
 
 /** Faisceau de signaux ; un scalaire est un Bus de largeur 1. */
 public record Bus(List<Erwan> bits) {

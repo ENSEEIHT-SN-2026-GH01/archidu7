@@ -1,4 +1,4 @@
-package simulateur.Erwan;
+package erwan;
 import java.util.*;
 
 public class TestErwan {

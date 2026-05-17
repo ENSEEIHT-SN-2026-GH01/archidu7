@@ -6,6 +6,7 @@ import parser.ll1.grammar.Terminal;
 import parser.ll1.tabledriven.cst.CstInternal;
 import parser.ll1.tabledriven.cst.CstLeaf;
 import parser.ll1.tabledriven.cst.CstNode;
+import erwan.Descripteur;
 
 public final class Names {
 
@@ -94,6 +95,52 @@ public final class Names {
                 "Indice de vecteur invalide : " + loLeaf.lexem().getText());
         }
         return Subset.range(hi, lo);
+    }
+
+    /**
+     * Construit un {@link Descripteur} depuis un nœud NT {@code Signal}.
+     * <ul>
+     *   <li>Signal scalaire → {@code new Descripteur(nom)}</li>
+     *   <li>Signal vecteur {@code a[3]} ou {@code a[3..0]} →
+     *       {@code new Descripteur(nom, minIndex, maxIndex)}</li>
+     * </ul>
+     */
+    public static Descripteur descriptorOf(CstNode signalNode) {
+        SignalRef ref = signalRef(signalNode);
+        if (!ref.subset().isVector()) {
+            return new Descripteur(ref.nom());
+        } else {
+            return new Descripteur(ref.nom(), ref.subset().minIndex(), ref.subset().maxIndex());
+        }
+    }
+
+    /**
+     * Nom d'un module : l'Identifiant suivant ModuleKW dans un nœud NT Module.
+     *
+     * @param moduleNT nœud {@code CstInternal(Module)}
+     * @return le nom textuel du module
+     * @throws ConversionException MALFORMED_CST si le nœud n'est pas un
+     *         {@code CstInternal(Module)}, ou si l'Identifiant est absent ou non-feuille.
+     */
+    public static String moduleName(CstNode moduleNT) {
+        if (!(moduleNT instanceof CstInternal mod) || mod.nt() != NonTerminal.Module) {
+            throw new ConversionException(
+                moduleNT.startOffset(), String.valueOf(moduleNT.symbol()),
+                ConversionException.Reason.MALFORMED_CST,
+                "Attendu un noeud NT Module");
+        }
+        CstNode id = mod.first(new Terminal(Token.Identifiant)).orElseThrow(() ->
+            new ConversionException(
+                mod.startOffset(), "Module",
+                ConversionException.Reason.MALFORMED_CST,
+                "Module sans Identifiant (nom)"));
+        if (!(id instanceof CstLeaf idLeaf)) {
+            throw new ConversionException(
+                id.startOffset(), "Identifiant",
+                ConversionException.Reason.MALFORMED_CST,
+                "Enfant Identifiant de Module n'est pas CstLeaf");
+        }
+        return idLeaf.lexem().getText();
     }
 
     /**

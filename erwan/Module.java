@@ -1,7 +1,6 @@
-package simulateur;
+package erwan;
 
 import java.util.*;
-import simulateur.Erwan.*;
 
 public class Module {
 

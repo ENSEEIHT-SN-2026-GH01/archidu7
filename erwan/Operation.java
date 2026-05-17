@@ -1,4 +1,4 @@
-package simulateur.Erwan;
+package erwan;
 
 public enum Operation {
 

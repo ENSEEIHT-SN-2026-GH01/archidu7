@@ -1,29 +1,36 @@
 package parser.conversion;
 
-import parser.ll1.grammar.NonTerminal;
-import parser.ll1.tabledriven.cst.CstInternal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import parser.ll1.tabledriven.cst.CstNode;
-import simulateur.Module;
+import erwan.Module;
 
 public final class Conversion {
 
     private Conversion() {}
 
+    /**
+     * Convertit un arbre CST unique (sans modules bibliothèque).
+     * Conserve l'API publique existante pour les tests appelants.
+     */
     public static Module convert(CstNode tree) {
-        if (!(tree instanceof CstInternal root)) {
-            throw new ConversionException(tree.startOffset(), String.valueOf(tree.symbol()),
-                ConversionException.Reason.MALFORMED_CST,
-                "CST racine doit etre un CstInternal");
-        }
-        if (root.nt() != NonTerminal.Start) {
-            throw new ConversionException(root.startOffset(), String.valueOf(root.symbol()),
-                ConversionException.Reason.MALFORMED_CST,
-                "CST racine doit etre Start");
-        }
-        CstNode module = root.first(NonTerminal.Module).orElseThrow(() ->
-            new ConversionException(root.startOffset(), "Start",
-                ConversionException.Reason.MALFORMED_CST,
-                "Start sans Module enfant"));
-        return ModuleBuilder.build(module);
+        return convert(tree, List.of());
+    }
+
+    /**
+     * Convertit un arbre CST principal avec une collection de modules bibliothèque.
+     *
+     * @param main    nœud Start du module principal
+     * @param library nœuds Start des modules bibliothèque (peut être vide)
+     * @return le {@link Module} compilé correspondant au module principal
+     */
+    public static Module convert(CstNode main, Collection<CstNode> library) {
+        List<CstNode> tous = new ArrayList<>();
+        tous.add(main);
+        tous.addAll(library);
+        ModuleResolver resolver = new ModuleResolver(tous);
+        return resolver.resolve(resolver.mainName());
     }
 }

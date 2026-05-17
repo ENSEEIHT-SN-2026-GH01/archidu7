@@ -1,8 +1,7 @@
 package simulateur;
 
-import simulateur.Erwan.Erwan;
+import erwan.*;
 import java.util.*;
-import simulateur.Erwan.*;
 
 public class FileSimulateur implements Simulateur{
 
@@ -19,7 +18,7 @@ public class FileSimulateur implements Simulateur{
 		//TODO generer les sigaux non littéraux et les enr au dico
 	}
 
-	public FileSimulateur(Module M){
+	public FileSimulateur(erwan.Module M){
 		this(M.Plan);
 		List<Connecteur> SignauxParModule = new ArrayList<>();
 		//Vérification des appels Modules

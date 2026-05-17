@@ -1,3 +1,3 @@
-package simulateur;
+package erwan;
 
 public interface Branchement{}
