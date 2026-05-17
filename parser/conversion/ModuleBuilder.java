@@ -12,7 +12,7 @@ import parser.ll1.grammar.Terminal;
 import parser.ll1.tabledriven.cst.CstInternal;
 import parser.ll1.tabledriven.cst.CstLeaf;
 import parser.ll1.tabledriven.cst.CstNode;
-import simulateur.Erwan.Erwan;
+import simulateur.Erwan.*;
 import simulateur.Module;
 
 public final class ModuleBuilder {
@@ -25,7 +25,7 @@ public final class ModuleBuilder {
                 ConversionException.Reason.MALFORMED_CST, "Attendu CstInternal(Module)");
         }
 
-        // Validation des parametres : tous scalaires
+        // Validation structurelle des parametres (scalaires ou vecteurs)
         validateParams(mod);
 
         // Plan : aplatir Instance_Plus + Instance_Star
@@ -42,7 +42,7 @@ public final class ModuleBuilder {
                 "Enfant Instance_Plus n'est pas CstInternal(Instance_Plus)");
         }
         // Instance_Plus -> Instance Instance_Star
-        plan.add(buildInstance(ip.first(NonTerminal.Instance).orElseThrow(() ->
+        plan.addAll(buildInstance(ip.first(NonTerminal.Instance).orElseThrow(() ->
             new ConversionException(ip.startOffset(), "Instance_Plus",
                 ConversionException.Reason.MALFORMED_CST,
                 "Instance_Plus sans enfant Instance")), lhsSeen));
@@ -58,7 +58,7 @@ public final class ModuleBuilder {
         }
         while (!star.children().isEmpty()) {
             final int starOffset = star.startOffset();
-            plan.add(buildInstance(star.first(NonTerminal.Instance).orElseThrow(() ->
+            plan.addAll(buildInstance(star.first(NonTerminal.Instance).orElseThrow(() ->
                 new ConversionException(starOffset, "Instance_Star",
                     ConversionException.Reason.MALFORMED_CST,
                     "Instance_Star non-epsilon sans enfant Instance")), lhsSeen));
@@ -74,7 +74,12 @@ public final class ModuleBuilder {
             star = nextStar;
         }
 
-        return new Module(plan, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        String moduleName = mod.first(new Terminal(Token.Identifiant))
+            .filter(n -> n instanceof CstLeaf)
+            .map(n -> ((CstLeaf) n).lexem().getText())
+            .orElse("");
+        return new Module(moduleName, plan, Collections.emptyList(),
+            Collections.emptyList(), Collections.emptyList());
     }
 
     private static void validateParams(CstInternal mod) {
@@ -87,7 +92,8 @@ public final class ModuleBuilder {
                 ConversionException.Reason.MALFORMED_CST,
                 "Enfant Param n'est pas CstInternal(Param)");
         }
-        Names.extractScalarFromSignalNT(fpInt.first(NonTerminal.Signal).orElseThrow(() ->
+        // signalRef appele pour sa validation structurelle du noeud Signal ; resultat non utilise
+        Names.signalRef(fpInt.first(NonTerminal.Signal).orElseThrow(() ->
             new ConversionException(fpInt.startOffset(), "Param",
                 ConversionException.Reason.MALFORMED_CST,
                 "Param sans enfant Signal")));
@@ -112,7 +118,8 @@ public final class ModuleBuilder {
                     ConversionException.Reason.MALFORMED_CST,
                     "Enfant Param n'est pas CstInternal(Param)");
             }
-            Names.extractScalarFromSignalNT(pInt.first(NonTerminal.Signal).orElseThrow(() ->
+            // signalRef appele pour sa validation structurelle du noeud Signal ; resultat non utilise
+            Names.signalRef(pInt.first(NonTerminal.Signal).orElseThrow(() ->
                 new ConversionException(pInt.startOffset(), "Param",
                     ConversionException.Reason.MALFORMED_CST,
                     "Param sans enfant Signal")));
@@ -129,7 +136,7 @@ public final class ModuleBuilder {
         }
     }
 
-    private static Erwan buildInstance(CstNode instanceNode, Set<String> lhsSeen) {
+    private static List<Erwan> buildInstance(CstNode instanceNode, Set<String> lhsSeen) {
         if (!(instanceNode instanceof CstInternal inst) || inst.nt() != NonTerminal.Instance) {
             throw new ConversionException(instanceNode.startOffset(), String.valueOf(instanceNode.symbol()),
                 ConversionException.Reason.MALFORMED_CST, "Attendu CstInternal(Instance)");
@@ -144,6 +151,13 @@ public final class ModuleBuilder {
             new ConversionException(inst.startOffset(), "Instance",
                 ConversionException.Reason.MALFORMED_CST,
                 "Instance sans enfant Identifiant"));
+        if (!(id instanceof CstLeaf idLeaf)) {
+            throw new ConversionException(id.startOffset(), "Identifiant",
+                ConversionException.Reason.MALFORMED_CST,
+                "Identifiant en LHS n'est pas CstLeaf");
+        }
+        String nom = idLeaf.lexem().getText();
+
         CstNode opNode = inst.first(NonTerminal.Operation).orElseThrow(() ->
             new ConversionException(inst.startOffset(), "Instance",
                 ConversionException.Reason.MALFORMED_CST,
@@ -159,16 +173,33 @@ public final class ModuleBuilder {
                 ConversionException.Reason.MODULE_CALL_NOT_SUPPORTED,
                 "Appel module en RHS non supporte en S1 (offset " + op.startOffset() + ")");
         }
-        CstNode subset = op.first(NonTerminal.Signal_Subset_Opt).orElseThrow(() ->
+        CstNode subsetNode = op.first(NonTerminal.Signal_Subset_Opt).orElseThrow(() ->
             new ConversionException(op.startOffset(), "Operation",
                 ConversionException.Reason.MALFORMED_CST,
                 "Operation sans enfant Signal_Subset_Opt"));
-        String lhs = Names.extractScalarFromIdAndSubset(id, subset);
-        if (!lhsSeen.add(lhs)) {
-            throw new ConversionException(id.startOffset(), "Identifiant",
-                ConversionException.Reason.DUPLICATE_LHS,
-                "Double assignation du signal '" + lhs + "' (offset " + id.startOffset() + ")");
+        Subset lhsSubset = Names.subsetOf(subsetNode);
+
+        // Déduplication au niveau du BIT physique : un scalaire occupe le slot
+        // "nom", chaque bit de vecteur occupe le slot "nom[i]". Une clé textuelle
+        // de plage ("nom[d..f]") raterait les recouvrements — index inclus dans
+        // une plage (s[3] puis s[3..0]) ou plages chevauchantes (s[2..0] puis
+        // s[3..1]) — alors qu'ils pilotent deux fois le même bit.
+        List<String> lhsBits = new ArrayList<>();
+        if (!lhsSubset.isVector()) {
+            lhsBits.add(nom);
+        } else {
+            for (int i = lhsSubset.minIndex(); i <= lhsSubset.maxIndex(); i++) {
+                lhsBits.add(nom + "[" + i + "]");
+            }
         }
+        for (String bit : lhsBits) {
+            if (!lhsSeen.add(bit)) {
+                throw new ConversionException(id.startOffset(), "Identifiant",
+                    ConversionException.Reason.DUPLICATE_LHS,
+                    "Double assignation du signal '" + bit + "' (offset " + id.startOffset() + ")");
+            }
+        }
+
         CstNode assignNode = op.first(NonTerminal.Assignment).orElseThrow(() ->
             new ConversionException(op.startOffset(), "Operation",
                 ConversionException.Reason.MALFORMED_CST,
@@ -197,7 +228,36 @@ public final class ModuleBuilder {
             new ConversionException(sigAInt.startOffset(), "SignalAssignment",
                 ConversionException.Reason.MALFORMED_CST,
                 "SignalAssignment sans enfant SumOfTermsCompound"));
-        Erwan rhs = ExpressionBuilder.build(sotc);
-        return Erwan.AFFECTATION(lhs, rhs);
+        Bus rhs = ExpressionBuilder.build(sotc);
+
+        if (!lhsSubset.isVector()) {
+            // LHS scalaire : RHS doit être de largeur 1
+            if (rhs.width() != 1) {
+                throw new ConversionException(sotc.startOffset(), "SumOfTermsCompound",
+                    ConversionException.Reason.VECTOR_WIDTH_MISMATCH,
+                    "LHS scalaire '" + nom + "' mais RHS de largeur " + rhs.width());
+            }
+            return List.of(Erwan.AFFECTATION(nom, rhs.bits().get(0)));
+        } else if (lhsSubset.hi() == lhsSubset.lo()) {
+            // LHS index unique s[i] : RHS doit être de largeur 1
+            int i = lhsSubset.hi();
+            if (rhs.width() != 1) {
+                throw new ConversionException(sotc.startOffset(), "SumOfTermsCompound",
+                    ConversionException.Reason.VECTOR_WIDTH_MISMATCH,
+                    "LHS '" + nom + "[" + i + "]' mais RHS de largeur " + rhs.width());
+            }
+            return List.of(Erwan.AFFECTATION(nom, i, rhs.bits().get(0)));
+        } else {
+            // LHS plage s[d..f] : RHS doit avoir la même largeur
+            int expectedWidth = lhsSubset.width();
+            if (rhs.width() != expectedWidth) {
+                throw new ConversionException(sotc.startOffset(), "SumOfTermsCompound",
+                    ConversionException.Reason.VECTOR_WIDTH_MISMATCH,
+                    "LHS '" + nom + "[" + lhsSubset.minIndex() + ".." + lhsSubset.maxIndex() + "]' de largeur "
+                        + expectedWidth + " mais RHS de largeur " + rhs.width());
+            }
+            // ARANGE requiert IndiceDebut <= IndiceFin
+            return Erwan.ARANGE(nom, lhsSubset.minIndex(), lhsSubset.maxIndex(), rhs.bits());
+        }
     }
 }

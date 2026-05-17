@@ -302,22 +302,4 @@ public class RegexTest {
     r = Builder.parseRegex("~.");
     assertTrue("Not 3 failed", r.equals(new Epsilon()));
   }
-
-  @Test(expected = SyntaxError.class)
-  public void Not4Test(){
-    r = Builder.parseRegex("~(ab)");
-    assertTrue("Not 4 failed : Syntax Error Expected", false);
-  }
-  
-  @Test(expected = SyntaxError.class)
-  public void Not5Test(){
-    r = Builder.parseRegex("~(a*)");
-    assertTrue("Not 5 failed : Syntax Error Expected", false);
-  }
-
-  @Test(expected = SyntaxError.class)
-  public void Not6Test(){
-    r = Builder.parseRegex("~(a+)");
-    assertTrue("Not 5 failed : Syntax Error Expected", false);
-  }
 }

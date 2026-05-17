@@ -1,18 +1,18 @@
 package simulateur;
 
 import java.util.*;
-
-import simulateur.Erwan.Erwan;
+import simulateur.Erwan.*;
 
 public class Module {
 
+	public String Nom;
 	public List<Erwan> Plan;
 	public List<Descripteur> Entrees;
 	public List<Descripteur> Sorties;
 	public List<AppelModule> Branchements;
 
-	public Module(List<Erwan> Plan, List<Descripteur> Entrees, List<Descripteur> Sorties,
-			List<AppelModule> Branchements) {
+	public Module(String Nom, List<Erwan> Plan, List<Descripteur> Entrees, List<Descripteur> Sorties, List<AppelModule> Branchements) {
+		this.Nom = Nom;
 		this.Plan = Plan;
 		this.Entrees = Entrees;
 		this.Sorties = Sorties;
@@ -31,6 +31,9 @@ public class Module {
 			}
 		}
 
-		this(plans, Entrees, Sorties, branchements);
+		this.Plan = plans;
+		this.Entrees = Entrees;
+		this.Sorties = Sorties;
+		this.Branchements = branchements;
 	}
 }

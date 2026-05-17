@@ -1,4 +1,3 @@
 package simulateur;
 
-public interface Branchement {
-}
+public interface Branchement{}
