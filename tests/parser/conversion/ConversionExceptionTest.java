@@ -28,7 +28,7 @@ public class ConversionExceptionTest {
 
     @Test
     public void allReasonsExposedByEnum() {
-        // 7 motifs S1 + 5 motifs appels de modules (Task 5 : MODULE_CALL_NOT_SUPPORTED retire).
+        // 6 motifs S1 + 6 motifs appels de modules = 12.
         Reason[] reasons = Reason.values();
         assertEquals(12, reasons.length);
     }

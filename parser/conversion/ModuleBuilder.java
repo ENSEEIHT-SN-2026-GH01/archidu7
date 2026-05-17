@@ -99,7 +99,6 @@ public final class ModuleBuilder {
      *   <li>Un {@code Colon} → params avant → {@code entrees}, après → {@code sorties}.</li>
      *   <li>Plus d'un {@code Colon} → {@link ConversionException#MODULE_BAD_SEPARATORS}.</li>
      * </ul>
-     * Remplace {@code validateParams}.
      */
     private static Signature buildSignature(CstInternal mod) {
         List<Descripteur> entrees = new ArrayList<>();
