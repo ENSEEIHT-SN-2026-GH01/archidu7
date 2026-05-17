@@ -174,4 +174,28 @@ public class ConversionIntegrationTest {
                 Integer.valueOf(i), litB.Numero);
         }
     }
+
+    /**
+     * Limitation assumee du design (cf. spec, "Limitations assumees") : l'IR
+     * (LITTERANGE/ARANGE) n'indexe qu'en ordre croissant, donc une plage
+     * descendante [3..0] et une plage ascendante [0..3] produisent le MEME
+     * Module. Ce test fige ce contrat : si un coequipier rend LITTERANGE
+     * sensible a l'ordre, ce test signalera la rupture.
+     */
+    @Test
+    public void invertedRange_descendingAndAscending_produceIdenticalModule() {
+        String desc = "module m (a[3..0], b[3..0]) s[3..0] = a[3..0] + b[3..0] end module";
+        String asc  = "module m (a[0..3], b[0..3]) s[0..3] = a[0..3] + b[0..3] end module";
+        Module mDesc = Conversion.convert(CstParser.parse(desc));
+        Module mAsc  = Conversion.convert(CstParser.parse(asc));
+        assertEquals("plans de meme taille", mDesc.Plan.size(), mAsc.Plan.size());
+        for (int i = 0; i < mDesc.Plan.size(); i++) {
+            Erwan affDesc = mDesc.Plan.get(i);
+            Erwan affAsc  = mAsc.Plan.get(i);
+            assertEquals("bit " + i + " : meme Nom", affDesc.Nom, affAsc.Nom);
+            assertEquals("bit " + i + " : meme Numero", affDesc.Numero, affAsc.Numero);
+            assertEquals("bit " + i + " : meme Op du calcul",
+                affDesc.Entrees.get(0).Op, affAsc.Entrees.get(0).Op);
+        }
+    }
 }
