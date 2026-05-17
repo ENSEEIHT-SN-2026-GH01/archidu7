@@ -150,6 +150,45 @@ public class ModuleBuilderTest {
     }
 
     /**
+     * Déduplication au niveau du bit : un index inclus dans une plage déjà
+     * assignée (s[3] puis s[3..0]) doit lever DUPLICATE_LHS — la clé textuelle
+     * "s[3]" ≠ "s[0..3]" ratait ce recouvrement.
+     */
+    @Test
+    public void indexInsideRange_overlap_throws() {
+        try {
+            build("module m (a[3..0], b) s[3] = b s[3..0] = a[3..0] end module");
+            fail("Attendu ConversionException DUPLICATE_LHS");
+        } catch (ConversionException ex) {
+            assertEquals(Reason.DUPLICATE_LHS, ex.reason());
+        }
+    }
+
+    /**
+     * Déduplication au niveau du bit : deux plages chevauchantes (s[2..0] puis
+     * s[3..1], bits 1 et 2 communs) doivent lever DUPLICATE_LHS.
+     */
+    @Test
+    public void overlappingRanges_throws() {
+        try {
+            build("module m (a[3..0]) s[2..0] = a[2..0] s[3..1] = a[3..1] end module");
+            fail("Attendu ConversionException DUPLICATE_LHS");
+        } catch (ConversionException ex) {
+            assertEquals(Reason.DUPLICATE_LHS, ex.reason());
+        }
+    }
+
+    /**
+     * Non-régression : deux plages disjointes du même signal (s[1..0] puis
+     * s[3..2]) restent acceptées — plan de 4 affectations.
+     */
+    @Test
+    public void disjointRanges_sameSignal_ok() {
+        Module m = build("module m (a[3..0]) s[1..0] = a[1..0] s[3..2] = a[3..2] end module");
+        assertEquals(4, m.Plan.size());
+    }
+
+    /**
      * Vérifie que le mapping bit→indice est correct pour une affectation vecteur→vecteur.
      * Source : s[1..0] = a[1..0]
      * Le plan doit contenir 2 AFFECTATION : s[0] câblé sur a[0], s[1] câblé sur a[1].

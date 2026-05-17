@@ -179,19 +179,25 @@ public final class ModuleBuilder {
                 "Operation sans enfant Signal_Subset_Opt"));
         Subset lhsSubset = Names.subsetOf(subsetNode);
 
-        // Clé de déduplication : distingue scalaire, index unique et plage
-        String lhsKey;
+        // Déduplication au niveau du BIT physique : un scalaire occupe le slot
+        // "nom", chaque bit de vecteur occupe le slot "nom[i]". Une clé textuelle
+        // de plage ("nom[d..f]") raterait les recouvrements — index inclus dans
+        // une plage (s[3] puis s[3..0]) ou plages chevauchantes (s[2..0] puis
+        // s[3..1]) — alors qu'ils pilotent deux fois le même bit.
+        List<String> lhsBits = new ArrayList<>();
         if (!lhsSubset.isVector()) {
-            lhsKey = nom;
-        } else if (lhsSubset.hi() == lhsSubset.lo()) {
-            lhsKey = nom + "[" + lhsSubset.hi() + "]";
+            lhsBits.add(nom);
         } else {
-            lhsKey = nom + "[" + lhsSubset.minIndex() + ".." + lhsSubset.maxIndex() + "]";
+            for (int i = lhsSubset.minIndex(); i <= lhsSubset.maxIndex(); i++) {
+                lhsBits.add(nom + "[" + i + "]");
+            }
         }
-        if (!lhsSeen.add(lhsKey)) {
-            throw new ConversionException(id.startOffset(), "Identifiant",
-                ConversionException.Reason.DUPLICATE_LHS,
-                "Double assignation du signal '" + lhsKey + "' (offset " + id.startOffset() + ")");
+        for (String bit : lhsBits) {
+            if (!lhsSeen.add(bit)) {
+                throw new ConversionException(id.startOffset(), "Identifiant",
+                    ConversionException.Reason.DUPLICATE_LHS,
+                    "Double assignation du signal '" + bit + "' (offset " + id.startOffset() + ")");
+            }
         }
 
         CstNode assignNode = op.first(NonTerminal.Assignment).orElseThrow(() ->
