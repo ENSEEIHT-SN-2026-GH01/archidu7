@@ -25,19 +25,19 @@ public class ActionSauvegarder implements EventHandler<ActionEvent>{
     public void handle(ActionEvent evt){
         try {
             // Si c'est un nouveau fichier
-            if (sauveur.getPath() == null) {
+            if (sauveur.getActuel() == null) {
                 Window stage = parent.getScene().getWindow();
-                FileChooser fileChooser = BoutonsPrincipale.configurerFileChooser("Sauvegarder le module");
+                FileChooser fileChooser = BoutonsPrincipale.configurerFileChooser("Sauvegarder le module", sauveur);
                 File fichier = fileChooser.showSaveDialog(stage);
                     
                 if (fichier != null) {
-                    sauveur.setPath(fichier.getAbsolutePath());
+                    sauveur.setActuel(fichier.getAbsolutePath());
                 } else {
                     return; // L'utilisateur a fermé la fenêtre sans choisir de fichier
                 }
             }
             // Appel de la méthode save()
-            sauveur.save(sauveur.getPath(), editeur.getText());
+            sauveur.save(sauveur.getActuel(), editeur.getText());
         } catch (IOException ex) {
             System.err.println("Erreur de sauvegarde : " + ex.getMessage());
         }
