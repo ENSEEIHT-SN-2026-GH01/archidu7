@@ -11,13 +11,13 @@ public class ConversionExceptionTest {
     @Test
     public void exposeOffsetNodeKindAndReason() {
         ConversionException ex = new ConversionException(
-            42, "Signal", Reason.VECTOR_SUBSET_NOT_SUPPORTED,
-            "Vecteur non supporte en S1 (offset 42)"
+            42, "Signal", Reason.MALFORMED_CST,
+            "Structure CST invalide (offset 42)"
         );
         assertEquals(42, ex.offset());
         assertEquals("Signal", ex.nodeKind());
-        assertEquals(Reason.VECTOR_SUBSET_NOT_SUPPORTED, ex.reason());
-        assertEquals("Vecteur non supporte en S1 (offset 42)", ex.getMessage());
+        assertEquals(Reason.MALFORMED_CST, ex.reason());
+        assertEquals("Structure CST invalide (offset 42)", ex.getMessage());
     }
 
     @Test
@@ -29,6 +29,6 @@ public class ConversionExceptionTest {
     @Test
     public void allReasonsExposedByEnum() {
         Reason[] reasons = Reason.values();
-        assertEquals(8, reasons.length);
+        assertEquals(7, reasons.length);
     }
 }

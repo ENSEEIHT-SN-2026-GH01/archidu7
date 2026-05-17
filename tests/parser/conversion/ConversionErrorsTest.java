@@ -72,11 +72,26 @@ public class ConversionErrorsTest {
     }
 
     @Test
-    public void vectorParam_rejected() {
-        // Signal_Subset_Opt dans la liste de parametres
-        ConversionException ex = convertAndCatch("module m (a[0..3]) c = a end module");
+    public void vectorParam_accepted() {
+        // Task 5 : un parametre vecteur (a[0..3]) est desormais accepte.
+        ConversionException ex = convertAndCatch("module m (a[0..3]) c[3..0] = a[3..0] end module");
+        assertNull("parametre vecteur doit etre accepte depuis Task 5", ex);
+    }
+
+    @Test
+    public void vectorWidthMismatch_rhsLargerThanLhsScalar() {
+        // LHS scalaire c, RHS vecteur largeur 4 : VECTOR_WIDTH_MISMATCH
+        ConversionException ex = convertAndCatch("module m (a) c = a[3..0] end module");
         assertNotNull(ex);
-        assertEquals(Reason.VECTOR_SUBSET_NOT_SUPPORTED, ex.reason());
+        assertEquals(Reason.VECTOR_WIDTH_MISMATCH, ex.reason());
+    }
+
+    @Test
+    public void vectorWidthMismatch_operandsDifferentWidths() {
+        // a[3..0] largeur 4, b[1..0] largeur 2 : VECTOR_WIDTH_MISMATCH dans AND
+        ConversionException ex = convertAndCatch("module m (a, b) c[3..0] = a[3..0] * b[1..0] end module");
+        assertNotNull(ex);
+        assertEquals(Reason.VECTOR_WIDTH_MISMATCH, ex.reason());
     }
 
     // ------------------------------------------------------------------

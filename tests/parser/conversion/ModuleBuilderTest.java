@@ -56,9 +56,11 @@ public class ModuleBuilderTest {
         }
     }
 
-    @Test(expected = ConversionException.class)
-    public void vectorParam_throws() {
-        build("module m (a[0..3]) c = a end module");
+    @Test
+    public void vectorParam_accepted() {
+        // Task 5 : les parametres vecteurs sont desormais acceptes.
+        Module m = build("module m (a[3..0]) c[3..0] = a[3..0] end module");
+        assertEquals("vectorParam_accepted: plan doit contenir 4 affectations (un par bit)", 4, m.Plan.size());
     }
 
     /**

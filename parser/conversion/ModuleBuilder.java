@@ -25,7 +25,7 @@ public final class ModuleBuilder {
                 ConversionException.Reason.MALFORMED_CST, "Attendu CstInternal(Module)");
         }
 
-        // Validation des parametres : tous scalaires
+        // Validation structurelle des parametres (scalaires ou vecteurs)
         validateParams(mod);
 
         // Plan : aplatir Instance_Plus + Instance_Star
@@ -92,7 +92,8 @@ public final class ModuleBuilder {
                 ConversionException.Reason.MALFORMED_CST,
                 "Enfant Param n'est pas CstInternal(Param)");
         }
-        Names.extractScalarFromSignalNT(fpInt.first(NonTerminal.Signal).orElseThrow(() ->
+        // signalRef appele pour sa validation structurelle du noeud Signal ; resultat non utilise
+        Names.signalRef(fpInt.first(NonTerminal.Signal).orElseThrow(() ->
             new ConversionException(fpInt.startOffset(), "Param",
                 ConversionException.Reason.MALFORMED_CST,
                 "Param sans enfant Signal")));
@@ -117,7 +118,8 @@ public final class ModuleBuilder {
                     ConversionException.Reason.MALFORMED_CST,
                     "Enfant Param n'est pas CstInternal(Param)");
             }
-            Names.extractScalarFromSignalNT(pInt.first(NonTerminal.Signal).orElseThrow(() ->
+            // signalRef appele pour sa validation structurelle du noeud Signal ; resultat non utilise
+            Names.signalRef(pInt.first(NonTerminal.Signal).orElseThrow(() ->
                 new ConversionException(pInt.startOffset(), "Param",
                     ConversionException.Reason.MALFORMED_CST,
                     "Param sans enfant Signal")));

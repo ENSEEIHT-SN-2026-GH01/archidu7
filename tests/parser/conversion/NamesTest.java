@@ -24,34 +24,7 @@ public class NamesTest {
     }
 
     // -----------------------------------------------------------------------
-    // Tests existants — extractScalarFromSignalNT
-    // -----------------------------------------------------------------------
-
-    @Test
-    public void extractScalarFromSignalNT_scalarSignal_returnsName() {
-        CstNode sig = firstSignal("module m (alpha) c = alpha end module");
-        assertEquals("alpha", Names.extractScalarFromSignalNT(sig));
-    }
-
-    @Test(expected = ConversionException.class)
-    public void extractScalarFromSignalNT_vectorSignal_throws() {
-        CstNode sig = firstSignal("module m (alpha[0..3]) c = alpha end module");
-        Names.extractScalarFromSignalNT(sig);
-    }
-
-    @Test
-    public void extractScalarFromSignalNT_vectorSignal_reasonIsVector() {
-        CstNode sig = firstSignal("module m (alpha[0..3]) c = alpha end module");
-        try {
-            Names.extractScalarFromSignalNT(sig);
-            fail("expected ConversionException");
-        } catch (ConversionException ex) {
-            assertEquals(Reason.VECTOR_SUBSET_NOT_SUPPORTED, ex.reason());
-        }
-    }
-
-    // -----------------------------------------------------------------------
-    // Tests nouveaux — signalRef + subsetOf
+    // Tests — signalRef + subsetOf
     // -----------------------------------------------------------------------
 
     @Test

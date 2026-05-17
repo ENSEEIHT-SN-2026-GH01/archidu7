@@ -3,7 +3,6 @@ package parser.conversion;
 public class ConversionException extends RuntimeException {
 
     public enum Reason {
-        VECTOR_SUBSET_NOT_SUPPORTED,
         VECTOR_WIDTH_MISMATCH,
         CONCAT_NOT_SUPPORTED,
         MEMORY_ASSIGNMENT_NOT_SUPPORTED,
