@@ -12,6 +12,7 @@ import parser.ll1.grammar.NonTerminal;
 import parser.ll1.tabledriven.CstParser;
 import parser.ll1.tabledriven.cst.CstInternal;
 import parser.ll1.tabledriven.cst.CstNode;
+import erwan.Descripteur;
 
 public class NamesTest {
 
@@ -149,5 +150,52 @@ public class NamesTest {
         assertEquals(7, s.hi());
         assertEquals(4, s.lo());
         assertEquals(4, s.width());
+    }
+
+    // -----------------------------------------------------------------------
+    // Tests — descriptorOf (Task 2)
+    // -----------------------------------------------------------------------
+
+    /**
+     * Signal scalaire {@code a} → Descripteur avec Nom()="a", nbSignaux()=1,
+     * indiceDebut()=0, indiceFin()=0.
+     */
+    @Test
+    public void descriptorOf_scalar_nomEtUnique() {
+        CstNode sig = firstSignal("module m (a) c = a end module");
+        Descripteur d = Names.descriptorOf(sig);
+        assertEquals("a", d.Nom());
+        assertEquals(1, d.nbSignaux());
+        assertEquals(0, d.indiceDebut());
+        assertEquals(0, d.indiceFin());
+        assertTrue(d.unique());
+    }
+
+    /**
+     * Signal index unique {@code a[3]} → Descripteur avec Nom()="a",
+     * nbSignaux()=1, indiceDebut()=3, indiceFin()=3.
+     */
+    @Test
+    public void descriptorOf_singleIndex_indicesCorrects() {
+        CstNode sig = firstSignal("module m (a[3]) c = a end module");
+        Descripteur d = Names.descriptorOf(sig);
+        assertEquals("a", d.Nom());
+        assertEquals(1, d.nbSignaux());
+        assertEquals(3, d.indiceDebut());
+        assertEquals(3, d.indiceFin());
+    }
+
+    /**
+     * Signal plage {@code a[3..0]} → Descripteur avec Nom()="a",
+     * nbSignaux()=4, indiceDebut()=0, indiceFin()=3.
+     */
+    @Test
+    public void descriptorOf_range_indicesEtNbSignaux() {
+        CstNode sig = firstSignal("module m (a[3..0]) c = a end module");
+        Descripteur d = Names.descriptorOf(sig);
+        assertEquals("a", d.Nom());
+        assertEquals(4, d.nbSignaux());
+        assertEquals(0, d.indiceDebut());
+        assertEquals(3, d.indiceFin());
     }
 }

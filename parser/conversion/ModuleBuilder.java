@@ -12,6 +12,7 @@ import parser.ll1.grammar.Terminal;
 import parser.ll1.tabledriven.cst.CstInternal;
 import parser.ll1.tabledriven.cst.CstLeaf;
 import parser.ll1.tabledriven.cst.CstNode;
+import erwan.Descripteur;
 import erwan.Erwan;
 import erwan.Module;
 
@@ -25,8 +26,8 @@ public final class ModuleBuilder {
                 ConversionException.Reason.MALFORMED_CST, "Attendu CstInternal(Module)");
         }
 
-        // Validation structurelle des parametres (scalaires ou vecteurs)
-        validateParams(mod);
+        // Construction de la signature (entrees/sorties) depuis les parametres
+        Signature sig = buildSignature(mod);
 
         // Plan : aplatir Instance_Plus + Instance_Star
         List<Erwan> plan = new ArrayList<>();
@@ -78,11 +79,29 @@ public final class ModuleBuilder {
             .filter(n -> n instanceof CstLeaf)
             .map(n -> ((CstLeaf) n).lexem().getText())
             .orElse("");
-        return new Module(moduleName, plan, Collections.emptyList(),
-            Collections.emptyList(), Collections.emptyList());
+        return new Module(moduleName, plan, sig.entrees(), sig.sorties(), Collections.emptyList());
     }
 
-    private static void validateParams(CstInternal mod) {
+    /** Résultat de l'analyse de la liste de paramètres d'un module. */
+    private record Signature(List<Descripteur> entrees, List<Descripteur> sorties) {}
+
+    /**
+     * Parcourt {@code Param Separ_Param_Star} du nœud Module et construit la {@link Signature}.
+     * <ul>
+     *   <li>Aucun {@code Colon} → tous les params dans {@code entrees}, {@code sorties} vide.</li>
+     *   <li>Un {@code Colon} → params avant → {@code entrees}, après → {@code sorties}.</li>
+     *   <li>Plus d'un {@code Colon} → {@link ConversionException#MODULE_BAD_SEPARATORS}.</li>
+     * </ul>
+     * Remplace {@code validateParams}.
+     */
+    private static Signature buildSignature(CstInternal mod) {
+        List<Descripteur> entrees = new ArrayList<>();
+        List<Descripteur> sorties = new ArrayList<>();
+        // colonOffset : offset du premier ':' vu (ou -1 si aucun), pour détecter un double ':'
+        int colonOffset = -1;
+        boolean colonSeen = false;
+
+        // Premier paramètre : directement enfant de mod
         CstNode firstParam = mod.first(NonTerminal.Param).orElseThrow(() ->
             new ConversionException(mod.startOffset(), "Module",
                 ConversionException.Reason.MALFORMED_CST,
@@ -92,12 +111,14 @@ public final class ModuleBuilder {
                 ConversionException.Reason.MALFORMED_CST,
                 "Enfant Param n'est pas CstInternal(Param)");
         }
-        // signalRef appele pour sa validation structurelle du noeud Signal ; resultat non utilise
-        Names.signalRef(fpInt.first(NonTerminal.Signal).orElseThrow(() ->
+        Descripteur firstDesc = Names.descriptorOf(fpInt.first(NonTerminal.Signal).orElseThrow(() ->
             new ConversionException(fpInt.startOffset(), "Param",
                 ConversionException.Reason.MALFORMED_CST,
                 "Param sans enfant Signal")));
+        // Avant tout ':', va dans entrees
+        entrees.add(firstDesc);
 
+        // Parcours de Separ_Param_Star
         CstNode spsNode = mod.first(NonTerminal.Separ_Param_Star).orElseThrow(() ->
             new ConversionException(mod.startOffset(), "Module",
                 ConversionException.Reason.MALFORMED_CST,
@@ -107,8 +128,34 @@ public final class ModuleBuilder {
                 ConversionException.Reason.MALFORMED_CST,
                 "Enfant Separ_Param_Star n'est pas CstInternal(Separ_Param_Star)");
         }
+
         while (!sps.children().isEmpty()) {
             final int spsOffset = sps.startOffset();
+
+            // Lecture du séparateur (Comma ou Colon)
+            CstNode separNode = sps.first(NonTerminal.Separ).orElseThrow(() ->
+                new ConversionException(spsOffset, "Separ_Param_Star",
+                    ConversionException.Reason.MALFORMED_CST,
+                    "Separ_Param_Star non-epsilon sans enfant Separ"));
+            if (!(separNode instanceof CstInternal separInt) || separInt.nt() != NonTerminal.Separ) {
+                throw new ConversionException(separNode.startOffset(), String.valueOf(separNode.symbol()),
+                    ConversionException.Reason.MALFORMED_CST,
+                    "Enfant Separ n'est pas CstInternal(Separ)");
+            }
+            boolean isColon = separInt.has(new Terminal(Token.Colon));
+            if (isColon) {
+                if (colonSeen) {
+                    // Deuxième ':' interdit
+                    throw new ConversionException(separInt.startOffset(), "Module",
+                        ConversionException.Reason.MODULE_BAD_SEPARATORS,
+                        "La signature ne peut contenir qu'un seul ':' (second ':' à l'offset "
+                            + separInt.startOffset() + ")");
+                }
+                colonSeen = true;
+                colonOffset = separInt.startOffset();
+            }
+
+            // Lecture du paramètre suivant
             CstNode p = sps.first(NonTerminal.Param).orElseThrow(() ->
                 new ConversionException(spsOffset, "Separ_Param_Star",
                     ConversionException.Reason.MALFORMED_CST,
@@ -118,11 +165,17 @@ public final class ModuleBuilder {
                     ConversionException.Reason.MALFORMED_CST,
                     "Enfant Param n'est pas CstInternal(Param)");
             }
-            // signalRef appele pour sa validation structurelle du noeud Signal ; resultat non utilise
-            Names.signalRef(pInt.first(NonTerminal.Signal).orElseThrow(() ->
+            Descripteur desc = Names.descriptorOf(pInt.first(NonTerminal.Signal).orElseThrow(() ->
                 new ConversionException(pInt.startOffset(), "Param",
                     ConversionException.Reason.MALFORMED_CST,
                     "Param sans enfant Signal")));
+            if (colonSeen) {
+                sorties.add(desc);
+            } else {
+                entrees.add(desc);
+            }
+
+            // Avancer dans la chaîne récursive
             CstNode nextSpsNode = sps.first(NonTerminal.Separ_Param_Star).orElseThrow(() ->
                 new ConversionException(spsOffset, "Separ_Param_Star",
                     ConversionException.Reason.MALFORMED_CST,
@@ -134,6 +187,8 @@ public final class ModuleBuilder {
             }
             sps = nextSps;
         }
+
+        return new Signature(Collections.unmodifiableList(entrees), Collections.unmodifiableList(sorties));
     }
 
     private static List<Erwan> buildInstance(CstNode instanceNode, Set<String> lhsSeen) {

@@ -6,6 +6,7 @@ import parser.ll1.grammar.Terminal;
 import parser.ll1.tabledriven.cst.CstInternal;
 import parser.ll1.tabledriven.cst.CstLeaf;
 import parser.ll1.tabledriven.cst.CstNode;
+import erwan.Descripteur;
 
 public final class Names {
 
@@ -94,6 +95,23 @@ public final class Names {
                 "Indice de vecteur invalide : " + loLeaf.lexem().getText());
         }
         return Subset.range(hi, lo);
+    }
+
+    /**
+     * Construit un {@link Descripteur} depuis un nœud NT {@code Signal}.
+     * <ul>
+     *   <li>Signal scalaire → {@code new Descripteur(nom)}</li>
+     *   <li>Signal vecteur {@code a[3]} ou {@code a[3..0]} →
+     *       {@code new Descripteur(nom, minIndex, maxIndex)}</li>
+     * </ul>
+     */
+    public static Descripteur descriptorOf(CstNode signalNode) {
+        SignalRef ref = signalRef(signalNode);
+        if (!ref.subset().isVector()) {
+            return new Descripteur(ref.nom());
+        } else {
+            return new Descripteur(ref.nom(), ref.subset().minIndex(), ref.subset().maxIndex());
+        }
     }
 
     /**

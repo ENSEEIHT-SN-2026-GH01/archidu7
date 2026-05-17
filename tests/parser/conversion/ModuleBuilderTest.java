@@ -28,7 +28,9 @@ public class ModuleBuilderTest {
         Erwan aff = m.Plan.get(0);
         assertEquals(Operation.AFFECTATION, aff.Op);
         assertEquals("c", aff.Nom());
-        assertTrue(m.Entrees.isEmpty());
+        // Aucun ':' → tout va dans Entrees ; Sorties vide
+        assertEquals(1, m.Entrees.size());
+        assertEquals("a", m.Entrees.get(0).Nom());
         assertTrue(m.Sorties.isEmpty());
         assertTrue(m.Branchements.isEmpty());
     }
@@ -186,6 +188,51 @@ public class ModuleBuilderTest {
     public void disjointRanges_sameSignal_ok() {
         Module m = build("module m (a[3..0]) s[1..0] = a[1..0] s[3..2] = a[3..2] end module");
         assertEquals(4, m.Plan.size());
+    }
+
+    // -----------------------------------------------------------------------
+    // Tests — signature Entrees/Sorties (Task 2)
+    // -----------------------------------------------------------------------
+
+    /**
+     * fa(a,b,cin : s,cout) → Entrees=[a,b,cin], Sorties=[s,cout] (ordre et noms).
+     */
+    @Test
+    public void signature_entreesSorties_colonSepare() {
+        Module m = build("module fa (a, b, cin : s, cout) s = a + b cout = a * b end module");
+        assertEquals(3, m.Entrees.size());
+        assertEquals("a",   m.Entrees.get(0).Nom());
+        assertEquals("b",   m.Entrees.get(1).Nom());
+        assertEquals("cin", m.Entrees.get(2).Nom());
+        assertEquals(2, m.Sorties.size());
+        assertEquals("s",    m.Sorties.get(0).Nom());
+        assertEquals("cout", m.Sorties.get(1).Nom());
+    }
+
+    /**
+     * mux(a,b,sel) sans ':' → Sorties vide, tout dans Entrees.
+     */
+    @Test
+    public void signature_sansColon_sortiesVide() {
+        Module m = build("module mux (a, b, sel) c = a * b end module");
+        assertEquals(3, m.Entrees.size());
+        assertEquals("a",   m.Entrees.get(0).Nom());
+        assertEquals("b",   m.Entrees.get(1).Nom());
+        assertEquals("sel", m.Entrees.get(2).Nom());
+        assertTrue(m.Sorties.isEmpty());
+    }
+
+    /**
+     * Signature avec deux ':' → MODULE_BAD_SEPARATORS.
+     */
+    @Test
+    public void signature_deuxColons_throwsBadSeparators() {
+        try {
+            build("module bad (a : b : c) x = a end module");
+            fail("Attendu ConversionException MODULE_BAD_SEPARATORS");
+        } catch (ConversionException ex) {
+            assertEquals(Reason.MODULE_BAD_SEPARATORS, ex.reason());
+        }
     }
 
     /**
