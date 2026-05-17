@@ -22,7 +22,6 @@ public class TextFileStorage implements FileStorage {
         this.charset = StandardCharsets.UTF_8;
         ecouteurs = new ArrayList<>();
         chemin = System.getProperty("user.dir");
-        System.out.println(chemin);
     }
 
     // Constructeur avec charset personnalisé
