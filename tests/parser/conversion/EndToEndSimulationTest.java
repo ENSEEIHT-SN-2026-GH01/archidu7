@@ -172,4 +172,73 @@ public class EndToEndSimulationTest {
             );
         }
     }
+
+    // -----------------------------------------------------------------
+    // Test e2e — appel de sous-module via le constructeur FileSimulateur(Module)
+    //
+    // Le module top délègue tout son calcul au sous-module fa par un appel
+    // $fa(...). On vérifie la table de vérité de top à travers la chaîne
+    // complète : SHDL → Conversion → Module (avec Branchements) →
+    // FileSimulateur(Module) → simulation.
+    //
+    // C'est le seul test qui exerce (1) un appel de module de bout en bout
+    // et (2) le constructeur FileSimulateur(Module) — par opposition au
+    // constructeur .Plan utilisé par les tests scalaires ci-dessus.
+    // -----------------------------------------------------------------
+
+    @Ignore("Bloqué côté simulateur : FileSimulateur(Module) ne câble pas encore "
+        + "les sorties d'un appel de sous-module. FileSimulateur.java:105 traite "
+        + "M.Sorties avant la boucle A.DS (l.119-152), donc un module dont la "
+        + "sortie vient d'un $appel échoue sur 'Il manque une sortie'. Le fichier "
+        + "est explicitement WIP (// ZONE CHANTIER, //TODO Appel module). La "
+        + "conversion produit pourtant un Module correct. À réactiver quand "
+        + "FileSimulateur supportera les appels de bout en bout.")
+    @Test
+    public void subModuleCall_halfAdder_tableauVerite() {
+        // Sous-module fa : s = OR(a,b), c = AND(a,b).
+        CstNode cstFa = CstParser.parse(
+            "module fa (a, b : s, c) s = a + b c = a * b end module");
+        // Module appelant : délègue tout le calcul à fa.
+        CstNode cstTop = CstParser.parse(
+            "module top (x, y : somme, retenue) $fa(x, y : somme, retenue) end module");
+        Module top = Conversion.convert(cstTop, java.util.List.of(cstFa));
+
+        // Constructeur Module (et non .Plan) : exploite Branchements + Entrees/Sorties.
+        FileSimulateur fs = new FileSimulateur(top);
+
+        assertEquals("top doit avoir 2 entrées", 2, fs.nbEntree());
+        assertEquals("top doit avoir 2 sorties", 2, fs.nbSorties());
+
+        int idxX = indexEntree(fs, "x");
+        int idxY = indexEntree(fs, "y");
+        int idxSomme = indexSortie(fs, "somme");
+        int idxRetenue = indexSortie(fs, "retenue");
+
+        // somme = OR(x,y), retenue = AND(x,y)
+        int[][] cases = {
+            {0, 0, 0, 0},
+            {0, 1, 1, 0},
+            {1, 0, 1, 0},
+            {1, 1, 1, 1},
+        };
+
+        for (int[] row : cases) {
+            int vx = row[0], vy = row[1], expS = row[2], expR = row[3];
+
+            fs.getEntrees(idxX, 1).set(toEtat(vx));
+            fs.getEntrees(idxY, 1).set(toEtat(vy));
+
+            int actualS = fromEtat(fs.getSorties(idxSomme, 1).getValeur());
+            int actualR = fromEtat(fs.getSorties(idxRetenue, 1).getValeur());
+
+            assertEquals(
+                String.format("somme (OR) : x=%d y=%d attendu=%d", vx, vy, expS),
+                expS, actualS
+            );
+            assertEquals(
+                String.format("retenue (AND) : x=%d y=%d attendu=%d", vx, vy, expR),
+                expR, actualR
+            );
+        }
+    }
 }
