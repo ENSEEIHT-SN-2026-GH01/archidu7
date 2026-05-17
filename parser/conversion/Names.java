@@ -115,6 +115,35 @@ public final class Names {
     }
 
     /**
+     * Nom d'un module : l'Identifiant suivant ModuleKW dans un nœud NT Module.
+     *
+     * @param moduleNT nœud {@code CstInternal(Module)}
+     * @return le nom textuel du module
+     * @throws ConversionException MALFORMED_CST si le nœud n'est pas un
+     *         {@code CstInternal(Module)}, ou si l'Identifiant est absent ou non-feuille.
+     */
+    public static String moduleName(CstNode moduleNT) {
+        if (!(moduleNT instanceof CstInternal mod) || mod.nt() != NonTerminal.Module) {
+            throw new ConversionException(
+                moduleNT.startOffset(), String.valueOf(moduleNT.symbol()),
+                ConversionException.Reason.MALFORMED_CST,
+                "Attendu un noeud NT Module");
+        }
+        CstNode id = mod.first(new Terminal(Token.Identifiant)).orElseThrow(() ->
+            new ConversionException(
+                mod.startOffset(), "Module",
+                ConversionException.Reason.MALFORMED_CST,
+                "Module sans Identifiant (nom)"));
+        if (!(id instanceof CstLeaf idLeaf)) {
+            throw new ConversionException(
+                id.startOffset(), "Identifiant",
+                ConversionException.Reason.MALFORMED_CST,
+                "Enfant Identifiant de Module n'est pas CstLeaf");
+        }
+        return idLeaf.lexem().getText();
+    }
+
+    /**
      * Extrait le {@link SignalRef} (nom + sous-ensemble) d'un nœud NT {@code Signal}.
      */
     public static SignalRef signalRef(CstNode signalNT) {

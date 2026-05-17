@@ -20,6 +20,14 @@ public final class ModuleBuilder {
 
     private ModuleBuilder() {}
 
+    /**
+     * Construit un {@link erwan.Module} depuis un nœud CST {@code Module}.
+     *
+     * @param moduleNode nœud {@code CstInternal(Module)} issu du parser
+     * @param resolver   résolveur de modules ; <b>actuellement non utilisé</b> —
+     *                   réservé pour le câblage des appels {@code $module(...)}
+     *                   prévu en Task 5
+     */
     public static Module build(CstNode moduleNode, ModuleResolver resolver) {
         if (!(moduleNode instanceof CstInternal mod) || mod.nt() != NonTerminal.Module) {
             throw new ConversionException(moduleNode.startOffset(), String.valueOf(moduleNode.symbol()),
@@ -75,10 +83,7 @@ public final class ModuleBuilder {
             star = nextStar;
         }
 
-        String moduleName = mod.first(new Terminal(Token.Identifiant))
-            .filter(n -> n instanceof CstLeaf)
-            .map(n -> ((CstLeaf) n).lexem().getText())
-            .orElse("");
+        String moduleName = Names.moduleName(mod);
         return new Module(moduleName, plan, sig.entrees(), sig.sorties(), Collections.emptyList());
     }
 

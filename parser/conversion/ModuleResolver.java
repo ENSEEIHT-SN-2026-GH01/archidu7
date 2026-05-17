@@ -9,9 +9,6 @@ import java.util.Set;
 
 import parser.ll1.grammar.NonTerminal;
 import parser.ll1.tabledriven.cst.CstInternal;
-import parser.ll1.tabledriven.cst.CstLeaf;
-import parser.ll1.grammar.Terminal;
-import parser.lexer.Token;
 import parser.ll1.tabledriven.cst.CstNode;
 import erwan.Module;
 
@@ -68,23 +65,12 @@ public final class ModuleResolver {
                     ConversionException.Reason.MALFORMED_CST,
                     "Start sans Module enfant"));
 
-            // Extraire le nom du module (premier Identifiant terminal du nœud Module)
-            if (!(moduleNode instanceof CstInternal modInt)) {
-                throw new ConversionException(moduleNode.startOffset(),
-                    String.valueOf(moduleNode.symbol()),
-                    ConversionException.Reason.MALFORMED_CST,
-                    "Enfant Module n'est pas CstInternal(Module)");
-            }
-            String nom = modInt.first(new Terminal(Token.Identifiant))
-                .filter(n -> n instanceof CstLeaf)
-                .map(n -> ((CstLeaf) n).lexem().getText())
-                .orElseThrow(() -> new ConversionException(modInt.startOffset(), "Module",
-                    ConversionException.Reason.MALFORMED_CST,
-                    "Module sans Identifiant (nom)"));
+            // Extraire le nom du module via le helper partagé
+            String nom = Names.moduleName(moduleNode);
 
             // Détection de doublon
             if (index.containsKey(nom)) {
-                throw new ConversionException(modInt.startOffset(), "Module",
+                throw new ConversionException(moduleNode.startOffset(), "Module",
                     ConversionException.Reason.DUPLICATE_MODULE_DEFINITION,
                     "Module '" + nom + "' deja defini");
             }
@@ -123,6 +109,7 @@ public final class ModuleResolver {
 
         // Détection de cycle
         if (resolutionStack.contains(nom)) {
+            // offset 0 : l'échec est détecté par recherche de nom, pas depuis un nœud CST
             throw new ConversionException(0, "ModuleResolver",
                 ConversionException.Reason.MODULE_CALL_CYCLE,
                 "Cycle de definition detecte pour le module '" + nom + "'");
@@ -130,6 +117,7 @@ public final class ModuleResolver {
 
         // Nom absent de l'index
         if (!index.containsKey(nom)) {
+            // offset 0 : l'échec est détecté par recherche de nom, pas depuis un nœud CST
             throw new ConversionException(0, "ModuleResolver",
                 ConversionException.Reason.MODULE_NOT_FOUND,
                 "Module '" + nom + "' introuvable");

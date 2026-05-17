@@ -88,6 +88,22 @@ public class ModuleResolverTest {
     }
 
     // ------------------------------------------------------------------
+    // mainName() retourne le nom du PREMIER fichier, pas des suivants
+    // ------------------------------------------------------------------
+
+    @Test
+    public void mainName_firstFileWins() {
+        CstNode root1 = parse("module fa (a : s) s = a end module");
+        CstNode root2 = parse("module or2 (a, b : s) s = a + b end module");
+        CstNode root3 = parse("module and2 (a, b : s) s = a * b end module");
+
+        ModuleResolver resolver = new ModuleResolver(List.of(root1, root2, root3));
+
+        assertEquals("mainName() doit retourner le nom du premier fichier",
+            "fa", resolver.mainName());
+    }
+
+    // ------------------------------------------------------------------
     // MALFORMED_CST : feuille passée comme racine
     // ------------------------------------------------------------------
 
