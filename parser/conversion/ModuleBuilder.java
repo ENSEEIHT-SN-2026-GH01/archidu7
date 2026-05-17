@@ -202,7 +202,12 @@ public final class ModuleBuilder {
             new ConversionException(sigAInt.startOffset(), "SignalAssignment",
                 ConversionException.Reason.MALFORMED_CST,
                 "SignalAssignment sans enfant SumOfTermsCompound"));
-        Erwan rhs = ExpressionBuilder.build(sotc);
-        return Erwan.AFFECTATION(lhs, rhs);
+        Bus rhs = ExpressionBuilder.build(sotc);
+        if (rhs.width() != 1) {
+            throw new ConversionException(sotc.startOffset(), "SumOfTermsCompound",
+                ConversionException.Reason.VECTOR_WIDTH_MISMATCH,
+                "LHS scalaire mais RHS de largeur " + rhs.width());
+        }
+        return Erwan.AFFECTATION(lhs, rhs.bits().get(0));
     }
 }

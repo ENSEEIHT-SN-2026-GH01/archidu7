@@ -65,4 +65,18 @@ public class ModuleBuilderTest {
     public void vectorLhs_throws() {
         build("module m (a) c[0] = a end module");
     }
+
+    /**
+     * LHS scalaire mais RHS vectoriel (a[3..0] produit un Bus de largeur 4) :
+     * buildInstance doit rejeter avec VECTOR_WIDTH_MISMATCH.
+     */
+    @Test
+    public void scalarLhs_vectorRhs_throwsWidthMismatch() {
+        try {
+            build("module m (a) s = a[3..0] end module");
+            fail("Attendu ConversionException VECTOR_WIDTH_MISMATCH");
+        } catch (ConversionException ex) {
+            assertEquals(Reason.VECTOR_WIDTH_MISMATCH, ex.reason());
+        }
+    }
 }

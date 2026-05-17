@@ -65,10 +65,11 @@ public class ConversionErrorsTest {
     }
 
     @Test
-    public void vectorRhs_rejected() {
+    public void vectorRhs_accepted_task3() {
+        // Task 3 : les vecteurs en RHS sont desormais supportes.
+        // c = a[3] avec LHS scalaire et RHS largeur 1 doit reussir sans exception.
         ConversionException ex = convertAndCatch("module m (a) c = a[3] end module");
-        assertNotNull(ex);
-        assertEquals(Reason.VECTOR_SUBSET_NOT_SUPPORTED, ex.reason());
+        assertNull("a[3] en RHS doit etre accepte depuis Task 3", ex);
     }
 
     @Test
