@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 
 import java.util.List;
 
+import parser.conversion.Conversion;
 import parser.conversion.ModuleBuilder;
 import parser.conversion.ModuleResolver;
 import parser.conversion.ConversionException;
@@ -12,6 +13,7 @@ import parser.conversion.ConversionException.Reason;
 import parser.ll1.grammar.NonTerminal;
 import parser.ll1.tabledriven.CstParser;
 import parser.ll1.tabledriven.cst.CstNode;
+import erwan.AppelModule;
 import erwan.Erwan;
 import erwan.Operation;
 import erwan.Module;
@@ -292,5 +294,61 @@ public class ModuleBuilderTest {
         assertEquals(0, s.indiceDebut());
         assertEquals(1, s.indiceFin());
         assertEquals(2, s.nbSignaux());
+    }
+
+    // -----------------------------------------------------------------------
+    // Tests Task 5 : appels de modules (ModuleCall → AppelModule)
+    // -----------------------------------------------------------------------
+
+    /**
+     * Happy path (forme $) : top appelle fa.
+     * module fa (a, b : s) s = a + b end module
+     * module top (a, b : s) $fa(a, b : s) end module
+     * → Branchements de taille 1 ; AppelModule.module.Nom = "fa" ;
+     *   DE=2, DS=1 ; top.Plan vide.
+     */
+    @Test
+    public void moduleCall_dollar_happyPath() {
+        CstNode cstFa = CstParser.parse("module fa (a, b : s) s = a + b end module");
+        CstNode cstTop = CstParser.parse("module top (a, b : s) $fa(a, b : s) end module");
+        Module top = Conversion.convert(cstTop, java.util.List.of(cstFa));
+
+        assertEquals("top.Plan doit etre vide (seul contenu = appel)", 0, top.Plan.size());
+        assertEquals("top.Branchements doit contenir 1 AppelModule", 1, top.Branchements.size());
+        AppelModule am = top.Branchements.get(0);
+        assertEquals("module appele doit etre fa", "fa", am.module.Nom);
+        assertEquals("DE doit contenir 2 descripteurs (a, b)", 2, am.DE.size());
+        assertEquals("DS doit contenir 1 descripteur (s)", 1, am.DS.size());
+        assertEquals("top.Entrees", 2, top.Entrees.size());
+        assertEquals("top.Sorties", 1, top.Sorties.size());
+    }
+
+    /**
+     * Appel d'un module inconnu : MODULE_NOT_FOUND.
+     */
+    @Test
+    public void moduleCall_unknownModule_throwsNotFound() {
+        CstNode cstTop = CstParser.parse("module top (a, b : s) $missing(a, b : s) end module");
+        try {
+            Conversion.convert(cstTop, java.util.List.of());
+            fail("Attendu ConversionException MODULE_NOT_FOUND");
+        } catch (ConversionException ex) {
+            assertEquals(Reason.MODULE_NOT_FOUND, ex.reason());
+        }
+    }
+
+    /**
+     * Cycle A appelle B, B appelle A : MODULE_CALL_CYCLE.
+     */
+    @Test
+    public void moduleCall_cycle_throwsCycle() {
+        CstNode cstA = CstParser.parse("module a (x : y) $b(x : y) end module");
+        CstNode cstB = CstParser.parse("module b (x : y) $a(x : y) end module");
+        try {
+            Conversion.convert(cstA, java.util.List.of(cstB));
+            fail("Attendu ConversionException MODULE_CALL_CYCLE");
+        } catch (ConversionException ex) {
+            assertEquals(Reason.MODULE_CALL_CYCLE, ex.reason());
+        }
     }
 }

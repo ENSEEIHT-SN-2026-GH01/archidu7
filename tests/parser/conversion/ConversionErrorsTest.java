@@ -42,13 +42,6 @@ public class ConversionErrorsTest {
     }
 
     @Test
-    public void moduleCall_rejected() {
-        ConversionException ex = convertAndCatch("module m (a, b, c) $add(a, b, c) end module");
-        assertNotNull(ex);
-        assertEquals(Reason.MODULE_CALL_NOT_SUPPORTED, ex.reason());
-    }
-
-    @Test
     public void literalInRhs_rejected() {
         // BitField ::= \.[0-1]+  => .1 est valide
         ConversionException ex = convertAndCatch("module m (a) c = .1 end module");

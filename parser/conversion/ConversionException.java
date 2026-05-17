@@ -6,7 +6,6 @@ public class ConversionException extends RuntimeException {
         VECTOR_WIDTH_MISMATCH,
         CONCAT_NOT_SUPPORTED,
         MEMORY_ASSIGNMENT_NOT_SUPPORTED,
-        MODULE_CALL_NOT_SUPPORTED,
         LITERAL_IN_RHS_NOT_SUPPORTED,
         DUPLICATE_LHS,
         MALFORMED_CST,
