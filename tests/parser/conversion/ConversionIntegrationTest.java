@@ -7,9 +7,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import java.util.List;
+
 import parser.conversion.Conversion;
 import parser.ll1.tabledriven.CstParser;
 import parser.ll1.tabledriven.cst.CstNode;
+import erwan.AppelModule;
+import erwan.Descripteur;
 import erwan.Erwan;
 import erwan.Module;
 import erwan.Operation;
@@ -173,6 +177,72 @@ public class ConversionIntegrationTest {
             assertEquals("orBus4: 2e entree OR bit " + i + " doit avoir Numero=" + i,
                 Integer.valueOf(i), litB.Numero);
         }
+    }
+
+    // ------------------------------------------------------------------
+    // Test Task 6 : appel de sous-module multi-fichiers
+    //   fa  : module fa  (a, b : s)    s = a + b end module
+    //   top : module top (a, b : s)    $fa(a, b : s) end module
+    //
+    // Verifie :
+    //   - top.Nom = "top" ; top.Plan vide ; top.Branchements.size() = 1
+    //   - top.Entrees = [a, b] ; top.Sorties = [s]
+    //   - am.module.Nom = "fa" ; am.DE.size() = 2 ; am.DS.size() = 1
+    //   - sous-module : am.module.Entrees = [a, b] ; am.module.Sorties = [s]
+    //   - sous-module : am.module.Plan non vide (corps de fa)
+    // ------------------------------------------------------------------
+
+    @Test
+    public void subModuleCall_multiFile_wiresAppelModule() {
+        String srcFa  = "module fa (a, b : s) s = a + b end module";
+        String srcTop = "module top (a, b : s) $fa(a, b : s) end module";
+
+        CstNode faCst  = CstParser.parse(srcFa);
+        CstNode topCst = CstParser.parse(srcTop);
+
+        erwan.Module m = Conversion.convert(topCst, List.of(faCst));
+
+        // --- module top ---
+        assertEquals("top: Nom attendu 'top'", "top", m.Nom);
+        assertEquals("top: Plan doit etre vide (seul contenu = appel de sous-module)",
+                     0, m.Plan.size());
+        assertEquals("top: Branchements doit contenir exactement 1 AppelModule",
+                     1, m.Branchements.size());
+
+        // Signature de top
+        assertEquals("top: Entrees doit avoir 2 descripteurs (a, b)",
+                     2, m.Entrees.size());
+        assertEquals("top: Entrees[0].Nom() attendu 'a'",
+                     "a", m.Entrees.get(0).Nom());
+        assertEquals("top: Entrees[1].Nom() attendu 'b'",
+                     "b", m.Entrees.get(1).Nom());
+        assertEquals("top: Sorties doit avoir 1 descripteur (s)",
+                     1, m.Sorties.size());
+        assertEquals("top: Sorties[0].Nom() attendu 's'",
+                     "s", m.Sorties.get(0).Nom());
+
+        // --- AppelModule ---
+        AppelModule am = m.Branchements.get(0);
+        assertEquals("am.module.Nom attendu 'fa'", "fa", am.module.Nom);
+        assertEquals("am.DE doit contenir 2 descripteurs (signaux d'entree fournis : a, b)",
+                     2, am.DE.size());
+        assertEquals("am.DS doit contenir 1 descripteur (signal de sortie fourni : s)",
+                     1, am.DS.size());
+
+        // --- Interface propre du sous-module fa ---
+        assertEquals("fa.Entrees doit avoir 2 descripteurs",
+                     2, am.module.Entrees.size());
+        assertEquals("fa.Entrees[0].Nom() attendu 'a'",
+                     "a", am.module.Entrees.get(0).Nom());
+        assertEquals("fa.Entrees[1].Nom() attendu 'b'",
+                     "b", am.module.Entrees.get(1).Nom());
+        assertEquals("fa.Sorties doit avoir 1 descripteur",
+                     1, am.module.Sorties.size());
+        assertEquals("fa.Sorties[0].Nom() attendu 's'",
+                     "s", am.module.Sorties.get(0).Nom());
+
+        // Corps de fa non vide (contient l'affectation s = a + b)
+        assertFalse("fa.Plan ne doit pas etre vide (corps de fa)", am.module.Plan.isEmpty());
     }
 
     /**
