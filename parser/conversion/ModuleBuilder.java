@@ -25,9 +25,9 @@ public final class ModuleBuilder {
      * Construit un {@link erwan.Module} depuis un nœud CST {@code Module}.
      *
      * @param moduleNode nœud {@code CstInternal(Module)} issu du parser
-     * @param resolver   résolveur de modules ; <b>actuellement non utilisé</b> —
-     *                   réservé pour le câblage des appels {@code $module(...)}
-     *                   prévu en Task 5
+     * @param resolver   résolveur de modules utilisé pour résoudre les modules
+     *                   appelés par les instances {@code $module(...)} / {@code module(...)} ;
+     *                   fournit la résolution mémoïsée et la détection de cycles
      */
     public static Module build(CstNode moduleNode, ModuleResolver resolver) {
         if (!(moduleNode instanceof CstInternal mod) || mod.nt() != NonTerminal.Module) {
@@ -218,10 +218,7 @@ public final class ModuleBuilder {
                 new ConversionException(inst.startOffset(), "Instance",
                     ConversionException.Reason.MALFORMED_CST,
                     "Instance ($) sans enfant ModuleCall"));
-            Module called = resolver.resolve(calledName);
-            AppelModule am = ModuleCallBuilder.build(moduleCallNode, called);
-            branchements.add(am);
-            return List.of();
+            return handleModuleCall(moduleCallNode, calledName, resolver, branchements);
         }
         CstNode id = inst.first(new Terminal(Token.Identifiant)).orElseThrow(() ->
             new ConversionException(inst.startOffset(), "Instance",
@@ -245,16 +242,12 @@ public final class ModuleBuilder {
         }
         // Operation -> ModuleCall | Signal_Subset_Opt Assignment
         if (op.has(NonTerminal.ModuleCall)) {
-            // Form B : calledName(args) — l'Identifiant est le nom du module appelé
-            String calledName = nom;
+            // Form B : nom(args) — l'Identifiant est le nom du module appelé
             CstNode moduleCallNode = op.first(NonTerminal.ModuleCall).orElseThrow(() ->
                 new ConversionException(op.startOffset(), "Operation",
                     ConversionException.Reason.MALFORMED_CST,
                     "Operation avec ModuleCall sans enfant ModuleCall"));
-            Module called = resolver.resolve(calledName);
-            AppelModule am = ModuleCallBuilder.build(moduleCallNode, called);
-            branchements.add(am);
-            return List.of();
+            return handleModuleCall(moduleCallNode, nom, resolver, branchements);
         }
         CstNode subsetNode = op.first(NonTerminal.Signal_Subset_Opt).orElseThrow(() ->
             new ConversionException(op.startOffset(), "Operation",
@@ -342,5 +335,18 @@ public final class ModuleBuilder {
             // ARANGE requiert IndiceDebut <= IndiceFin
             return Erwan.ARANGE(nom, lhsSubset.minIndex(), lhsSubset.maxIndex(), rhs.bits());
         }
+    }
+
+    /**
+     * Partie commune aux deux formes d'appel de module (forme A {@code $nom(...)}
+     * et forme B {@code nom(...)}): résout le module appelé, construit
+     * l'[AppelModule] et l'ajoute à {@code branchements}.
+     */
+    private static List<Erwan> handleModuleCall(CstNode moduleCallNode, String calledName,
+            ModuleResolver resolver, List<AppelModule> branchements) {
+        Module called = resolver.resolve(calledName);
+        AppelModule am = ModuleCallBuilder.build(moduleCallNode, called);
+        branchements.add(am);
+        return List.of();
     }
 }
