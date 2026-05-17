@@ -196,10 +196,8 @@ public final class ExpressionBuilder {
         } else {
             // plage : a[d..f] — LITTERANGE boucle for i=debut; i<=fin, donc si debut > fin
             // la boucle ne s'execute pas et renvoie silencieusement une liste vide, ce qui
-            // produirait un Bus de largeur 0. Math.min/max normalise pour garantir debut <= fin.
-            int lo = Math.min(subset.hi(), subset.lo());
-            int hi = Math.max(subset.hi(), subset.lo());
-            bus = new Bus(Erwan.LITTERANGE(nom, lo, hi));
+            // produirait un Bus de largeur 0. minIndex/maxIndex normalise pour garantir debut <= fin.
+            bus = new Bus(Erwan.LITTERANGE(nom, subset.minIndex(), subset.maxIndex()));
         }
         if (factor.has(new Terminal(Token.NotOp))) {
             if (bus.width() == 1) {

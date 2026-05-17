@@ -57,11 +57,10 @@ public class ConversionErrorsTest {
     }
 
     @Test
-    public void vectorLhs_rejected() {
-        // Signal_Subset_Opt ::= LeftSquareBrack NaturalInteger Range_Opt RightSquareBrack
+    public void vectorLhs_singleIndex_accepted_task4() {
+        // Task 4 : LHS index unique c[0] = a (RHS scalaire) est desormais supporte.
         ConversionException ex = convertAndCatch("module m (a) c[0] = a end module");
-        assertNotNull(ex);
-        assertEquals(Reason.VECTOR_SUBSET_NOT_SUPPORTED, ex.reason());
+        assertNull("c[0] = a doit etre accepte depuis Task 4", ex);
     }
 
     @Test

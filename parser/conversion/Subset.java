@@ -10,4 +10,8 @@ public record Subset(boolean isVector, int hi, int lo) {
     public static Subset single(int i) { return new Subset(true, i, i); }
     public static Subset range(int hi, int lo) { return new Subset(true, hi, lo); }
     public int width() { return isVector ? Math.abs(hi - lo) + 1 : 1; }
+    /** Borne inférieure normalisée (min des deux indices). */
+    public int minIndex() { return Math.min(hi, lo); }
+    /** Borne supérieure normalisée (max des deux indices). */
+    public int maxIndex() { return Math.max(hi, lo); }
 }
