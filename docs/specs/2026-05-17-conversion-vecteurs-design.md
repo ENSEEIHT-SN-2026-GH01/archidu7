@@ -58,7 +58,8 @@ et la même extraction pour le couple `(Identifiant, Signal_Subset_Opt)` du LHS.
 `ModuleBuilder.buildInstance` (LHS) — renvoie désormais `List<Erwan>` (ajoutés au plan) :
 - LHS scalaire `s`     → RHS largeur 1 → `[AFFECTATION("s", rhs.bit0)]`
 - LHS `s[i]`           → RHS largeur 1 → `[AFFECTATION("s", i, rhs.bit0)]`
-- LHS `s[d..f]`        → RHS largeur `abs(d-f)+1` → `ARANGE("s", d, f, rhs.bits)`
+- LHS `s[d..f]`        → RHS largeur `abs(d-f)+1` → `ARANGE("s", lo, hi, rhs.bits)`
+  avec `lo=min(d,f)`, `hi=max(d,f)` (`ARANGE` exige `IndiceDebut ≤ IndiceFin`).
 
 `validateParams` accepte les paramètres vecteurs (`a[0..3]`) sans les rejeter.
 
@@ -68,8 +69,11 @@ Nouveau motif `ConversionException.Reason.VECTOR_WIDTH_MISMATCH`, levé quand :
 - deux opérandes d'un `+` ou `*` ont des largeurs différentes ;
 - la largeur du LHS ≠ largeur du RHS.
 
-Le zip des bits est **positionnel** (MSB en tête). L'ordre des plages est la
-responsabilité de l'auteur SHDL — exactement la sémantique de `ANDR`/`ORR`.
+Le zip des bits est **positionnel, par indice croissant**. `LITTERANGE` et
+`ARANGE` (IR de Mati) bouclent `for i=debut; i<=fin` : un bus est toujours
+matérialisé en indices croissants. Toute la chaîne (référence → opérations →
+affectation) est donc cohérente en indice croissant : `s[i]` reçoit le calcul
+portant sur les `Numero == i` des opérandes.
 
 ## Hors périmètre (restent rejetés)
 
@@ -79,6 +83,9 @@ affectation mémoire (`MEMORY_ASSIGNMENT_NOT_SUPPORTED`).
 
 **Limitations assumées :**
 - Un identifiant nu `a` est toujours scalaire. Référencer un bus exige une plage explicite.
+- **Bus inversé non exprimable.** `LITTERANGE`/`ARANGE` n'indexent qu'en ordre
+  croissant ; `a[3..0]` et `a[0..3]` produisent le même bus. Un câblage
+  délibérément inversé est hors de portée de l'IR actuelle.
 - Les `Descripteur` d'E/S de `Module` restent vides — déjà le cas pour les scalaires,
   c'est un chantier distinct (câblage E/S).
 
