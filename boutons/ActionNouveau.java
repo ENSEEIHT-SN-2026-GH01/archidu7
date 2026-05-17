@@ -17,7 +17,7 @@ public class ActionNouveau implements EventHandler<ActionEvent>{
 
     public void handle(ActionEvent evt){
         editeur.setText(""); 
-        sauveur.setPath(null);
+        sauveur.setActuel(null);
     }
 
 }

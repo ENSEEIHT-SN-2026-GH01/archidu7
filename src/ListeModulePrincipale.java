@@ -2,6 +2,7 @@ import editeur.EditeurTexte;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import sauvegarde.FileStorage;
+import sauvegarde.SaveListener;
 
 import java.util.*;
 import java.io.*;
@@ -24,17 +25,20 @@ public class ListeModulePrincipale extends ScrollPane {
         setContent(liste);
         modules = new ArrayList<FichierModuleBouton>();
 
-        /*creation du dossier modules dans l'environnement s'il n'existe pas. */
-        new File("./modules/").mkdir();
-
-        rechargerEnvironnement("./modules/");
+        //chargement de l'environnement
+        rechargerEnvironnement();
+        sauveur.addListener(new RechargerListener());
     }
 
     /** Recharge les modules de l'environnement.
      *
      * @param dir Le répertoire courant.
      */
-    public void rechargerEnvironnement(String dir) {
+    public void rechargerEnvironnement() {
+        /*creation du dossier modules dans l'environnement s'il n'existe pas. */
+        new File( sauveur.getChemin() + "/modules/").mkdir();
+
+        String dir = sauveur.getChemin() + "/modules/";
         modules.clear();
 
         String[] repertoire = (new File(dir)).list();
@@ -54,5 +58,11 @@ public class ListeModulePrincipale extends ScrollPane {
     private void rechargerAffichage() {
         liste.getChildren().clear();
         liste.getChildren().addAll(modules);
+    }
+
+    private class RechargerListener implements SaveListener{
+        public void onSave(){
+            rechargerEnvironnement();
+        }
     }
 }

@@ -1,25 +1,20 @@
 package boutons;
 
 import java.io.File;
-import java.io.IOException;
-
-import editeur.EditeurTexte;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-import javafx.stage.FileChooser;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
 import sauvegarde.FileStorage;
 
 /**Inutilisé pour l'instant. */
 public class ActionCharger implements EventHandler<ActionEvent>{
-    
-    private EditeurTexte editeur;
-    private FileStorage sauveur;
-    private Node parent;
 
-    public ActionCharger(EditeurTexte edit, FileStorage save, Node appelant){
-        editeur = edit;
+    private Node parent;
+    private FileStorage sauveur;
+
+    public ActionCharger(FileStorage save, Node appelant){
         sauveur = save;
         parent = appelant;
     }
@@ -27,17 +22,18 @@ public class ActionCharger implements EventHandler<ActionEvent>{
 
     public void handle(ActionEvent evt){
         Window stage = parent.getScene().getWindow();
-        FileChooser fileChooser = BoutonsPrincipale.configurerFileChooser("Charger un module");
-        File fichier = fileChooser.showOpenDialog(stage);
+        DirectoryChooser choix = new DirectoryChooser();
+        choix.setTitle("Sélectionnez le nouveau dossier de travail");
+        choix.setInitialDirectory(new File(sauveur.getChemin()));
+        File rep = choix.showDialog(stage);
             
-        if (fichier != null) {
-            try {
-                sauveur.setPath(fichier.getAbsolutePath());
-                String contenu = sauveur.load(sauveur.getPath());
-                editeur.setText(contenu);
-            } catch (IOException ex) {
-                System.err.println("Erreur de chargement : " + ex.getMessage());
+        if (rep != null) {
+            String nouveauChemin = rep.getAbsolutePath();
+            //si l'utilisateur selectionne un dossier modules
+            if (rep.getName().contentEquals("modules")){
+                nouveauChemin = nouveauChemin.substring(0, nouveauChemin.length() - 8);
             }
+            sauveur.setChemin(nouveauChemin);
         }
     }
 

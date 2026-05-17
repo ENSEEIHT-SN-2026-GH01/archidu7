@@ -7,20 +7,28 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TextFileStorage implements FileStorage {
 
     private final Charset charset;
     private String chemin;
+    private String fichierOuvert;
+    private List<SaveListener> ecouteurs;
 
     // Constructeur par défaut : UTF-8
     public TextFileStorage() {
         this.charset = StandardCharsets.UTF_8;
+        ecouteurs = new ArrayList<>();
+        chemin = System.getProperty("user.dir");
+        System.out.println(chemin);
     }
 
     // Constructeur avec charset personnalisé
     public TextFileStorage(Charset charset) {
         this.charset = charset;
+        ecouteurs = new ArrayList<>();
     }
 
     @Override
@@ -40,12 +48,14 @@ public class TextFileStorage implements FileStorage {
             StandardOpenOption.TRUNCATE_EXISTING
         );
 
-        chemin = filename;
+        fichierOuvert = filename;
+
+        notifier();
     }
 
     @Override
     public String load(String filename) throws IOException {
-        Path path = Paths.get(filename);
+        Path path = Paths.get(chemin + filename);
 
         if (!Files.exists(path)) {
             throw new IOException("Fichier introuvable : " + path.toAbsolutePath());
@@ -56,17 +66,42 @@ public class TextFileStorage implements FileStorage {
         /*suppression de caractères problèmatiques */
         content = content.replace((char) 13, ' ');
 
-        chemin = filename;
+        fichierOuvert = filename;
         return content;
     }
 
     @Override
-    public String getPath(){
+    public String getActuel(){
+        return fichierOuvert;
+    }
+
+    @Override
+    public void setActuel(String chemin){
+        this.fichierOuvert = chemin;
+    }
+
+    @Override
+    public String getChemin(){
         return chemin;
     }
 
     @Override
-    public void setPath(String chemin){
-        this.chemin = chemin;
+    public void setChemin(String nouv){
+        if (!chemin.contentEquals(nouv)){
+            chemin = nouv;
+            notifier();
+            fichierOuvert = null;
+        }
+    }
+
+    @Override
+    public void addListener(SaveListener ecouteur){
+        ecouteurs.add(ecouteur);
+    }
+
+    private void notifier(){
+        for (SaveListener saveListener : ecouteurs) {
+            saveListener.onSave();
+        }
     }
 }
