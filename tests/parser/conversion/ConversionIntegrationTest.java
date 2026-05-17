@@ -13,7 +13,6 @@ import parser.conversion.Conversion;
 import parser.ll1.tabledriven.CstParser;
 import parser.ll1.tabledriven.cst.CstNode;
 import erwan.AppelModule;
-import erwan.Descripteur;
 import erwan.Erwan;
 import erwan.Module;
 import erwan.Operation;

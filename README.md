@@ -43,9 +43,11 @@ FileSimulateur sim = new FileSimulateur(module.Plan); // circuit prêt à simule
 **Exceptions à attraper côté UI** :
 - `ParsingException` (parser) — offset, expected, actual, context, contextPath.
 - `ConversionException` (conversion) — `offset()`, `nodeKind()`, `reason()`
-  parmi `VECTOR_SUBSET_NOT_SUPPORTED`, `CONCAT_NOT_SUPPORTED`,
-  `MEMORY_ASSIGNMENT_NOT_SUPPORTED`, `MODULE_CALL_NOT_SUPPORTED`,
-  `LITERAL_IN_RHS_NOT_SUPPORTED`, `DUPLICATE_LHS`, `MALFORMED_CST`.
+  parmi `VECTOR_WIDTH_MISMATCH`, `CONCAT_NOT_SUPPORTED`,
+  `MEMORY_ASSIGNMENT_NOT_SUPPORTED`, `LITERAL_IN_RHS_NOT_SUPPORTED`,
+  `DUPLICATE_LHS`, `MALFORMED_CST`, `MODULE_NOT_FOUND`, `MODULE_CALL_CYCLE`,
+  `MODULE_CALL_INVALID_ARG`, `MODULE_BAD_SEPARATORS`, `MODULE_ARITY_MISMATCH`,
+  `DUPLICATE_MODULE_DEFINITION`.
 
 **Périmètre S1 du convertisseur** : combinatoire scalaire stricte (params
 scalaires, affectations `=`, opérateurs `+ * /`). Hors-scope (vecteurs, `&`,
