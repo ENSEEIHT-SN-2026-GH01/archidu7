@@ -2,6 +2,7 @@ package simulateur;
 
 import java.util.Map;
 import java.util.HashMap;
+import erwan.*;
 /** Permet d'acceder par le nom à tous les signaux d'un circuit.
  * <p> Cette classe se comporte comme un dictionnaire : si on lui fourni un nom elle donnera un "connecteur" qui permettra de rattacher deux composant.
  * Ce connecteur représente un signal logique.
@@ -25,6 +26,7 @@ public class DicoConnecteur {
 	/** Recupération d'un Connecteur via son nom.
 	 * Renvoie la poignée du lien si il est déjà généré,
 	 * il le créé et renvoie la poignée sinon.
+	 * @param S le nom du signal.
 	 * @return le connecteur.
 	 */
 	public Connecteur getConnecteur(String S) {
@@ -35,6 +37,27 @@ public class DicoConnecteur {
 			//System.out.println("Création du lien : " + S);
 		}
 		return C;
+	}
+
+	/** Recupération d'un Conneceteur du signal faisant partie d'un vecteur.
+	 * @param S nom du vecteur.
+	 * @param numero du signal.
+	 * @return le Connecteur.
+	 */ 
+	public Connecteur getConnecteur(String S, Integer numero){
+		if (numero == null) return getConnecteur(S);
+		else {
+			Connecteur C = dico.get(S + "[" + numero + "]");
+			if (C == null) {
+				C = new LienVecteur(S,numero);
+				dico.put(C.getNom(),C);
+			}
+			return C;
+		}
+	}
+
+	public Connecteur getConnecteurE(Erwan e) {
+		return getConnecteur(e.Nom,e.Numero);
 	}
 
 	/** Determiner si un Connecteur existe déjà.

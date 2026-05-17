@@ -1,10 +1,10 @@
 package simulateur;
 
 import java.util.*;
-import Erwan.*;
+import erwan.*;
 import java.util.Scanner;
 
-public class Experience3 {
+public class Experience5 {
 
 	private static class En {
 		private String Nom;
@@ -37,7 +37,7 @@ public class Experience3 {
 		}
 
 		private String Nom() {
-			return Nom;
+			return B.getNom();
 		}
 	}
 
@@ -55,13 +55,17 @@ public class Experience3 {
 		}
 
 		private String Nom() {
-			return Nom;
+			return B.getNom();
 		}
         }
 
 	public static Erwan A(String Nom, Erwan S){
 		return Erwan.AFFECTATION(Nom,S);
 	}
+
+	public static List<Erwan> AR(String Nom,int d, int f,List<Erwan> S){
+                return Erwan.ARANGE(Nom,d,f,S);
+        }
 
 	public static Erwan L(String Nom){
 		return Erwan.LITTERAL(Nom);
@@ -71,13 +75,25 @@ public class Experience3 {
 		return Erwan.AND(S);
 	}
 
+	public static List<Erwan> ER(int Taille, List<List<Erwan>> Entrees) {
+                return Erwan.ANDR(Taille, Entrees);
+	}
+
 	public static Erwan O(List<Erwan> S) {
 		return Erwan.OR(S);
 	}
 
+	public static List<Erwan> OR(int Taille, List<List<Erwan>> Entrees) {
+                return Erwan.ORR(Taille, Entrees);
+        }
+
 	public static Erwan N(Erwan S){
 		return Erwan.NOT(S);
 	}
+
+	public static List<Erwan> NR(int Taille, List<Erwan> S) {
+                return Erwan.NOTR(Taille,S);
+        }
 
 	public static List<Erwan> L(Erwan... S){
 		List<Erwan> l = new ArrayList<>();
@@ -90,17 +106,24 @@ public class Experience3 {
 	public static void main(String[] Args) {
 
 		List<Erwan> PlanCircuit = new ArrayList<>();
-		PlanCircuit.add(A("S",E(L( L("Signal"), E(L( L("on"), L("clk"), N(L("reset")) ))  ))));
-		PlanCircuit.add(A("R",O( L( L("reset"), E(L( N(L("Signal")),  L("on"), L("clk")    ))   ) )));
-		PlanCircuit.add(A("q",N(O(L(   L("nq"),L("R")  )))));
-		PlanCircuit.add(A("nq",N(O(L(   L("q"),L("S")  )))));
-		PlanCircuit.add(A("NQ",L("nq")));
-		PlanCircuit.add(A("Q",L("q")));
+		PlanCircuit.addAll(AR("Sortie",0,3,L( E(L(N(L("a")),N(L("b")))), E(L(N(L("a")),L("b"))) , E(L(L("a"),N(L("b")))) ,E(L(L("a"),L("b"))) )));
+		Descripteur DS = new Descripteur("Sortie",0,3);
+	       	Descripteur DEa = new Descripteur("a");
+		Descripteur DEb = new Descripteur("b");
+		List<Descripteur> E = new ArrayList<>();
+		E.add(DEa);
+		E.add(DEb);
+		List<Descripteur> S = new ArrayList<>();
+		S.add(DS);
+		erwan.Module M = new erwan.Module(PlanCircuit,E,S,null);
+		//PlanCircuit.add(A("d",E(L(N(L("a")),L("b")))));
+		//PlanCircuit.add(A("e",E(L(L("a"),N(L("b"))))));
+		//PlanCircuit.add(A("f",E(L(L("a"),L("b")))));
 
 		for (Erwan e : PlanCircuit) {
 			System.out.println("Plan : " + e.Nom() + " = " + e.Entrees.get(0).Nom());
 		}
-		Simulateur Si = new FileSimulateur(PlanCircuit);
+		Simulateur Si = new FileSimulateur(M);
 		List<En> Entrees = new ArrayList<>();
 		List<So> Sorties = new ArrayList<>();
 		for(int i = 1; i <= Si.nbEntree(); i++) {

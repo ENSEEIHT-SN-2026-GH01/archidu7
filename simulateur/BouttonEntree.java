@@ -30,5 +30,9 @@ public class BouttonEntree {
 	public void set(Etat E) {
 		S.setValeur(numero,E);
 	}
+
+	public String getNom() {
+		return S.getNom(numero);
+	}
 	
 }

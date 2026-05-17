@@ -14,6 +14,10 @@ public class StructSortie {
 		return nom;
 	}
 
+	public String getNom(int i){
+		return T.getConnecteur(i).getNom();
+	}
+
 	public int getNombre(){
 		return T.getTaille();
 	}
