@@ -20,7 +20,7 @@ public final class ModuleBuilder {
 
     private ModuleBuilder() {}
 
-    public static Module build(CstNode moduleNode) {
+    public static Module build(CstNode moduleNode, ModuleResolver resolver) {
         if (!(moduleNode instanceof CstInternal mod) || mod.nt() != NonTerminal.Module) {
             throw new ConversionException(moduleNode.startOffset(), String.valueOf(moduleNode.symbol()),
                 ConversionException.Reason.MALFORMED_CST, "Attendu CstInternal(Module)");

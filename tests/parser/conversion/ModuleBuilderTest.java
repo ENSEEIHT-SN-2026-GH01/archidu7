@@ -3,7 +3,10 @@ package tests.parser.conversion;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import java.util.List;
+
 import parser.conversion.ModuleBuilder;
+import parser.conversion.ModuleResolver;
 import parser.conversion.ConversionException;
 import parser.conversion.ConversionException.Reason;
 import parser.ll1.grammar.NonTerminal;
@@ -17,8 +20,9 @@ public class ModuleBuilderTest {
 
     private static Module build(String src) {
         CstNode root = CstParser.parse(src);
+        ModuleResolver resolver = new ModuleResolver(List.of(root));
         CstNode mod = root.first(NonTerminal.Module).orElseThrow();
-        return ModuleBuilder.build(mod);
+        return ModuleBuilder.build(mod, resolver);
     }
 
     @Test
