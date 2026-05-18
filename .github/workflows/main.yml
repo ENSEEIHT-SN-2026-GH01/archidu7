@@ -66,8 +66,10 @@ jobs:
         
         cp lib/*.jar dist/app/lib/
         
-        cp lib/*.dylib dist/app/
-        cp lib/*.so dist/app/
+        shopt -s nullglob
+        for file in lib/*.dylib lib/*.so; do
+          cp "$file" dist/app/
+        done
         
         echo '#!/bin/bash' > dist/run.sh
         echo 'cd "$(dirname "$0")/app" || exit' >> dist/run.sh
