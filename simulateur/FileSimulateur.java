@@ -104,8 +104,8 @@ public class FileSimulateur implements Simulateur{
             }
             if (!Dico.existe(Nom)) throw new RuntimeException("Il manque une sortie : " + Nom +". \nVeuillez verifier que ce signal est  et n'est pas déjà généré par le circuit.");
 			//System.out.println("On cherche : " + Nom);
-				Connecteur CS = Dico.getConnecteur(Nom).getSignal(Dico);
-				Composant petitPlus = new EntreeModule(CS);
+				Connecteur CS = Dico.getConnecteur(Nom);
+				Composant petitPlus = new EntreeModule(CS.getSignal());
                 T.brancher(CS,curseurSortie);
 				//System.out.println("on recupère : " + Dico.getConnecteur(Nom).getNom());
                 curseurSortie += 1;
