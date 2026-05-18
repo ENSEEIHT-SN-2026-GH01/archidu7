@@ -1,6 +1,7 @@
 import java.io.IOException;
 
 import javafx.stage.Stage;
+import parser.conversion.Conversion;
 import sauvegarde.FileStorage;
 import sauvegarde.TextFileStorage;
 import simulateur.FileSimulateur;
@@ -12,7 +13,8 @@ public class TestModule {
     public static void main(String args[]){
         FileStorage sauveur = new TextFileStorage();
         try {
-            FenetreSimulateur sim = new FenetreSimulateur(new FileSimulateur(GestionnaireModules.appelModule("ucmp1")));
+            FileSimulateur simu = new FileSimulateur(Conversion.convert(GestionnaireModules.appelModule("ucmp1")));
+            FenetreSimulateur sim = new FenetreSimulateur(simu);
 
             Stage fen = new Stage();
             fen.setScene(sim);
