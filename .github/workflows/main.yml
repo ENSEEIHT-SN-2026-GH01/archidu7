@@ -61,9 +61,18 @@ jobs:
     - name: Package Delivery Bundle (Linux/macOS)
       if: matrix.os != 'windows-latest'
       run: |
-        mkdir -p dist
-        cp archidu7.jar dist/
-        cp -r lib dist/
+        mkdir -p dist/app/lib
+        cp archidu7.jar dist/app/
+        
+        cp lib/*.jar dist/app/lib/
+        
+        cp lib/*.dylib dist/app/
+        cp lib/*.so dist/app/
+        
+        echo '#!/bin/bash' > dist/run.sh
+        echo 'cd "$(dirname "$0")/app" || exit' >> dist/run.sh
+        echo 'java -jar archidu7.jar' >> dist/run.sh
+        chmod +x dist/run.sh
 
     # 2. COMPILE & PACKAGE PROJECT (WINDOWS)
     - name: Compile Project with PowerShell (Windows)
@@ -83,9 +92,14 @@ jobs:
     - name: Package Delivery Bundle (Windows)
       if: matrix.os == 'windows-latest'
       run: |
-        New-Item -ItemType Directory -Path "dist" -Force
-        Copy-Item -Path "archidu7.jar" -Destination "dist/"
-        Copy-Item -Path "lib" -Destination "dist/" -Recurse -Force
+        New-Item -ItemType Directory -Path "dist/app/lib" -Force
+        Copy-Item -Path "archidu7.jar" -Destination "dist/app/"
+        
+        Copy-Item -Path "lib/*.jar" -Destination "dist/app/lib/"
+        
+        Copy-Item -Path "lib/*.dll" -Destination "dist/app/" -ErrorAction SilentlyContinue
+        
+        Set-Content -Path "dist/run.bat" -Value "@echo off`r`ncd /d `"%~dp0\app`"`r`njava -jar archidu7.jar"
       shell: pwsh
 
     # 3. UPLOAD CLEAN ARTIFACT BUNDLE
