@@ -49,6 +49,15 @@ FileSimulateur sim = new FileSimulateur(module.Plan); // circuit prêt à simule
   `MODULE_CALL_INVALID_ARG`, `MODULE_BAD_SEPARATORS`, `MODULE_ARITY_MISMATCH`,
   `DUPLICATE_MODULE_DEFINITION`.
 
+## Convention — gestion des exceptions
+
+Décision de groupe : **propager les exceptions, ne pas les écrire sur le
+terminal** (`printStackTrace` / `System.err`). Une exception avalée et logguée
+est invisible pour l'utilisateur ; en la laissant remonter (`throws`)
+jusqu'à la couche UI, l'application peut l'afficher directement. Les
+`ParsingException` / `ConversionException` portent déjà tout ce qu'il faut
+pour ça (offset, `reason()`, message).
+
 **Périmètre du convertisseur** : combinatoire scalaire (params scalaires,
 affectations `=`, opérateurs `+ * /`) **et appel de sous-modules** (voir
 ci-dessous). Hors-scope (vecteurs, `&`, `:=`, littéraux dans RHS) →
