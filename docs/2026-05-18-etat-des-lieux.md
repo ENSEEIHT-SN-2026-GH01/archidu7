@@ -18,11 +18,18 @@ répartition des tâches restantes.
 ## Problèmes ouverts
 
 ### P1 — `FileSimulateur(Module)` ne converge pas sur rétroaction d'état
-Le constructeur `FileSimulateur(erwan.Module)` ne stabilise pas un circuit
-qui reboucle (bascule, compteur) : la sortie reste `ND`. Cause : `StructEntree`
-re-parcourt chaque composant **≤ 3 fois** au lieu d'itérer jusqu'au point fixe
-(`//TODO ne converge pas en cas de rebouclage`). Le constructeur
-`FileSimulateur(Plan)` converge, lui.
+**Symptôme (vérifié)** : le constructeur `FileSimulateur(erwan.Module)` ne
+stabilise pas un circuit qui reboucle (bascule, compteur) : la sortie reste
+`ND`. Le constructeur `FileSimulateur(Plan)` converge sur le *même* circuit.
+
+**Cause à localiser** : les deux constructeurs passent par le même
+`construction(M.Plan)` (donc même moteur `StructEntree`) — la divergence vient
+donc du traitement que `FileSimulateur(Module)` fait *après* `this(M.Plan)` :
+le remappage des entrées/sorties (`FileSimulateur.java` ~28-185, reconstruction
+de `EntreesG`/`SortiesG`, insertion d'`EntreeModule`/`SortieModule`). À
+diagnostiquer par Mati — ce n'est pas le garde « ≤ 3 passes » de `StructEntree`,
+qui est partagé par les deux constructeurs.
+
 **Impact :** séquentiel OK dans le module principal ; bloqué pour du séquentiel
 **dans un sous-module appelé**.
 
@@ -34,9 +41,10 @@ le câblage `FileSimulateur` avance. Test e2e
 ## Qui fait quoi
 
 **Mati — simulateur**
-- Faire converger `FileSimulateur` sur rétroaction d'état : remplacer le
-  garde « ≤ 3 passes » de `StructEntree` par une itération jusqu'au point fixe.
-- Débloque P1 → autorise le séquentiel dans les sous-modules.
+- Diagnostiquer P1 : pourquoi `FileSimulateur(Module)` ne converge pas sur
+  rétroaction alors que `FileSimulateur(Plan)` y arrive. Piste : le remappage
+  I/O fait après `this(M.Plan)` dans le constructeur `Module`.
+- Débloque le séquentiel dans les sous-modules.
 
 **Arthur — appel de sous-modules / GUI**
 - Terminer le câblage `appel_module`, brancher `GestionnaireModules` sur
