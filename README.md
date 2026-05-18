@@ -58,9 +58,9 @@ jusqu'à la couche UI, l'application peut l'afficher directement. Les
 `ParsingException` / `ConversionException` portent déjà tout ce qu'il faut
 pour ça (offset, `reason()`, message).
 
-**Périmètre du convertisseur** : combinatoire scalaire (params scalaires,
-affectations `=`, opérateurs `+ * /`) **et appel de sous-modules** (voir
-ci-dessous). Hors-scope (vecteurs, `&`, `:=`, littéraux dans RHS) →
+**Périmètre du convertisseur** : combinatoire scalaire et vectoriel,
+**appel de sous-modules** et **affectation mémoire `:=`** (bascule D — voir
+ci-dessous). Hors-scope (`&`, littéraux dans RHS, FSM, tables de vérité) →
 `ConversionException` typée.
 
 ## Appel de sous-modules
@@ -98,6 +98,20 @@ Le câblage côté `FileSimulateur(Module)` est encore en chantier (Arthur,
 branche `appel_module`) — le test e2e `subModuleCall_halfAdder_tableauVerite`
 est `@Ignore` en attendant.
 
+## Affectation mémoire (`:=`)
+
+`signal := data on clk, {set|reset} when sr [, enabled when en]` : une
+bascule D synchrone. La conversion la *desugar* en bascule maître-esclave
+combinatoire (`AND`/`OR`/`NOT`), une par bit du LHS — **sans moteur
+séquentiel dédié** : l'IR `erwan` et `FileSimulateur` sont inchangés. Cible le
+pipeline `FileSimulateur(module.Plan)`.
+
+⚠️ **État initial** : une bascule n'a pas d'état défini tant que son
+`set`/`reset` n'a pas reçu de front — sa sortie vaut `ND`. Pulser le
+set/reset pour amorcer le circuit.
+
+Voir `docs/specs/2026-05-18-conversion-sequentiel-design.md`.
+
 ## Arborescence
 
     parser/
@@ -110,6 +124,7 @@ est `@Ignore` en attendant.
         Conversion.java                   # point d'entrée: convert(main, library) -> Module
         ModuleResolver.java               # index nom→CST, résolution + mémoïsation
         ModuleBuilder.java  ModuleCallBuilder.java   # corps + appels $call
+        MemoryAssignmentBuilder.java  FreshNames.java   # desugar :=
         ConversionException.java
         Names.java  ExpressionBuilder.java  Subset.java  Bus.java
     simulateur/                           # IR Erwan + circuit Mati
