@@ -216,6 +216,7 @@ import parser.ll1.grammar.Terminal;
 import parser.ll1.tabledriven.cst.CstInternal;
 import parser.ll1.tabledriven.cst.CstNode;
 import erwan.Erwan;
+import erwan.Operation;
 
 /**
  * Desugar d'une affectation memoire SHDL ({@code :=}) en bascule D
@@ -301,9 +302,19 @@ public final class MemoryAssignmentBuilder {
             plan.add(Erwan.AFFECTATION(enSig, en.bits().get(0)));
         }
 
+        // --- Pre-generation des prefixes par bit ---
+        // Les noms qs doivent etre connus AVANT de reecrire les auto-references
+        // de data (cf. spec section 3.4).
+        String[] bitPrefix = new String[width];
+        String[] qsByBit = new String[width];
+        for (int k = 0; k < width; k++) {
+            bitPrefix[k] = names.fresh();
+            qsByBit[k] = bitPrefix[k] + "qs";
+        }
+
         // --- Une bascule maitre-esclave par bit du LHS ---
         for (int k = 0; k < width; k++) {
-            String bp = names.fresh();
+            String bp = bitPrefix[k];
             String d = bp + "d";
             String mS = bp + "mS";
             String mR = bp + "mR";
@@ -314,8 +325,10 @@ public final class MemoryAssignmentBuilder {
             String qs = bp + "qs";
             String nqs = bp + "nqs";
 
-            // d = data[k]
-            plan.add(Erwan.AFFECTATION(d, data.bits().get(k)));
+            // d = data[k], avec reecriture des auto-references du LHS vers qs
+            // (cf. spec section 3.4) : la sortie reste uniquement generee.
+            Erwan dataBit = rewriteSelfRef(data.bits().get(k), lhsName, lhsSubset, qsByBit);
+            plan.add(Erwan.AFFECTATION(d, dataBit));
 
             // gating du maitre : mS = d * nclk [* en], mR = /d * nclk [* en]
             List<Erwan> mSin = new ArrayList<>();
@@ -354,6 +367,55 @@ public final class MemoryAssignmentBuilder {
             }
         }
         return plan;
+    }
+
+    /**
+     * Reecrit, dans une expression {@code data}, les references (LITTERAL) au
+     * signal LHS vers le noeud esclave interne {@code qs} du bit correspondant.
+     *
+     * <p>Garantit que la sortie du module reste uniquement generee (jamais
+     * relue) : {@code FileSimulateur(Module.Plan)} la conserve alors en sortie.
+     * Voir spec section 3.4. Une expression qui ne mentionne pas le LHS est
+     * laissee intacte.
+     *
+     * @param qsByBit noms des noeuds qs, indexes par bit du LHS (bit 0 = LSB)
+     */
+    private static Erwan rewriteSelfRef(Erwan node, String lhsName, Subset lhsSubset,
+            String[] qsByBit) {
+        switch (node.Op) {
+            case LITTERAL:
+                if (lhsName.equals(node.Nom)) {
+                    if (!lhsSubset.isVector() && node.Numero == null) {
+                        return Erwan.LITTERAL(qsByBit[0]);
+                    }
+                    if (lhsSubset.isVector() && node.Numero != null) {
+                        int bit = node.Numero - lhsSubset.minIndex();
+                        if (bit >= 0 && bit < qsByBit.length) {
+                            return Erwan.LITTERAL(qsByBit[bit]);
+                        }
+                    }
+                }
+                return node;
+            case NOT:
+                return Erwan.NOT(rewriteSelfRef(node.Entrees.get(0),
+                    lhsName, lhsSubset, qsByBit));
+            case AND: {
+                List<Erwan> r = new ArrayList<>();
+                for (Erwan e : node.Entrees) {
+                    r.add(rewriteSelfRef(e, lhsName, lhsSubset, qsByBit));
+                }
+                return Erwan.AND(r);
+            }
+            case OR: {
+                List<Erwan> r = new ArrayList<>();
+                for (Erwan e : node.Entrees) {
+                    r.add(rewriteSelfRef(e, lhsName, lhsSubset, qsByBit));
+                }
+                return Erwan.OR(r);
+            }
+            default:
+                return node;
+        }
     }
 
     /**

@@ -71,6 +71,16 @@ Le mux de données introduit une boucle combinatoire `qs → D_eff → … → q
 les ≤3 passes ne stabilisent pas. Le gating du maître n'a aucune rétroaction de
 données → §3.1 retient le gating.
 
+**Constructeur de `FileSimulateur` — cible `Plan`.** Diagnostic du 2026-05-18 :
+un toggle (même écrit à la main) converge avec `new FileSimulateur(module.Plan)`
+mais reste `ND` avec `new FileSimulateur(module)`. Le constructeur
+`FileSimulateur(Module)` ne stabilise pas une boucle de rétroaction d'état —
+c'est un chantier connu côté Mati (le test e2e d'appel de sous-module est déjà
+`@Ignore`). Le séquentiel cible donc le pipeline `Plan` (celui du `README`) ;
+les tests construisent via `module.Plan`. La non-convergence de
+`FileSimulateur(Module)` sur rétroaction est **hors périmètre** de cet axe et
+doit être remontée à Mati.
+
 ### 2.3 Pourquoi pas un vrai moteur séquentiel
 
 Une primitive `Bascule` dans l'IR + un `step()` dans le simulateur serait
@@ -148,6 +158,27 @@ impossibles (`Set_Or_Reset` exclusif dans la grammaire).
 bascule jamais resetée n'a pas d'état défini**. C'est un comportement assumé
 (le desugar ne simule pas une horloge ; l'utilisateur doit pulser le set/reset
 pour amorcer l'état). À documenter dans le README et couvrir par un test (§8).
+
+### 3.4 Rétroaction d'état (compteurs) — réécriture des auto-références
+
+Un compteur (`Q := /Q on clk, …`) est le cas où l'expression `data` référence
+le signal LHS lui-même. Si le desugar émettait `data` tel quel, la sortie `Q`
+serait à la fois **lue** (dans `data`) et **générée** (par l'`AFFECTATION`
+terminale). Or `FileSimulateur(Module.Plan)` classe tout signal lu *et* généré
+comme interne et le **retire des sorties** (`construction()`) : le compteur
+deviendrait illisible.
+
+Correctif : `MemoryAssignmentBuilder` **réécrit**, dans chaque bit de `data`,
+toute référence (`LITTERAL`) au signal LHS vers le nœud esclave interne `qs`
+du bit correspondant — scalaire `Q` → `qs` du bit 0 ; bit de vecteur `q[j]` →
+`qs` du bit `j`. La sortie `Q` reste alors **uniquement générée**, jamais
+relue : `FileSimulateur(Module.Plan)` la conserve en sortie, et la rétroaction
+passe par le nœud interne `qs` (circuit isomorphe au toggle validé en §2.2).
+C'est aussi sémantiquement correct : `D = /Q` échantillonne le `Q` courant,
+c.-à-d. la sortie esclave.
+
+La réécriture n'affecte que les auto-références : un `data` qui ne mentionne
+pas le LHS (cas usuel `Q := D …`) est laissé intact.
 
 ## 4. Noms de signaux internes
 
