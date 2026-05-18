@@ -39,7 +39,11 @@ public final class ExpressionBuilder {
         return buildSOT(sot);
     }
 
-    private static Bus buildSOT(CstNode node) {
+    /**
+     * Construit le bus d'un noeud {@code SumOfTerms} (expression sans
+     * concatenation). Utilise pour les operandes clk/sr/en d'un {@code :=}.
+     */
+    public static Bus buildSOT(CstNode node) {
         if (!(node instanceof CstInternal sot) || sot.nt() != NonTerminal.SumOfTerms) {
             throw new ConversionException(node.startOffset(), String.valueOf(node.symbol()),
                 ConversionException.Reason.MALFORMED_CST, "Attendu SumOfTerms");
