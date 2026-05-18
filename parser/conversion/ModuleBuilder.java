@@ -96,14 +96,6 @@ public final class ModuleBuilder {
     private record Signature(List<Descripteur> entrees, List<Descripteur> sorties) {}
 
     /**
-     * Parcourt {@code Param Separ_Param_Star} du nœud Module et construit la {@link Signature}.
-     * <ul>
-     *   <li>Aucun {@code Colon} → tous les params dans {@code entrees}, {@code sorties} vide.</li>
-     *   <li>Un {@code Colon} → params avant → {@code entrees}, après → {@code sorties}.</li>
-     *   <li>Plus d'un {@code Colon} → {@link ConversionException#MODULE_BAD_SEPARATORS}.</li>
-     * </ul>
-     */
-    /**
      * Pre-passage : collecte le texte de toutes les feuilles du sous-arbre du
      * module. Sur-collecte volontairement (mots-cles, operateurs inclus) — un
      * sur-ensemble ne fait que rendre la generation de noms frais plus stricte,
@@ -125,6 +117,14 @@ public final class ModuleBuilder {
         }
     }
 
+    /**
+     * Parcourt {@code Param Separ_Param_Star} du nœud Module et construit la {@link Signature}.
+     * <ul>
+     *   <li>Aucun {@code Colon} → tous les params dans {@code entrees}, {@code sorties} vide.</li>
+     *   <li>Un {@code Colon} → params avant → {@code entrees}, après → {@code sorties}.</li>
+     *   <li>Plus d'un {@code Colon} → {@link ConversionException#MODULE_BAD_SEPARATORS}.</li>
+     * </ul>
+     */
     private static Signature buildSignature(CstInternal mod) {
         List<Descripteur> entrees = new ArrayList<>();
         List<Descripteur> sorties = new ArrayList<>();
