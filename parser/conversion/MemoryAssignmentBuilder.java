@@ -9,7 +9,6 @@ import parser.ll1.grammar.Terminal;
 import parser.ll1.tabledriven.cst.CstInternal;
 import parser.ll1.tabledriven.cst.CstNode;
 import erwan.Erwan;
-import erwan.Operation;
 
 /**
  * Desugar d'une affectation memoire SHDL ({@code :=}) en bascule D
