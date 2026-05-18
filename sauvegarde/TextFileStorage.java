@@ -10,6 +10,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
+import simulateur.appel.GestionnaireModules;
+
 public class TextFileStorage implements FileStorage {
 
     private final Charset charset;
@@ -22,6 +24,8 @@ public class TextFileStorage implements FileStorage {
         this.charset = StandardCharsets.UTF_8;
         ecouteurs = new ArrayList<>();
         chemin = System.getProperty("user.dir");
+
+        GestionnaireModules.sauveur = this;
     }
 
     // Constructeur avec charset personnalisé
