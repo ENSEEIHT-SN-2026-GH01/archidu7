@@ -6,8 +6,8 @@ import javafx.event.EventHandler;
 import javafx.stage.Stage;
 import simulateur.FileSimulateur;
 import simulateur.affichage.FenetreSimulateur;
+import simulateur.appel.GestionnaireModules;
 import parser.conversion.Conversion;
-import parser.ll1.tabledriven.CstParser;
 import erwan.Module;
 
 public class ActionSimuler implements EventHandler<ActionEvent>{
@@ -21,7 +21,9 @@ public class ActionSimuler implements EventHandler<ActionEvent>{
 
     public void handle(ActionEvent evt){
         try{
-            Module aSimuler = Conversion.convert(CstParser.parse(editeur.getText()));
+            String nom = GestionnaireModules.sauveur.getActuel();
+            nom.subSequence(0, nom.length() - 5);
+            Module aSimuler = Conversion.convert(GestionnaireModules.calculerUn(nom, editeur.getText()), GestionnaireModules.getAllBut(nom));
             FenetreSimulateur sim = new FenetreSimulateur(new FileSimulateur(aSimuler));
             Stage fen = new Stage();
             fen.setScene(sim);

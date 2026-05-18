@@ -1,32 +1,39 @@
 package simulateur.appel;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 import parser.ll1.tabledriven.CstParser;
 import parser.ll1.tabledriven.cst.CstNode;
 import sauvegarde.FileStorage;
 
 public class GestionnaireModules {
 
-    private static Map<String, CstNode> arbresCalculees = new HashMap<>();
+    private static HashMap<String, CstNode> arbresCalculees = new HashMap<>();
     public static FileStorage sauveur; //initialiser un TextFileStorage pour l'utiliser
-    
-    /**Renvoie un module associé à un nom.
-     * 
-     * @param nom Le nom du module.
-     * @return Un module.
-     * @throws IOException Si le module n'est pas trouvé.
-     */
-    public static CstNode appelModule(String nom) throws IOException{
-        if (arbresCalculees.containsKey(nom)){
-            return arbresCalculees.get(nom);
+
+    public static CstNode calculerUn(String nom, String texteSHDL){
+        CstNode res = CstParser.parse(texteSHDL);
+        arbresCalculees.put(nom, res);
+        return res;
+    }
+
+    public static Collection<CstNode> getAllBut(String pasLui){
+        //on en enlève un
+        CstNode non = arbresCalculees.get(pasLui);
+        arbresCalculees.remove(pasLui);
+
+        //creation de la liste
+        Collection<CstNode> res = new ArrayList<>();
+        for (CstNode cstNode : arbresCalculees.values()) {
+            res.add(cstNode);
         }
-        else{
-            if (sauveur == null ) throw new IOException("aucun FileStorage n'à été initialisé");
-            CstNode nouveau = CstParser.parse(sauveur.load("/modules/" + nom + ".shdl"));
-            arbresCalculees.put(nom, nouveau);
-            return nouveau;
+
+        //on le remet
+        if (non != null){
+            arbresCalculees.put(pasLui, non);
         }
+
+        return res;
     }
 }

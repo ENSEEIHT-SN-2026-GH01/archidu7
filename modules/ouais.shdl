@@ -1,0 +1,4 @@
+module ouais(a, b : c) 
+  and(a,b:d)
+  c = d
+end module
