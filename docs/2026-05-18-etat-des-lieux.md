@@ -30,8 +30,26 @@ de `EntreesG`/`SortiesG`, insertion d'`EntreeModule`/`SortieModule`). À
 diagnostiquer par Mati — ce n'est pas le garde « ≤ 3 passes » de `StructEntree`,
 qui est partagé par les deux constructeurs.
 
+**Exemple concret.** Le *même* compteur marche seul mais devient `ND` une
+fois appelé :
+
+```
+module compteur (clk, rst : Q)
+  Q := /Q on clk, reset when rst
+end module
+
+module principal (h, r : sortie)
+  $compteur(h, r : sortie)
+end module
+```
+
+`compteur` simulé seul via `FileSimulateur(Plan)` → `Q` compte. `principal`
+simulé → il simule `compteur` via `FileSimulateur(Module)` → `sortie` reste
+`ND`. La conversion est correcte dans les deux cas ; seul le moteur diffère.
+
 **Impact :** séquentiel OK dans le module principal ; bloqué pour du séquentiel
-**dans un sous-module appelé**.
+**dans un sous-module appelé**. Non bloquant pour le livré actuel — c'est le
+trou restant avant de pouvoir réutiliser une bascule comme sous-module.
 
 ### P2 — Câblage de l'appel de sous-modules côté simulateur incomplet
 Branche `appel_module` : `GestionnaireModules` indexe les `.shdl` en `CstNode`,
