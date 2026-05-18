@@ -34,7 +34,6 @@ $(EXEC) : $(SRC)
 
 	@cd $(SOURCE_FOLDER) && javac -d $(BINARY_FOLDER) -cp $(BUILD_CLASSPATH) App.java
 
-	@cp -R $(LIB_FOLDER) $(BINARY_FOLDER)
 	@jar --create --file=$(EXEC) --manifest $(MANIFEST_FILE) -C $(BINARY_FOLDER) .
 
 test: build $(TEST_SRC)
