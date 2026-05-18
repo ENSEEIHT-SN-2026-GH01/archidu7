@@ -22,11 +22,7 @@ public class MemoryAssignmentTest {
     private static FileSimulateur build(String src) throws Exception {
         CstNode cst = CstParser.parse(src);
         Module m = Conversion.convert(cst);
-        // FileSimulateur(Module) expose correctement les E/S declares dans la
-        // signature SHDL, y compris les sorties qui sont aussi lues en RHS
-        // (ex: toggle Q := /Q). FileSimulateur(m.Plan) ne peut pas distinguer
-        // les sorties des signaux internes dans ce cas.
-        return new FileSimulateur(m);
+        return new FileSimulateur(m.Plan);
     }
 
     private static int idxE(FileSimulateur fs, String n) {
@@ -168,37 +164,23 @@ public class MemoryAssignmentTest {
     @Test
     public void registreVectoriel() throws Exception {
         // q[1..0] := d[1..0] : registre 2 bits.
-        // Ajustement fixture : FileSimulateur(Module) expose les vecteurs par
-        // nom de base ('d', 'q') avec acces par slot (slot 1 = bit bas = [0]).
-        // idxE("d[0]") et idxS("q[0]") seraient introuvables ; on utilise
-        // l'indice de l'entree/sortie vectorielle + le slot correspondant.
+        // FileSimulateur(m.Plan) expose les bits vectoriels par nom individuel
+        // ("d[0]", "d[1]", "q[0]", "q[1]").
         FileSimulateur fs = build(
             "module reg (d[1..0], clk, rst : q[1..0]) "
             + "q[1..0] := d[1..0] on clk, reset when rst "
             + "end module");
-        int idxD = idxE(fs, "d");    // vecteur d : slot 1 = d[0], slot 2 = d[1]
+        int d0 = idxE(fs, "d[0]"), d1 = idxE(fs, "d[1]");
         int clk = idxE(fs, "clk"), rst = idxE(fs, "rst");
-        int idxQ = idxS(fs, "q");    // vecteur q : slot 1 = q[0], slot 2 = q[1]
-
-        fs.getEntrees(clk, 1).set(Etat.DW);
-        fs.getEntrees(idxD, 1).set(Etat.DW); fs.getEntrees(idxD, 2).set(Etat.DW);
-        fs.getEntrees(rst, 1).set(Etat.UP); fs.getEntrees(rst, 1).set(Etat.DW);
-
-        // Capture d[0]=1, d[1]=0
-        fs.getEntrees(idxD, 1).set(Etat.UP); fs.getEntrees(idxD, 2).set(Etat.DW);
-        fs.getEntrees(clk, 1).set(Etat.UP); fs.getEntrees(clk, 1).set(Etat.DW);
-        Etat q0a = fs.getSorties(idxQ, 1).getValeur();
-        Etat q1a = fs.getSorties(idxQ, 2).getValeur();
-        assertEquals("bit 0 capture 1", Etat.UP, q0a);
-        assertEquals("bit 1 capture 0", Etat.DW, q1a);
-
-        // Capture d[0]=0, d[1]=1
-        fs.getEntrees(idxD, 1).set(Etat.DW); fs.getEntrees(idxD, 2).set(Etat.UP);
-        fs.getEntrees(clk, 1).set(Etat.UP); fs.getEntrees(clk, 1).set(Etat.DW);
-        Etat q0b = fs.getSorties(idxQ, 1).getValeur();
-        Etat q1b = fs.getSorties(idxQ, 2).getValeur();
-        assertEquals("bit 0 capture 0", Etat.DW, q0b);
-        assertEquals("bit 1 capture 1", Etat.UP, q1b);
+        int q0 = idxS(fs, "q[0]"), q1 = idxS(fs, "q[1]");
+        set(fs, clk, 0); set(fs, d0, 0); set(fs, d1, 0);
+        set(fs, rst, 1); set(fs, rst, 0);
+        set(fs, d0, 1); set(fs, d1, 0); set(fs, clk, 1); set(fs, clk, 0);
+        assertEquals("bit 0 capture 1", 1, read(fs, q0));
+        assertEquals("bit 1 capture 0", 0, read(fs, q1));
+        set(fs, d0, 0); set(fs, d1, 1); set(fs, clk, 1); set(fs, clk, 0);
+        assertEquals("bit 0 capture 0", 0, read(fs, q0));
+        assertEquals("bit 1 capture 1", 1, read(fs, q1));
     }
 
     @Test
