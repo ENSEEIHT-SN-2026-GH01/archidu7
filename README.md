@@ -4,7 +4,7 @@ Branche dédiée aux axes **parser LL(1) table-driven** et **conversion CST → 
 simulateur** du projet long TOB (simulateur SHDL, N7 1SN, 2025-2026).
 
 Pipeline : Source SHDL → tokens → **CST** (table d'analyse M[NT, T]) →
-**`simulateur.Module`** prêt à être passé à `FileSimulateur`.
+**`erwan.Module`** prêt à être passé à `FileSimulateur`.
 
 ## Prérequis
 
@@ -28,7 +28,7 @@ import parser.ll1.tabledriven.CstParser;
 import parser.ll1.tabledriven.cst.CstNode;
 import parser.conversion.Conversion;
 import parser.conversion.ConversionException;
-import simulateur.Module;
+import erwan.Module;
 import simulateur.FileSimulateur;
 
 CstNode cst   = CstParser.parse(shdlSource);          // peut lever ParsingException
@@ -49,9 +49,45 @@ FileSimulateur sim = new FileSimulateur(module.Plan); // circuit prêt à simule
   `MODULE_CALL_INVALID_ARG`, `MODULE_BAD_SEPARATORS`, `MODULE_ARITY_MISMATCH`,
   `DUPLICATE_MODULE_DEFINITION`.
 
-**Périmètre S1 du convertisseur** : combinatoire scalaire stricte (params
-scalaires, affectations `=`, opérateurs `+ * /`). Hors-scope (vecteurs, `&`,
-`:=`, appel de module, littéraux dans RHS) → `ConversionException` typée.
+**Périmètre du convertisseur** : combinatoire scalaire (params scalaires,
+affectations `=`, opérateurs `+ * /`) **et appel de sous-modules** (voir
+ci-dessous). Hors-scope (vecteurs, `&`, `:=`, littéraux dans RHS) →
+`ConversionException` typée.
+
+## Appel de sous-modules
+
+Un module peut en appeler un autre : `$nom(entrées… : sorties…)` dans le corps
+SHDL. La conversion résout ces appels **par nom, en mémoire** — elle ne lit
+**aucun fichier**.
+
+```java
+// CST principal + CST des modules bibliothèque, tous déjà parsés
+Module m = Conversion.convert(cstPrincipal, List.of(cstFa, cstAnd));
+```
+
+Répartition des responsabilités — à lire avant de coder quoi que ce soit côté
+sous-modules :
+
+| Étape | Qui | Quoi |
+|-------|-----|------|
+| Localiser le `.shdl` d'un sous-module sur le disque, le lire | **appelant** (GUI) | I/O fichier |
+| Parser chaque source en CST | **appelant** | `CstParser.parse` |
+| Indexer par nom, résoudre `$call`, mémoïser, détecter cycles/absences, construire l'IR | **conversion** ✔ fait | `Conversion.convert(main, library)` |
+
+→ **La conversion ne parcourt pas le disque.** On lui passe le CST principal en
+1ᵉʳ argument, les CST de la bibliothèque ensuite ; elle apparie les `$call` aux
+définitions par leur nom. Le chargement disque (lister `modules/`, lire les
+`.shdl`) reste entièrement à la charge de l'appelant.
+
+Erreurs typées, toutes avec l'offset du site d'appel : `MODULE_NOT_FOUND`
+(nom absent de la bibliothèque fournie), `MODULE_CALL_CYCLE`,
+`MODULE_ARITY_MISMATCH`, `MODULE_BAD_SEPARATORS`, `MODULE_CALL_INVALID_ARG`,
+`DUPLICATE_MODULE_DEFINITION`.
+
+**État** : côté conversion, l'appel de sous-modules est **terminé et testé**.
+Le câblage côté `FileSimulateur(Module)` est encore en chantier (Arthur,
+branche `appel_module`) — le test e2e `subModuleCall_halfAdder_tableauVerite`
+est `@Ignore` en attendant.
 
 ## Arborescence
 
@@ -61,10 +97,12 @@ scalaires, affectations `=`, opérateurs `+ * /`). Hors-scope (vecteurs, `&`,
         grammar/                          # Grammar.SHDL, FirstSet, FollowSet
         tabledriven/
           table/  cst/  CstParser.java    # driver LL(1) à pile
-      conversion/                         # CST → simulateur.Module
-        Conversion.java                   # point d'entrée: convert(CstNode) -> Module
+      conversion/                         # CST → erwan.Module
+        Conversion.java                   # point d'entrée: convert(main, library) -> Module
+        ModuleResolver.java               # index nom→CST, résolution + mémoïsation
+        ModuleBuilder.java  ModuleCallBuilder.java   # corps + appels $call
         ConversionException.java
-        Names.java  ExpressionBuilder.java  ModuleBuilder.java
+        Names.java  ExpressionBuilder.java  Subset.java  Bus.java
     simulateur/                           # IR Erwan + circuit Mati
     tests/                                # 193 tests JUnit
     docs/                                 # specs, plans
