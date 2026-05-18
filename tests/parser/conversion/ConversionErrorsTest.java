@@ -33,12 +33,12 @@ public class ConversionErrorsTest {
     }
 
     @Test
-    public void memoryAssignment_rejected() {
+    public void memoryAssignment_accepted() {
+        // Task 4 : := est desormais supporte via MemoryAssignmentBuilder.
         // MemoryAssignment ::= MemAssignOp SumOfTermsCompound OnKW SumOfTerms Comma_Opt Set_Or_Reset WhenKW SumOfTerms Enabled_Operand_Opt Semicolon_Opt
         ConversionException ex = convertAndCatch(
             "module m (a) c := a on a , reset when a end module");
-        assertNotNull(ex);
-        assertEquals(Reason.MEMORY_ASSIGNMENT_NOT_SUPPORTED, ex.reason());
+        assertNull(":= doit etre accepte depuis Task 4", ex);
     }
 
     @Test
