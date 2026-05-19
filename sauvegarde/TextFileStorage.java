@@ -36,7 +36,7 @@ public class TextFileStorage implements FileStorage {
 
     @Override
     public void save(String filename, String content) throws IOException {
-        Path path = Paths.get(filename);
+        Path path = Paths.get(getChemin() + filename);
 
         // Crée les dossiers parents si nécessaire
         if (path.getParent() != null) {

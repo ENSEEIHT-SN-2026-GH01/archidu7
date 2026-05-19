@@ -24,6 +24,7 @@ public class ActionSauvegarder implements EventHandler<ActionEvent>{
 
     public void handle(ActionEvent evt){
         try {
+            System.out.println(sauveur.getChemin());
             // Si c'est un nouveau fichier
             if (sauveur.getActuel() == null) {
                 Window stage = parent.getScene().getWindow();
@@ -31,7 +32,14 @@ public class ActionSauvegarder implements EventHandler<ActionEvent>{
                 File fichier = fileChooser.showSaveDialog(stage);
                     
                 if (fichier != null) {
-                    sauveur.setActuel(fichier.getAbsolutePath());
+                    if (fichier.getParentFile().getName().equals("modules")){
+                        sauveur.setChemin(fichier.getParentFile().getParentFile().getAbsolutePath());
+                    }
+                    else{
+                        sauveur.setChemin(fichier.getParentFile().getAbsolutePath());
+                    }
+                    sauveur.setActuel("/modules/" + fichier.getName());
+                    
                 } else {
                     return; // L'utilisateur a fermé la fenêtre sans choisir de fichier
                 }

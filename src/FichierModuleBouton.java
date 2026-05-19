@@ -25,7 +25,7 @@ public class FichierModuleBouton extends Button {
         super(nomFichier.substring(0, tailleNom));
         setPrefSize(moduleBoutonLargeur, moduleBoutonHauteur);
 
-        cheminFichier = "./modules/" + nomFichier;
+        cheminFichier = "/modules/" + nomFichier;
 
         setOnAction(event -> {
             try {
