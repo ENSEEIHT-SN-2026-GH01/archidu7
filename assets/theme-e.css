@@ -20,6 +20,10 @@
     -couleur-encre-douce:    #5a3a1e; /* texte cuivre adouci */
     -couleur-module-bord:    #c2a878; /* biseau bas/droite des modules */
     -couleur-gris:           #646464;
+    -couleur-blanc:          #ffffff; /* biseau clair haut/gauche */
+    -couleur-rouge:          #c0392b; /* erreurs de syntaxe */
+    -couleur-teal-fonce:     #1a3330; /* texte sur module actif */
+    -couleur-teal-tres-clair:#c4e8e2; /* biseau clair du module actif */
 }
 
 /* ---- Racine : BorderPane principal ---- */
@@ -30,16 +34,13 @@
     -fx-font-family: "monospace";
 }
 
-/* ---- Bandeau cuivre : VBox(menu + boutons) ---- */
+/* ---- Bandeau cuivre : VBox(menu + boutons) ----
+   Reflet clair cuivré en haut + trait noir en bas (biseau métal). */
 .bandeau {
     -fx-background-color: -couleur-bandeau;
-    -fx-border-color: transparent transparent -couleur-contour transparent;
-    -fx-border-width: 0 0 3 0;
+    -fx-border-color: -couleur-bandeau-clair transparent -couleur-contour transparent;
+    -fx-border-width: 2 0 3 0;
     -fx-padding: 6;
-}
-/* reflet clair en haut du bandeau */
-.bandeau {
-    -fx-background-insets: 0;
 }
 
 /* ---- MenuBar posé sur le bandeau ---- */
@@ -57,7 +58,7 @@
     -fx-background-color: -couleur-fond;
     -fx-text-fill: -couleur-encre-douce;
     -fx-font-weight: bold;
-    -fx-border-color: #ffffff #000000 #000000 #ffffff; /* haut/droite/bas/gauche */
+    -fx-border-color: -couleur-blanc -couleur-contour -couleur-contour -couleur-blanc; /* haut/droite/bas/gauche */
     -fx-border-width: 2 2 3 2;
     -fx-background-radius: 0;
     -fx-padding: 6 12 6 12;
@@ -106,7 +107,7 @@
     -fx-background-color: -couleur-creme-clair;
     -fx-text-fill: -couleur-encre-douce;
     -fx-font-weight: bold;
-    -fx-border-color: #ffffff -couleur-module-bord -couleur-module-bord #ffffff;
+    -fx-border-color: -couleur-blanc -couleur-module-bord -couleur-module-bord -couleur-blanc;
     -fx-border-width: 2 2 3 2;
     -fx-background-radius: 0;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.28), 0, 0, 2, 2);
@@ -117,8 +118,8 @@
 /* module actif : vert d'eau (accent) */
 .module-actif {
     -fx-background-color: -couleur-teal-clair;
-    -fx-text-fill: #1a3330;
-    -fx-border-color: #c4e8e2 -couleur-teal-ombre -couleur-teal-ombre #c4e8e2;
+    -fx-text-fill: -couleur-teal-fonce;
+    -fx-border-color: -couleur-teal-tres-clair -couleur-teal-ombre -couleur-teal-ombre -couleur-teal-tres-clair;
 }
 
 /* ---- Zone éditeur : StackPane crème clair, effet creux ---- */
@@ -152,13 +153,13 @@
 .editeur .num { -fx-fill: -couleur-jaune-ombre; }
 .editeur .bit { -fx-fill: -couleur-teal; }
 .editeur .op  { -fx-fill: -couleur-encre-douce; }
-.editeur .err { -fx-fill: #c0392b; }
+.editeur .err { -fx-fill: -couleur-rouge; }
 .editeur .par-1 { -fx-fill: -couleur-bandeau; }
 .editeur .par-2 { -fx-fill: -couleur-teal-ombre; }
 .editeur .par-3 { -fx-fill: -couleur-jaune-ombre; }
 .editeur .par-4 { -fx-fill: -couleur-bandeau-clair; }
 .editeur .par-5 { -fx-fill: -couleur-teal; }
-.editeur .par-x { -fx-fill: #c0392b; }
+.editeur .par-x { -fx-fill: -couleur-rouge; }
 
 /* ---- Interrupteurs (entrées) : cadre + ombre autour du PNG ---- */
 .interrupteur {

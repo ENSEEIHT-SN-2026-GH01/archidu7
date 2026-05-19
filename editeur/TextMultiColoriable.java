@@ -42,6 +42,9 @@ public class TextMultiColoriable extends TextDecoupable{
     public void colorier(int debut, int fin, String classeCss){
         decoupeMorceau(debut, fin);
         Text aColorier = cache.getMorceau();
+        // setAll (et non add) : recolorer une même cellule remplace l'ancienne
+        // classe au lieu de l'accumuler. Conséquence : toute autre styleClass
+        // posée par ailleurs sur ce Text serait écrasée à la passe suivante.
         aColorier.getStyleClass().setAll("text", classeCss);
     }
 }

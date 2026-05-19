@@ -32,6 +32,8 @@ public class FenetrePrincipale extends Scene {
         VBox outils = new VBox(menu, boutons, onglets);
         outils.getStyleClass().add("bandeau");
 
+        // La racine doit rester un BorderPane : ActionSimuler la récupère
+        // (via la Scene) pour afficher la zone de simulation dans son bottom.
         root.setCenter(editeur);
         root.setTop(outils);
         root.setLeft(environnement);
