@@ -91,3 +91,32 @@
     -fx-translate-y: 2;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 0, 0, 1, 1);
 }
+
+/* ---- Panneau modules : ScrollPane parchemin ---- */
+.panneau {
+    -fx-background-color: -couleur-parchemin;
+    -fx-border-color: transparent -couleur-contour transparent transparent;
+    -fx-border-width: 0 3 0 0;
+}
+.panneau > .viewport { -fx-background-color: -couleur-parchemin; }
+.panneau .content   { -fx-background-color: -couleur-parchemin; }
+
+/* ---- Item module ---- */
+.module {
+    -fx-background-color: -couleur-creme-clair;
+    -fx-text-fill: -couleur-encre-douce;
+    -fx-font-weight: bold;
+    -fx-border-color: #ffffff -couleur-module-bord -couleur-module-bord #ffffff;
+    -fx-border-width: 2 2 3 2;
+    -fx-background-radius: 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.28), 0, 0, 2, 2);
+}
+.module:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.28), 0, 0, 3, 4);
+}
+/* module actif : vert d'eau (accent) */
+.module-actif {
+    -fx-background-color: -couleur-teal-clair;
+    -fx-text-fill: #1a3330;
+    -fx-border-color: #c4e8e2 -couleur-teal-ombre -couleur-teal-ombre #c4e8e2;
+}

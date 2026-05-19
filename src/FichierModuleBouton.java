@@ -25,6 +25,7 @@ public class FichierModuleBouton extends Button {
         setPrefSize(moduleBoutonLargeur, moduleBoutonHauteur);
 
         cheminFichier = "/modules/" + nomFichier;
+        getStyleClass().add("module");
 
         setOnAction(event -> {
             try {

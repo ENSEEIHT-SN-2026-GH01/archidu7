@@ -25,6 +25,7 @@ public class ListeModulePrincipale extends ScrollPane {
         liste.setPrefWidth(FichierModuleBouton.moduleBoutonLargeur);
         setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         setContent(liste);
+        getStyleClass().add("panneau");
         modules = new ArrayList<FichierModuleBouton>();
 
         //chargement de l'environnement
