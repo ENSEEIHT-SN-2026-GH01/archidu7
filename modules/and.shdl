@@ -1,3 +1,0 @@
-module and(a, b : c) 
-  c = a*b 
-end module
