@@ -8,6 +8,7 @@ import javafx.scene.layout.VBox;
 import parser.lexer.Lexer;
 import sauvegarde.FileStorage;
 import sauvegarde.TextFileStorage;
+import simulateur.appel.GestionnaireModules;
 import boutons.BoutonsPrincipale;
 
 public class FenetrePrincipale extends Scene {
@@ -35,6 +36,7 @@ public class FenetrePrincipale extends Scene {
 
         colorateur = new GestionnaireColorateur(editeur);
         lexer = new Lexer();
+        GestionnaireModules.lexer = lexer;
         editeur.addListener(new EditeurListener());
     }
 

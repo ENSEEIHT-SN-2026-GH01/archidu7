@@ -29,7 +29,7 @@ public class FichierModuleBouton extends Button {
 
         setOnAction(event -> {
             try {
-                String contenu = storage.load(cheminFichier);
+                String contenu = storage.load(cheminFichier, true);
                 editeur.setText(contenu);
             } catch (IOException e) {
                 editeur.setText("// Erreur : impossible de charger " + nomFichier + "\n// " + e.getMessage());

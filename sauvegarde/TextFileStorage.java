@@ -57,7 +57,7 @@ public class TextFileStorage implements FileStorage {
     }
 
     @Override
-    public String load(String filename) throws IOException {
+    public String load(String filename, boolean ouvertureEditeur) throws IOException {
         Path path = Paths.get(chemin + filename);
 
         if (!Files.exists(path)) {
@@ -69,7 +69,7 @@ public class TextFileStorage implements FileStorage {
         /*suppression de caractères problèmatiques */
         content = content.replace((char) 13, ' ');
 
-        fichierOuvert = filename;
+        if (ouvertureEditeur) fichierOuvert = filename;
         return content;
     }
 
