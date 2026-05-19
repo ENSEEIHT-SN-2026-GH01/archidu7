@@ -42,6 +42,7 @@ public final class ModuleBuilder {
         List<Erwan> plan = new ArrayList<>();
         List<AppelModule> branchements = new ArrayList<>();
         Set<String> lhsSeen = new HashSet<>();
+        FreshNames freshNames = new FreshNames(collectLeafTexts(mod));
 
         CstNode instancePlus = mod.first(NonTerminal.Instance_Plus).orElseThrow(() ->
             new ConversionException(mod.startOffset(), "Module",
@@ -56,7 +57,8 @@ public final class ModuleBuilder {
         plan.addAll(buildInstance(ip.first(NonTerminal.Instance).orElseThrow(() ->
             new ConversionException(ip.startOffset(), "Instance_Plus",
                 ConversionException.Reason.MALFORMED_CST,
-                "Instance_Plus sans enfant Instance")), lhsSeen, resolver, branchements));
+                "Instance_Plus sans enfant Instance")), lhsSeen, resolver, branchements,
+            freshNames));
 
         CstNode starNode = ip.first(NonTerminal.Instance_Star).orElseThrow(() ->
             new ConversionException(ip.startOffset(), "Instance_Plus",
@@ -72,7 +74,8 @@ public final class ModuleBuilder {
             plan.addAll(buildInstance(star.first(NonTerminal.Instance).orElseThrow(() ->
                 new ConversionException(starOffset, "Instance_Star",
                     ConversionException.Reason.MALFORMED_CST,
-                    "Instance_Star non-epsilon sans enfant Instance")), lhsSeen, resolver, branchements));
+                    "Instance_Star non-epsilon sans enfant Instance")), lhsSeen, resolver,
+                branchements, freshNames));
             CstNode nextStarNode = star.first(NonTerminal.Instance_Star).orElseThrow(() ->
                 new ConversionException(starOffset, "Instance_Star",
                     ConversionException.Reason.MALFORMED_CST,
@@ -91,6 +94,28 @@ public final class ModuleBuilder {
 
     /** Résultat de l'analyse de la liste de paramètres d'un module. */
     private record Signature(List<Descripteur> entrees, List<Descripteur> sorties) {}
+
+    /**
+     * Pre-passage : collecte le texte de toutes les feuilles du sous-arbre du
+     * module. Sur-collecte volontairement (mots-cles, operateurs inclus) — un
+     * sur-ensemble ne fait que rendre la generation de noms frais plus stricte,
+     * jamais incorrecte.
+     */
+    private static Set<String> collectLeafTexts(CstNode node) {
+        Set<String> acc = new HashSet<>();
+        collectLeafTexts(node, acc);
+        return acc;
+    }
+
+    private static void collectLeafTexts(CstNode node, Set<String> acc) {
+        if (node instanceof CstLeaf leaf) {
+            acc.add(leaf.lexem().getText());
+        } else if (node instanceof CstInternal inter) {
+            for (CstNode child : inter.children()) {
+                collectLeafTexts(child, acc);
+            }
+        }
+    }
 
     /**
      * Parcourt {@code Param Separ_Param_Star} du nœud Module et construit la {@link Signature}.
@@ -195,7 +220,7 @@ public final class ModuleBuilder {
     }
 
     private static List<Erwan> buildInstance(CstNode instanceNode, Set<String> lhsSeen,
-            ModuleResolver resolver, List<AppelModule> branchements) {
+            ModuleResolver resolver, List<AppelModule> branchements, FreshNames freshNames) {
         if (!(instanceNode instanceof CstInternal inst) || inst.nt() != NonTerminal.Instance) {
             throw new ConversionException(instanceNode.startOffset(), String.valueOf(instanceNode.symbol()),
                 ConversionException.Reason.MALFORMED_CST, "Attendu CstInternal(Instance)");
@@ -288,9 +313,11 @@ public final class ModuleBuilder {
         }
         // Assignment -> SignalAssignment | MemoryAssignment
         if (assignment.has(NonTerminal.MemoryAssignment)) {
-            throw new ConversionException(assignment.startOffset(), "Assignment",
-                ConversionException.Reason.MEMORY_ASSIGNMENT_NOT_SUPPORTED,
-                "Affectation memoire (:=) non supportee en S1 (offset " + assignment.startOffset() + ")");
+            CstNode memNode = assignment.first(NonTerminal.MemoryAssignment).orElseThrow(() ->
+                new ConversionException(assignment.startOffset(), "Assignment",
+                    ConversionException.Reason.MALFORMED_CST,
+                    "Assignment sans enfant MemoryAssignment"));
+            return MemoryAssignmentBuilder.build(memNode, nom, lhsSubset, freshNames);
         }
         CstNode sigA = assignment.first(NonTerminal.SignalAssignment).orElseThrow(() ->
             new ConversionException(assignment.startOffset(), "Assignment",

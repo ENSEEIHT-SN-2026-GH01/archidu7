@@ -10,6 +10,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
+import simulateur.appel.GestionnaireModules;
+
 public class TextFileStorage implements FileStorage {
 
     private final Charset charset;
@@ -22,6 +24,8 @@ public class TextFileStorage implements FileStorage {
         this.charset = StandardCharsets.UTF_8;
         ecouteurs = new ArrayList<>();
         chemin = System.getProperty("user.dir");
+
+        GestionnaireModules.sauveur = this;
     }
 
     // Constructeur avec charset personnalisé
@@ -53,7 +57,7 @@ public class TextFileStorage implements FileStorage {
     }
 
     @Override
-    public String load(String filename) throws IOException {
+    public String load(String filename, boolean ouvertureEditeur) throws IOException {
         Path path = Paths.get(chemin + filename);
 
         if (!Files.exists(path)) {
@@ -65,7 +69,7 @@ public class TextFileStorage implements FileStorage {
         /*suppression de caractères problèmatiques */
         content = content.replace((char) 13, ' ');
 
-        fichierOuvert = filename;
+        if (ouvertureEditeur) fichierOuvert = filename;
         return content;
     }
 

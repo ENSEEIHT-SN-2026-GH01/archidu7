@@ -18,10 +18,11 @@ public interface FileStorage {
      * Charge le contenu d'un fichier texte.
      *
      * @param filename le chemin relatif du fichier à lire
+     * @param ouvertureEditeur vrai si on charge le fichier dans l'éditeur.
      * @return le contenu du fichier sous forme de String
      * @throws IOException en cas d'erreur de lecture ou fichier introuvable
      */
-    String load(String filename) throws IOException;
+    String load(String filename, boolean ouvertureEditeur) throws IOException;
 
     /**Donne le chemin du fichier actuellement ouvert.
      * 
