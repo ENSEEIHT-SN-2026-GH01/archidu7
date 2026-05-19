@@ -74,6 +74,13 @@ public class FileSimulateur implements Simulateur{
 						curs2 ++;
 					}
 				}
+				//TODO TODO C'est ici le patch
+				for (int curs = 0; curs < A.DS.size(); curs++){
+                                	for (Erwan E : A.DS.get(curs).Erwans()) {
+                                        	System.out.println("\nSortie enregistrée : "+ Dico.getConnecteurE(E).getNom() +".\n");
+                                	}
+				}
+
 			}
 		}
 		List<StructEntree> EntreeUtilisateur = new ArrayList<>();
@@ -105,7 +112,7 @@ public class FileSimulateur implements Simulateur{
             if (!Dico.existe(Nom)) throw new RuntimeException("Il manque une sortie : " + Nom +". \nVeuillez verifier que ce signal est  et n'est pas déjà généré par le circuit.");
 			//System.out.println("On cherche : " + Nom);
 				Connecteur CS = Dico.getConnecteur(Nom);
-				Composant petitPlus = new EntreeModule(CS.getSignal());
+				Composant petitPlus = new EntreeModule(CS.getSignal(Dico));
                 T.brancher(CS,curseurSortie);
 				//System.out.println("on recupère : " + Dico.getConnecteur(Nom).getNom());
                 curseurSortie += 1;
@@ -137,7 +144,21 @@ public class FileSimulateur implements Simulateur{
 							Connecteur CS = Smodule.getSorties(curs+1,curs2+1);
 							Composant Csuite = CS.getComposant();
 							if ((Csuite == null )|| !(Csuite instanceof EntreeModule) ){
-								throw new RuntimeException("Pb de conception, c'est la faute de Mati.");
+								if (!(Csuite instanceof Multiplicateur)){
+									throw new RuntimeException("Pb de conception, c'est la faute de Mati.");
+								}
+								Multiplicateur Mati = (Multiplicateur) Csuite;
+								int zob = 1;
+								boolean fzob = false;
+								while (zob <= Mati.getNbSortie() && !fzob) {
+									Connecteur Css = Mati.getConnecteurSortie(zob);
+									if (Css.getComposant() instanceof EntreeModule) {
+										fzob = true;
+										Csuite = Css.getComposant();
+									}
+									zob ++;
+								}
+								if (!fzob) throw new RuntimeException("Pb de conception, c'est la faute de Mati.");
 							}
 							EntreeModule Em = (EntreeModule) Csuite;
 							TableauConnecteur T = new TableauConnecteur(1);

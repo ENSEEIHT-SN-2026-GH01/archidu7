@@ -17,3 +17,4 @@ src-gen/
 *.zip
 .vscode/
 javafx-sdk-*/
+git.sh
