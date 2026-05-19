@@ -35,6 +35,9 @@ public class FenetrePrincipale extends Scene {
         root.setTop(outils);
         root.setLeft(environnement);
 
+        root.getStyleClass().add("racine");
+        getStylesheets().add(getClass().getResource("/assets/theme-e.css").toExternalForm());
+
         colorateur = new GestionnaireColorateur(editeur);
         lexer = new Lexer();
         GestionnaireModules.lexer = lexer;

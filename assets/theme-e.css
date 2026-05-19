@@ -1,0 +1,31 @@
+/* =========================================================================
+   theme-e.css — thème « E × DA Arthur » (agencement B2 : bandeau cuivre)
+   Palette extraite des 6 assets PNG d'Arthur. Pour retoucher l'interface,
+   modifier UNIQUEMENT les valeurs ci-dessous : tout le reste suit.
+   ========================================================================= */
+.root {
+    -couleur-contour:        #000000;
+    -couleur-bandeau:        #924722;
+    -couleur-bandeau-clair:  #b65a2d;
+    -couleur-fond:           #f2e8cf;
+    -couleur-parchemin:      #e8d9b0;
+    -couleur-creme-clair:    #fbf6e6;
+    -couleur-jaune:          #f6ff7e;
+    -couleur-jaune-clair:    #f9ffa2;
+    -couleur-jaune-ombre:    #616435;
+    -couleur-teal:           #88bfb8;
+    -couleur-teal-clair:     #9ad6ce;
+    -couleur-teal-ombre:     #719f99;
+    -couleur-encre:          #241408; /* texte sombre sur fond clair */
+    -couleur-encre-douce:    #5a3a1e; /* texte cuivre adouci */
+    -couleur-module-bord:    #c2a878; /* biseau bas/droite des modules */
+    -couleur-gris:           #646464;
+}
+
+/* ---- Racine : BorderPane principal ---- */
+.racine {
+    -fx-background-color: -couleur-fond;
+    -fx-border-color: -couleur-contour;
+    -fx-border-width: 4;
+    -fx-font-family: "monospace";
+}
