@@ -40,7 +40,8 @@
     -fx-background-color: -couleur-bandeau;
     -fx-border-color: -couleur-bandeau-clair transparent -couleur-contour transparent;
     -fx-border-width: 2 0 3 0;
-    -fx-padding: 6;
+    -fx-padding: 12 18 14 14; /* haut/droite/bas/gauche : marge autour des boutons */
+    -fx-spacing: 6;           /* respiration entre la rangée menu et la rangée boutons */
 }
 
 /* ---- MenuBar posé sur le bandeau ---- */
@@ -110,12 +111,14 @@
 .panneau > .viewport { -fx-background-color: -couleur-parchemin; }
 .panneau .content   { -fx-background-color: -couleur-parchemin; }
 
-/* VBox contenant les boutons de modules : espace vertical pour que
-   l'ombre portée de chaque module soit visible (sinon le module suivant
-   la masque en étant collé dessous). */
+/* VBox contenant les boutons de modules.
+   - spacing : espace vertical pour que l'ombre basse de chaque module soit
+     visible (sinon le module suivant la masque en étant collé dessous).
+   - padding horizontal : rétrécit les modules par rapport au panneau pour
+     dégager un espace à droite où l'ombre latérale apparaît. */
 .liste-modules {
     -fx-spacing: 16;
-    -fx-padding: 12 0 12 0;
+    -fx-padding: 12 16 12 16;
 }
 
 /* ---- Item module ----
