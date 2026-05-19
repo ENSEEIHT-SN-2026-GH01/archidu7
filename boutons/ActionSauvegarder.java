@@ -24,7 +24,6 @@ public class ActionSauvegarder implements EventHandler<ActionEvent>{
 
     public void handle(ActionEvent evt){
         try {
-            System.out.println(sauveur.getChemin());
             // Si c'est un nouveau fichier
             if (sauveur.getActuel() == null) {
                 Window stage = parent.getScene().getWindow();

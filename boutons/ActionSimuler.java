@@ -27,7 +27,8 @@ public class ActionSimuler implements EventHandler<ActionEvent>{
         //calcule de l'arbre
         try{
             String nom = GestionnaireModules.sauveur.getActuel();
-            nom = nom.substring(10, nom.length() - 5);
+            System.out.println(nom);
+            nom = nom.substring(9, nom.length() - 5);
             CstNode arbre = GestionnaireModules.calculerUn(editeur.getText());
         
 
