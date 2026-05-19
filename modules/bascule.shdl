@@ -1,0 +1,3 @@
+module bascule(a, clk, rst : b) 
+  b := a on clk reset when rst
+end module
