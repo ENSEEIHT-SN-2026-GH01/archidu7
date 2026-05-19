@@ -73,8 +73,9 @@ public class EditeurTexte extends StackPane{
             }
         });
 
-        getChildren().addAll(deriere, superContenneurDevant); 
+        getChildren().addAll(deriere, superContenneurDevant);
         superContenneurDevant.setClip(clip);
+        getStyleClass().add("editeur");
     }
 
     /**Colorie le morceau de texte entre les deux indices (inclus).

@@ -25,9 +25,6 @@ public class EditeurTexteInvisible extends TextArea {
         // horizontale plutôt que des lignes de code coupées arbitrairement.
         //this.setWrapText(false);
 
-        setStyle(
-            "-fx-text-fill: rgba(0, 0, 0, 0.3);" +
-            "-fx-highlight-text-fill: transparent;" 
-        );
+        getStyleClass().add("editeur-invisible");
     }
 }

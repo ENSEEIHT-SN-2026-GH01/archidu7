@@ -120,3 +120,19 @@
     -fx-text-fill: #1a3330;
     -fx-border-color: #c4e8e2 -couleur-teal-ombre -couleur-teal-ombre #c4e8e2;
 }
+
+/* ---- Zone éditeur : StackPane crème clair, effet creux ---- */
+.editeur {
+    -fx-background-color: -couleur-creme-clair;
+    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.2), 7, 0, 3, 3);
+}
+/* TextArea du calque invisible : conserve le texte arrière estompé.
+   Remplace le setStyle inline retiré d'EditeurTexteInvisible.java. */
+.editeur-invisible,
+.editeur-invisible .content {
+    -fx-background-color: transparent;
+}
+.editeur-invisible {
+    -fx-text-fill: rgba(0, 0, 0, 0.3);
+    -fx-highlight-text-fill: transparent;
+}
