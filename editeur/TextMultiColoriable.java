@@ -30,4 +30,18 @@ public class TextMultiColoriable extends TextDecoupable{
         Text aColorier = cache.getMorceau(); //cache contient la cellule qui vient d'être découpé
         aColorier.setFill(couleur);
     }
+
+    /**Applique une classe de style CSS au morceau de texte entre les
+     * deux indices (inclus). La classe "text" est conservée pour garder
+     * le style de base du nœud Text.
+     *
+     * @param debut
+     * @param fin
+     * @param classeCss Nom de la styleClass définie dans theme-e.css.
+     */
+    public void colorier(int debut, int fin, String classeCss){
+        decoupeMorceau(debut, fin);
+        Text aColorier = cache.getMorceau();
+        aColorier.getStyleClass().setAll("text", classeCss);
+    }
 }

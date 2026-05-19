@@ -136,3 +136,22 @@
     -fx-text-fill: rgba(0, 0, 0, 0.3);
     -fx-highlight-text-fill: transparent;
 }
+
+/* ---- Coloration syntaxique de l'éditeur ----
+   Les nœuds Text portent la styleClass "text" + une classe sémantique.
+   Un Text se colore avec -fx-fill (et non -fx-text-fill). */
+.editeur .text        { -fx-fill: -couleur-encre; }
+.editeur .txt-defaut  { -fx-fill: -couleur-encre; }
+.editeur .kw  { -fx-fill: -couleur-bandeau; -fx-font-weight: bold; }
+.editeur .sg  { -fx-fill: -couleur-teal-ombre; }
+.editeur .cm  { -fx-fill: -couleur-gris; }
+.editeur .num { -fx-fill: -couleur-jaune-ombre; }
+.editeur .bit { -fx-fill: -couleur-teal; }
+.editeur .op  { -fx-fill: -couleur-encre-douce; }
+.editeur .err { -fx-fill: #c0392b; }
+.editeur .par-1 { -fx-fill: -couleur-bandeau; }
+.editeur .par-2 { -fx-fill: -couleur-teal-ombre; }
+.editeur .par-3 { -fx-fill: -couleur-jaune-ombre; }
+.editeur .par-4 { -fx-fill: -couleur-bandeau-clair; }
+.editeur .par-5 { -fx-fill: -couleur-teal; }
+.editeur .par-x { -fx-fill: #c0392b; }

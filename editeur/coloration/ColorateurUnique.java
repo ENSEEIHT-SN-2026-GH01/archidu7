@@ -1,6 +1,5 @@
 package editeur.coloration;
 import editeur.EditeurTexte;
-import javafx.scene.paint.*;
 import parser.lexer.Lexem;
 import parser.lexer.Token;
 
@@ -14,42 +13,32 @@ public class ColorateurUnique implements ColorateurToken{
     }
 
     /**
-     * Indique une couleur associé au type du token.
-     * @return La couleur associé.
+     * Indique la classe CSS associée au type du token.
+     * @return Le nom de styleClass défini dans theme-e.css.
      */
-    private static Color choixCouleur(Lexem<Token> tok){
+    private static String choixClasse(Lexem<Token> tok){
         switch (tok.getToken()) {
             case Identifiant:
-                return Color.rgb(20, 20, 100);
+                return "sg";
             case NaturalInteger, PointPoint:
-                return Color.ORANGE;
+                return "num";
             case BitField:
-                return Color.LIGHTGREEN;
-
+                return "bit";
             case ModuleKW,EndKW,OutputKW,EnabledKW,WhenKW,OnKW,ResetKW,SetKW:
-                return Color.BLUE;
-
+                return "kw";
             case ConcatOp,Colon,OrOp,Star,NotOp,AssignOp,MemAssignOp,Comma,Semicolon,Dollar:
-                 return Color.DARKGRAY;
-
+                return "op";
             case Error:
-                return Color.RED;
-
+                return "err";
             case Comment:
-                return Color.GREEN;
+                return "cm";
             default:
-                return Color.DARKBLUE;
+                return "txt-defaut";
         }
     }
 
     @Override
-    public Color getCouleur(){
-        return choixCouleur(tok);
-    }
-
-    @Override
     public void appliqueCouleur(EditeurTexte editeur){
-        Color couleur = choixCouleur(tok);
-        editeur.colorier(tok.getIndexDepart(), tok.getIndexFin() - 1, couleur);
+        editeur.colorier(tok.getIndexDepart(), tok.getIndexFin() - 1, choixClasse(tok));
     }
 }

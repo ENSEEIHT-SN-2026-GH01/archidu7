@@ -1,40 +1,33 @@
 package editeur.coloration;
 
 import editeur.EditeurTexte;
-import javafx.scene.paint.Color;
 import parser.lexer.Lexem;
 import parser.lexer.Token;
 
 /**Colorateur pour les simili-parenthèses. */
 public class ColorateurParenthese implements ColorateurToken{
-    private Color couleur;
+    private String classe;
     private Lexem<Token> tok;
 
     public ColorateurParenthese(Lexem<Token> tok, EmpilieurParenthese empileur){
         this.tok = tok;
-        couleur = choixCouleur(0);
+        classe = choixClasse(0);
         empileur.traiter(this);
     }
 
-    private static Color choixCouleur(int profondeur){
+    private static String choixClasse(int profondeur){
         switch (profondeur) {
-            case 1:
-                return Color.PURPLE;
-            case 2:
-                return Color.BLUE;
-            case 3:
-                return Color.YELLOW;
-            case 4:
-                return Color.DARKGREEN;
-            case 5:
-                return Color.ORANGE;
-            default:
-                return Color.RED;
+            case 1:  return "par-1";
+            case 2:  return "par-2";
+            case 3:  return "par-3";
+            case 4:  return "par-4";
+            case 5:  return "par-5";
+            default: return "par-x";
         }
     }
 
     public void setCouleur(int profondeur){
-        couleur = choixCouleur(profondeur);
+        classe = choixClasse(profondeur);
     }
 
     public Lexem<Token> getToken(){
@@ -42,12 +35,7 @@ public class ColorateurParenthese implements ColorateurToken{
     }
 
     @Override
-    public Color getCouleur(){
-        return couleur;
-    }
-
-    @Override
     public void appliqueCouleur(EditeurTexte editeur){
-        editeur.colorier(tok.getIndexDepart(), tok.getIndexFin() - 1, couleur);
+        editeur.colorier(tok.getIndexDepart(), tok.getIndexFin() - 1, classe);
     }
 }

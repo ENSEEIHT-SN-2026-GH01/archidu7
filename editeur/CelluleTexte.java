@@ -28,7 +28,6 @@ public class CelluleTexte {
 
         //font
         morceau.setFont(font);
-        morceau.setStyle("-fx-font-weight: 700");
         this.font = font;
     }
 

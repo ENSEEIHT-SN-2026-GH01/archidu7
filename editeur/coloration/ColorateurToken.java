@@ -1,14 +1,7 @@
 package editeur.coloration;
 import editeur.EditeurTexte;
-import javafx.scene.paint.*;
 
 public interface ColorateurToken {
-    
-    /**
-     * La couleur du token associé.
-     * @return
-     */
-    Color getCouleur();
 
     /**
      * Colorie le token associé.

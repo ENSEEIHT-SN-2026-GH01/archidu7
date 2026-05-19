@@ -88,6 +88,17 @@ public class EditeurTexte extends StackPane{
         devant.colorier(debut, fin, couleur);
     }
 
+    /**Applique une classe de style CSS au morceau de texte entre les
+     * deux indices (inclus).
+     *
+     * @param debut
+     * @param fin
+     * @param classeCss Nom de la styleClass définie dans theme-e.css.
+     */
+    public void colorier(int debut, int fin, String classeCss){
+        devant.colorier(debut, fin, classeCss);
+    }
+
     /**Renvoie tous le texte de l'éditeur.
      *
      * @return  
