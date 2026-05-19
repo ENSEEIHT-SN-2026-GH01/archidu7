@@ -64,7 +64,7 @@ public class GestionnaireModules {
         } 
     }
 
-    private static String getNom(String texteSHDL){
+    public static String getNom(String texteSHDL){
         List<Lexem<Token>> toks = lexer.tokenize(texteSHDL);
         for (Lexem<Token> lexem : toks) {
             if (lexem.getToken() == Token.Identifiant){

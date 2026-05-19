@@ -26,11 +26,8 @@ public class ActionSimuler implements EventHandler<ActionEvent>{
 
         //calcule de l'arbre
         try{
-            String nom = GestionnaireModules.sauveur.getActuel();
-            System.out.println(nom);
-            nom = nom.substring(9, nom.length() - 5);
             CstNode arbre = GestionnaireModules.calculerUn(editeur.getText());
-        
+            String nom = GestionnaireModules.getNom(editeur.getText());
 
             //creation du module
             while (!fini){
@@ -68,6 +65,5 @@ public class ActionSimuler implements EventHandler<ActionEvent>{
     private void gestionExceptionCompilation(RuntimeException e){
         //TODO
         System.out.println(e.getMessage());
-        throw e;
     }
 }
