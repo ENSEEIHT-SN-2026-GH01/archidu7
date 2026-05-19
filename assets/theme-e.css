@@ -127,9 +127,13 @@
     -fx-effect: innershadow(gaussian, rgba(0,0,0,0.2), 7, 0, 3, 3);
 }
 /* TextArea du calque invisible : conserve le texte arrière estompé.
-   Remplace le setStyle inline retiré d'EditeurTexteInvisible.java. */
+   Remplace le setStyle inline retiré d'EditeurTexteInvisible.java.
+   Toutes les sous-régions de la TextArea sont rendues transparentes
+   pour laisser apparaître le fond crème de .editeur. */
 .editeur-invisible,
-.editeur-invisible .content {
+.editeur-invisible .content,
+.editeur-invisible .scroll-pane,
+.editeur-invisible .viewport {
     -fx-background-color: transparent;
 }
 .editeur-invisible {
