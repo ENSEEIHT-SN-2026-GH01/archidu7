@@ -28,6 +28,10 @@ public class BoutonsPrincipale extends ButtonBar {
         Button btnSimuler = new BoutonSimuler(editeur);
 
         getButtons().addAll(btnNouveau, btnCharger, btnSauvegarder, btnSimuler);
+        btnNouveau.getStyleClass().add("bouton");
+        btnCharger.getStyleClass().add("bouton");
+        btnSauvegarder.getStyleClass().add("bouton");
+        btnSimuler.getStyleClass().add("bouton-simuler");
     }
 
     /**

@@ -51,3 +51,43 @@
 .bandeau-menu .menu:showing {
     -fx-background-color: -couleur-bandeau-clair;
 }
+
+/* ---- Boutons clairs posés sur le bandeau (Nouveau / Sauvegarder) ---- */
+.bouton {
+    -fx-background-color: -couleur-fond;
+    -fx-text-fill: -couleur-encre-douce;
+    -fx-font-weight: bold;
+    -fx-border-color: #ffffff #000000 #000000 #ffffff; /* haut/droite/bas/gauche */
+    -fx-border-width: 2 2 3 2;
+    -fx-background-radius: 0;
+    -fx-padding: 6 12 6 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 0, 0, 2, 3);
+}
+.bouton:hover {
+    -fx-translate-y: -1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 0, 0, 3, 5);
+}
+.bouton:pressed {
+    -fx-translate-y: 2;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 0, 0, 1, 1);
+}
+
+/* ---- Bouton Simuler : jaune ---- */
+.bouton-simuler {
+    -fx-background-color: -couleur-jaune;
+    -fx-text-fill: -couleur-encre;
+    -fx-font-weight: bold;
+    -fx-border-color: -couleur-jaune-clair -couleur-jaune-ombre -couleur-jaune-ombre -couleur-jaune-clair;
+    -fx-border-width: 2 2 3 2;
+    -fx-background-radius: 0;
+    -fx-padding: 6 12 6 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 0, 0, 2, 3);
+}
+.bouton-simuler:hover {
+    -fx-translate-y: -1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 0, 0, 3, 5);
+}
+.bouton-simuler:pressed {
+    -fx-translate-y: 2;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 0, 0, 1, 1);
+}
