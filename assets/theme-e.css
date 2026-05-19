@@ -53,44 +53,52 @@
     -fx-background-color: -couleur-bandeau-clair;
 }
 
-/* ---- Boutons clairs posés sur le bandeau (Nouveau / Sauvegarder) ---- */
+/* ---- Boutons clairs posés sur le bandeau (Nouveau / Sauvegarder) ----
+   -fx-background-insets: 0 annule le débord -1px hérité de Modena qui
+   laissait un liseré de couleur-bouton sous la bordure basse.
+   Relief : biseau épais (clair haut/gauche, sombre bas/droite) + ombre
+   portée dure et décalée. */
 .bouton {
     -fx-background-color: -couleur-fond;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
     -fx-text-fill: -couleur-encre-douce;
     -fx-font-weight: bold;
+    -fx-font-size: 14px;
     -fx-border-color: -couleur-blanc -couleur-contour -couleur-contour -couleur-blanc; /* haut/droite/bas/gauche */
-    -fx-border-width: 2 2 3 2;
-    -fx-background-radius: 0;
-    -fx-padding: 6 12 6 12;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 0, 0, 2, 3);
+    -fx-border-width: 3 4 5 3;
+    -fx-padding: 11 24 11 24;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 0, 0, 5, 7);
 }
 .bouton:hover {
-    -fx-translate-y: -1;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 0, 0, 3, 5);
+    -fx-translate-y: -2;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 0, 0, 7, 10);
 }
 .bouton:pressed {
-    -fx-translate-y: 2;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 0, 0, 1, 1);
+    -fx-translate-y: 5;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 0, 0, 1, 1);
 }
 
 /* ---- Bouton Simuler : jaune ---- */
 .bouton-simuler {
     -fx-background-color: -couleur-jaune;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
     -fx-text-fill: -couleur-encre;
     -fx-font-weight: bold;
+    -fx-font-size: 14px;
     -fx-border-color: -couleur-jaune-clair -couleur-jaune-ombre -couleur-jaune-ombre -couleur-jaune-clair;
-    -fx-border-width: 2 2 3 2;
-    -fx-background-radius: 0;
-    -fx-padding: 6 12 6 12;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 0, 0, 2, 3);
+    -fx-border-width: 3 4 5 3;
+    -fx-padding: 11 24 11 24;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 0, 0, 5, 7);
 }
 .bouton-simuler:hover {
-    -fx-translate-y: -1;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 0, 0, 3, 5);
+    -fx-translate-y: -2;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 0, 0, 7, 10);
 }
 .bouton-simuler:pressed {
-    -fx-translate-y: 2;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 0, 0, 1, 1);
+    -fx-translate-y: 5;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 0, 0, 1, 1);
 }
 
 /* ---- Panneau modules : ScrollPane parchemin ---- */
@@ -102,18 +110,34 @@
 .panneau > .viewport { -fx-background-color: -couleur-parchemin; }
 .panneau .content   { -fx-background-color: -couleur-parchemin; }
 
-/* ---- Item module ---- */
+/* VBox contenant les boutons de modules : espace vertical pour que
+   l'ombre portée de chaque module soit visible (sinon le module suivant
+   la masque en étant collé dessous). */
+.liste-modules {
+    -fx-spacing: 16;
+    -fx-padding: 12 0 12 0;
+}
+
+/* ---- Item module ----
+   Même relief que les boutons du haut : biseau épais + ombre dure.
+   -fx-background-insets: 0 annule le liseré -1px de Modena. */
 .module {
     -fx-background-color: -couleur-creme-clair;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
     -fx-text-fill: -couleur-encre-douce;
     -fx-font-weight: bold;
     -fx-border-color: -couleur-blanc -couleur-module-bord -couleur-module-bord -couleur-blanc;
-    -fx-border-width: 2 2 3 2;
-    -fx-background-radius: 0;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.28), 0, 0, 2, 2);
+    -fx-border-width: 3 4 6 3;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 0, 0, 4, 6);
 }
 .module:hover {
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.28), 0, 0, 3, 4);
+    -fx-translate-y: -2;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 0, 0, 6, 9);
+}
+.module:pressed {
+    -fx-translate-y: 4;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 0, 0, 1, 1);
 }
 /* module actif : vert d'eau (accent) */
 .module-actif {

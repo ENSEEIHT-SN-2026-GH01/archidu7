@@ -23,6 +23,7 @@ public class ListeModulePrincipale extends ScrollPane {
         this.bandeau = bandeau;
         liste = new VBox();
         liste.setPrefWidth(FichierModuleBouton.moduleBoutonLargeur);
+        liste.getStyleClass().add("liste-modules");
         setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         setContent(liste);
         getStyleClass().add("panneau");
