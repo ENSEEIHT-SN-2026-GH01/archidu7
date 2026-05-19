@@ -44,7 +44,9 @@ public class FileSimulateur implements Simulateur{
 			//On s'occupe des sorties de notre module qui sont des entrées pour les modules appelés.
 			//SignauxParModule = new ArrayList<>(); //Signaux générées par des modules, pas encores existants, pour des modules
 			for (AppelModule A : M.Branchements) {
-				Simulateur Smodule = new FileSimulateur(A.module);
+				Simulateur Smodule;
+			       	if (A.module.Nom.charAt(0) != '$') Smodule = new FileSimulateur(A.module);
+				else Smodule = SimulateurInterne(A.module);
 				ModulesAppeles.add(Smodule);
 				for (int curs = 0; curs < A.DE.size(); curs++){
 					Descripteur DS = A.DE.get(curs);   //Il s'agit de descripteur de sortie de notre circuit.
@@ -267,6 +269,10 @@ public class FileSimulateur implements Simulateur{
 		for (StructSortie SS : SortiesG){
 			System.out.println("Entree retenue : " + SS.getNom() + " avec :" + SS.getNombre() + " signaux.");
 		}*/
+	}
+
+	private static Simulateur SimulateurInterne(erwan.Module M){
+		return new BasculeDSimulateur();
 	}
 
 	public int nbEntree(){
