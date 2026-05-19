@@ -30,6 +30,7 @@ public class FenetrePrincipale extends Scene {
 
         MenuPrincipale menu = new MenuPrincipale();
         VBox outils = new VBox(menu, boutons, onglets);
+        outils.getStyleClass().add("bandeau");
 
         root.setCenter(editeur);
         root.setTop(outils);

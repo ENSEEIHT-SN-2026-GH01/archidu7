@@ -29,3 +29,25 @@
     -fx-border-width: 4;
     -fx-font-family: "monospace";
 }
+
+/* ---- Bandeau cuivre : VBox(menu + boutons) ---- */
+.bandeau {
+    -fx-background-color: -couleur-bandeau;
+    -fx-border-color: transparent transparent -couleur-contour transparent;
+    -fx-border-width: 0 0 3 0;
+    -fx-padding: 6;
+}
+/* reflet clair en haut du bandeau */
+.bandeau {
+    -fx-background-insets: 0;
+}
+
+/* ---- MenuBar posé sur le bandeau ---- */
+.bandeau-menu {
+    -fx-background-color: transparent;
+}
+.bandeau-menu .label { -fx-text-fill: -couleur-creme-clair; }
+.bandeau-menu .menu:hover,
+.bandeau-menu .menu:showing {
+    -fx-background-color: -couleur-bandeau-clair;
+}

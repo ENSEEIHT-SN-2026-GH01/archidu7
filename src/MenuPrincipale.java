@@ -13,5 +13,6 @@ public class MenuPrincipale extends MenuBar {
         simulation.getItems().add(new MenuHorlogeVitesse());
 
         super(fichier, edition, simulation, tests);
+        getStyleClass().add("bandeau-menu");
     }
 }
