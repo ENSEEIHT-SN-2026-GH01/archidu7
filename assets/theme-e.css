@@ -155,3 +155,20 @@
 .editeur .par-4 { -fx-fill: -couleur-bandeau-clair; }
 .editeur .par-5 { -fx-fill: -couleur-teal; }
 .editeur .par-x { -fx-fill: #c0392b; }
+
+/* ---- Interrupteurs (entrées) : cadre + ombre autour du PNG ---- */
+.interrupteur {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 2;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 0, 0, 2, 3);
+}
+.interrupteur:hover  { -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 0, 0, 3, 4); }
+.interrupteur:pressed,
+.interrupteur:selected { -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 0, 0, 1, 1); }
+
+/* ---- Sorties (LEDs) : cadre + ombre autour du PNG ---- */
+.sortie {
+    -fx-padding: 2;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 0, 0, 2, 3);
+}

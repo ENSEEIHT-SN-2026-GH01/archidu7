@@ -64,9 +64,7 @@ public class EntreeSimulateur extends ToggleButton {
             }
         });
 
-        setStyle(
-                "-fx-background-color: transparent; " +
-                        "-fx-border-color: transparent;");
+        getStyleClass().add("interrupteur");
 
         // pour que le bouton soit de la taille de l'image
         setPadding(Insets.EMPTY);

@@ -26,6 +26,7 @@ public class SortieSimulateur extends Label{
         /*vue */
         vue = new ImageView(imageUndef);
         setGraphic(vue);
+        getStyleClass().add("sortie");
 
         /*fonctionnement */
         sortie = signal;
