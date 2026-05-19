@@ -172,3 +172,13 @@
     -fx-padding: 2;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 0, 0, 2, 3);
 }
+
+/* ---- Zone de simulation intégrée (bottom du BorderPane) ---- */
+.panneau-simulation {
+    -fx-background-color: -couleur-parchemin;
+    -fx-border-color: -couleur-contour transparent transparent transparent;
+    -fx-border-width: 3 0 0 0;
+    -fx-padding: 10;
+    -fx-spacing: 6;
+}
+.panneau-simulation .text { -fx-fill: -couleur-encre; }

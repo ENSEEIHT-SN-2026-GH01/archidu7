@@ -3,23 +3,23 @@ package boutons;
 import editeur.EditeurTexte;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.stage.Stage;
+import javafx.scene.layout.BorderPane;
 import simulateur.FileSimulateur;
-import simulateur.affichage.FenetreSimulateur;
+import simulateur.affichage.PanneauSimulateur;
 import simulateur.appel.GestionnaireModules;
 import parser.conversion.Conversion;
 import parser.conversion.ConversionException;
 import parser.ll1.tabledriven.cst.CstNode;
 import erwan.Module;
+import util.Transitions;
 
 public class ActionSimuler implements EventHandler<ActionEvent>{
-    
+
     private EditeurTexte editeur;
 
     public ActionSimuler(EditeurTexte edit){
         editeur = edit;
     }
-
 
     public void handle(ActionEvent evt){
         boolean fini = false;
@@ -33,14 +33,17 @@ public class ActionSimuler implements EventHandler<ActionEvent>{
             while (!fini){
                 try{
                     Module aSimuler = Conversion.convert(arbre, GestionnaireModules.getAllBut(nom));
-                    FenetreSimulateur sim = new FenetreSimulateur(new FileSimulateur(aSimuler));
+                    PanneauSimulateur panneau = new PanneauSimulateur(new FileSimulateur(aSimuler));
 
                     fini = true;
 
-                    Stage fen = new Stage();
-                    fen.setScene(sim);
-                    fen.setTitle("simulation");
-                    fen.show();
+                    /* La zone de simulation s'affiche dans la fenêtre principale :
+                       l'éditeur est dans le center du BorderPane racine, on récupère
+                       ce BorderPane via la Scene et on pose le panneau en bottom. */
+                    BorderPane racine = (BorderPane) editeur.getScene().getRoot();
+                    racine.setBottom(panneau);
+
+                    Transitions.apparition(panneau);
                 } catch (ConversionException e){
                     if (e.reason() == ConversionException.Reason.MODULE_NOT_FOUND){
                         try{
