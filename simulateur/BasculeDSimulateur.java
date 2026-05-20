@@ -86,6 +86,8 @@ public class BasculeDSimulateur implements Simulateur{
 		EntreesG.add(new BouttonEvenement(reset,this.bas));
 		SortiesG.add(this.bas.getConnecteurSortie(1));
 		SortiesG.add(this.bas.getConnecteurSortie(2));
+		Composant C1 =new EntreeModule(this.bas.getConnecteurSortie(1));
+		Composant C2 =new EntreeModule(this.bas.getConnecteurSortie(2));
 	}
 
 
