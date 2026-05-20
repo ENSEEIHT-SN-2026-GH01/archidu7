@@ -44,7 +44,9 @@ public class FileSimulateur implements Simulateur{
 			//On s'occupe des sorties de notre module qui sont des entrées pour les modules appelés.
 			//SignauxParModule = new ArrayList<>(); //Signaux générées par des modules, pas encores existants, pour des modules
 			for (AppelModule A : M.Branchements) {
-				Simulateur Smodule = new FileSimulateur(A.module);
+				Simulateur Smodule;
+			       	if (A.module.Nom.charAt(0) != '$') Smodule = new FileSimulateur(A.module);
+				else Smodule = SimulateurInterne(A.module);
 				ModulesAppeles.add(Smodule);
 				for (int curs = 0; curs < A.DE.size(); curs++){
 					Descripteur DS = A.DE.get(curs);   //Il s'agit de descripteur de sortie de notre circuit.
@@ -74,6 +76,13 @@ public class FileSimulateur implements Simulateur{
 						curs2 ++;
 					}
 				}
+				//TODO TODO C'est ici le patch
+				for (int curs = 0; curs < A.DS.size(); curs++){
+                                	for (Erwan E : A.DS.get(curs).Erwans()) {
+                                        	System.out.println("\nSortie enregistrée : "+ Dico.getConnecteurE(E).getNom() +".\n");
+                                	}
+				}
+
 			}
 		}
 		List<StructEntree> EntreeUtilisateur = new ArrayList<>();
@@ -105,7 +114,7 @@ public class FileSimulateur implements Simulateur{
             if (!Dico.existe(Nom)) throw new RuntimeException("Il manque une sortie : " + Nom +". \nVeuillez verifier que ce signal est  et n'est pas déjà généré par le circuit.");
 			//System.out.println("On cherche : " + Nom);
 				Connecteur CS = Dico.getConnecteur(Nom);
-				Composant petitPlus = new EntreeModule(CS);
+				Composant petitPlus = new EntreeModule(CS.getSignal(Dico));
                 T.brancher(CS,curseurSortie);
 				//System.out.println("on recupère : " + Dico.getConnecteur(Nom).getNom());
                 curseurSortie += 1;
@@ -137,7 +146,21 @@ public class FileSimulateur implements Simulateur{
 							Connecteur CS = Smodule.getSorties(curs+1,curs2+1);
 							Composant Csuite = CS.getComposant();
 							if ((Csuite == null )|| !(Csuite instanceof EntreeModule) ){
-								throw new RuntimeException("Pb de conception, c'est la faute de Mati.");
+								if (!(Csuite instanceof Multiplicateur)){
+									throw new RuntimeException("Pb de conception, c'est la faute de Mati.");
+								}
+								Multiplicateur Mati = (Multiplicateur) Csuite;
+								int zob = 1;
+								boolean fzob = false;
+								while (zob <= Mati.getNbSortie() && !fzob) {
+									Connecteur Css = Mati.getConnecteurSortie(zob);
+									if (Css.getComposant() instanceof EntreeModule) {
+										fzob = true;
+										Csuite = Css.getComposant();
+									}
+									zob ++;
+								}
+								if (!fzob) throw new RuntimeException("Pb de conception, c'est la faute de Mati.");
 							}
 							EntreeModule Em = (EntreeModule) Csuite;
 							TableauConnecteur T = new TableauConnecteur(1);
@@ -246,6 +269,10 @@ public class FileSimulateur implements Simulateur{
 		for (StructSortie SS : SortiesG){
 			System.out.println("Entree retenue : " + SS.getNom() + " avec :" + SS.getNombre() + " signaux.");
 		}*/
+	}
+
+	private static Simulateur SimulateurInterne(erwan.Module M){
+		return new BasculeDSimulateur();
 	}
 
 	public int nbEntree(){
