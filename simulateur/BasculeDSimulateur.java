@@ -7,6 +7,8 @@ public class BasculeDSimulateur implements Simulateur{
 
 	public class BasculeD extends Composant {
 
+		private boolean montant;
+
 		public BasculeD(Connecteur en, Connecteur clock, Connecteur signal, Connecteur reset) {
 			super(4,2);
 			super.brancherEntree(en,1);
@@ -15,6 +17,7 @@ public class BasculeDSimulateur implements Simulateur{
 			super.brancherEntree(reset,4);
 			super.brancherSortie(new Lien("Q"),1);
 			super.brancherSortie(new Lien("/Q"),2);
+			this.montant = true;
 		}
 
 		@Override
@@ -23,10 +26,11 @@ public class BasculeDSimulateur implements Simulateur{
 				super.setSortie(1,Etat.DW);
 				super.setSortie(2,Etat.UP);
 			} else {
-				if (super.getEntree(2) == Etat.UP && super.getEntree(1) == Etat.UP) {
+				if (super.getEntree(2) == Etat.UP && super.getEntree(1) == Etat.UP && this.montant) {
 					super.setSortie(1,super.getEntree(3));
 					super.setSortie(2,Etat.E(super.getEntree(3).getValeur() * -1));
-				}
+					this.montant = false;
+				} else if (super.getEntree(2) == Etat.DW) this.montant = true;
 			}
 		}
 
@@ -55,7 +59,7 @@ public class BasculeDSimulateur implements Simulateur{
 		@Override
 		public void set(Etat e) {
 			this.Con.setValeur(e);
-			if (this.Com != null && e == Etat.UP) this.Com.calculer();
+			if (this.Com != null) this.Com.calculer();
 		}
 
 		@Override
