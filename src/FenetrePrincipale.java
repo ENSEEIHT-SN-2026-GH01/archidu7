@@ -25,11 +25,12 @@ public class FenetrePrincipale extends Scene {
         FileStorage stockage = new TextFileStorage(); 
 
         BoutonsPrincipale boutons = new BoutonsPrincipale(editeur, stockage);
-        ListeModulePrincipale environnement = new ListeModulePrincipale(editeur, stockage);
-        
+        BandeauOnglet onglets = new BandeauOnglet(stockage, editeur);
+        ListeModulePrincipale environnement = new ListeModulePrincipale(editeur, stockage, onglets);
+
         MenuPrincipale menu = new MenuPrincipale();
-        VBox outils = new VBox(menu, boutons);
- 
+        VBox outils = new VBox(menu, boutons, onglets);
+
         root.setCenter(editeur);
         root.setTop(outils);
         root.setLeft(environnement);

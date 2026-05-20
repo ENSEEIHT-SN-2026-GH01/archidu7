@@ -59,7 +59,13 @@ public class EditeurTexte extends StackPane{
                     clip.setHeight(bounds.getHeight());
                 });
                 sp.localToSceneTransformProperty().addListener((obs, oldVal, newVal) -> {
-                    Bounds bounds = sp.localToScene(sp.getViewportBounds());
+                    // Le clip est appliqué à superContenneurDevant : il faut
+                    // donc convertir les bounds du viewport (qui sont en local
+                    // à sp) en local à superContenneurDevant. Sans ça, dès que
+                    // l'éditeur n'est plus en haut de la scène (présence du
+                    // bandeau d'onglets), la 1ère ligne de la couche colorée
+                    // est clippée hors zone visible.
+                    Bounds bounds = superContenneurDevant.sceneToLocal(sp.localToScene(sp.getViewportBounds()));
                     clip.setX(bounds.getMinX());
                     clip.setY(bounds.getMinY());
                 });
@@ -90,7 +96,7 @@ public class EditeurTexte extends StackPane{
     }
 
     /**Change tous le texte de l'éditeur.
-     * 
+     *
      * @param txt
      */
     public void setText(String txt){

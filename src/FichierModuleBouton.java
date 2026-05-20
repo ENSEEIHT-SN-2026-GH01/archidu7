@@ -13,8 +13,7 @@ public class FichierModuleBouton extends Button {
 
     private final String cheminFichier;
 
-    /* Prend un nom de fichier .shdl et une référence vers l'éditeur. */
-    public FichierModuleBouton(String nomFichier, EditeurTexte editeur, FileStorage storage) throws InvalidParameterException {
+    public FichierModuleBouton(String nomFichier, EditeurTexte editeur, FileStorage storage, BandeauOnglet bandeau) throws InvalidParameterException {
 
         int tailleNom = nomFichier.length() - 5;
 
@@ -30,6 +29,7 @@ public class FichierModuleBouton extends Button {
         setOnAction(event -> {
             try {
                 String contenu = storage.load(cheminFichier, true);
+                if (bandeau != null) bandeau.ouvrir(cheminFichier);
                 editeur.setText(contenu);
             } catch (IOException e) {
                 editeur.setText("// Erreur : impossible de charger " + nomFichier + "\n// " + e.getMessage());

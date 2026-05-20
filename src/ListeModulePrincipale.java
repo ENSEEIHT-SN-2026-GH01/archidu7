@@ -14,11 +14,13 @@ public class ListeModulePrincipale extends ScrollPane {
     private VBox liste;
     private EditeurTexte editeur;
     private FileStorage sauveur;
+    private BandeauOnglet bandeau;
 
-    public ListeModulePrincipale(EditeurTexte editeur, FileStorage sauveur) {
+    public ListeModulePrincipale(EditeurTexte editeur, FileStorage sauveur, BandeauOnglet bandeau) {
         super();
         this.editeur = editeur;
         this.sauveur = sauveur;
+        this.bandeau = bandeau;
         liste = new VBox();
         liste.setPrefWidth(FichierModuleBouton.moduleBoutonLargeur);
         setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
@@ -45,7 +47,7 @@ public class ListeModulePrincipale extends ScrollPane {
 
         for (String nomFichier : repertoire) {
             try {
-                modules.add(new FichierModuleBouton(nomFichier, editeur, sauveur));
+                modules.add(new FichierModuleBouton(nomFichier, editeur, sauveur, bandeau));
             } catch (InvalidParameterException e) {
                 // si ce n'est pas un module shdl, on n'ajoute pas
             }
