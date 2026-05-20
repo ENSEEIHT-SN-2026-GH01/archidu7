@@ -28,8 +28,8 @@ public class ConversionExceptionTest {
 
     @Test
     public void allReasonsExposedByEnum() {
-        // 6 motifs S1 + 6 motifs appels de modules = 12.
+        // 6 motifs S1 + 6 motifs appels de modules + 1 motif builtin = 13.
         Reason[] reasons = Reason.values();
-        assertEquals(12, reasons.length);
+        assertEquals(13, reasons.length);
     }
 }
