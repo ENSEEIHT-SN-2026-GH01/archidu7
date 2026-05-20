@@ -24,11 +24,15 @@ public class BasculeDSimulateur implements Simulateur{
 		public void calculer() {
 			if (super.getEntree(4) == Etat.UP) {
 				super.setSortie(1,Etat.DW);
+				super.getConnecteurSortie(1).getComposant().calculer();
 				super.setSortie(2,Etat.UP);
+				super.getConnecteurSortie(2).getComposant().calculer();
 			} else {
 				if (super.getEntree(2) == Etat.UP && super.getEntree(1) == Etat.UP && this.montant) {
 					super.setSortie(1,super.getEntree(3));
+					super.getConnecteurSortie(1).getComposant().calculer();
 					super.setSortie(2,Etat.E(super.getEntree(3).getValeur() * -1));
+					super.getConnecteurSortie(2).getComposant().calculer();
 					this.montant = false;
 				} else if (super.getEntree(2) == Etat.DW) this.montant = true;
 			}
