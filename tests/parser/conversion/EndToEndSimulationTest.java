@@ -177,7 +177,7 @@ public class EndToEndSimulationTest {
     // Test e2e — appel de sous-module via le constructeur FileSimulateur(Module)
     //
     // Le module top délègue tout son calcul au sous-module fa par un appel
-    // $fa(...). On vérifie la table de vérité de top à travers la chaîne
+    // fa(...). On vérifie la table de vérité de top à travers la chaîne
     // complète : SHDL → Conversion → Module (avec Branchements) →
     // FileSimulateur(Module) → simulation.
     //
@@ -200,7 +200,7 @@ public class EndToEndSimulationTest {
             "module fa (a, b : s, c) s = a + b c = a * b end module");
         // Module appelant : délègue tout le calcul à fa.
         CstNode cstTop = CstParser.parse(
-            "module top (x, y : somme, retenue) $fa(x, y : somme, retenue) end module");
+            "module top (x, y : somme, retenue) fa(x, y : somme, retenue) end module");
         Module top = Conversion.convert(cstTop, java.util.List.of(cstFa));
 
         // Constructeur Module (et non .Plan) : exploite Branchements + Entrees/Sorties.

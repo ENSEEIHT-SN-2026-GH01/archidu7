@@ -303,14 +303,14 @@ public class ModuleBuilderTest {
     /**
      * Happy path (forme $) : top appelle fa.
      * module fa (a, b : s) s = a + b end module
-     * module top (a, b : s) $fa(a, b : s) end module
+     * module top (a, b : s) fa(a, b : s) end module
      * → Branchements de taille 1 ; AppelModule.module.Nom = "fa" ;
      *   DE=2, DS=1 ; top.Plan vide.
      */
     @Test
     public void moduleCall_dollar_happyPath() {
         CstNode cstFa = CstParser.parse("module fa (a, b : s) s = a + b end module");
-        CstNode cstTop = CstParser.parse("module top (a, b : s) $fa(a, b : s) end module");
+        CstNode cstTop = CstParser.parse("module top (a, b : s) fa(a, b : s) end module");
         Module top = Conversion.convert(cstTop, java.util.List.of(cstFa));
 
         assertEquals("top.Plan doit etre vide (seul contenu = appel)", 0, top.Plan.size());
@@ -351,7 +351,7 @@ public class ModuleBuilderTest {
      */
     @Test
     public void moduleCall_unknownModule_throwsNotFound() {
-        CstNode cstTop = CstParser.parse("module top (a, b : s) $missing(a, b : s) end module");
+        CstNode cstTop = CstParser.parse("module top (a, b : s) missing(a, b : s) end module");
         try {
             Conversion.convert(cstTop, java.util.List.of());
             fail("Attendu ConversionException MODULE_NOT_FOUND");
@@ -365,8 +365,8 @@ public class ModuleBuilderTest {
      */
     @Test
     public void moduleCall_cycle_throwsCycle() {
-        CstNode cstA = CstParser.parse("module a (x : y) $b(x : y) end module");
-        CstNode cstB = CstParser.parse("module b (x : y) $a(x : y) end module");
+        CstNode cstA = CstParser.parse("module a (x : y) b(x : y) end module");
+        CstNode cstB = CstParser.parse("module b (x : y) a(x : y) end module");
         try {
             Conversion.convert(cstA, java.util.List.of(cstB));
             fail("Attendu ConversionException MODULE_CALL_CYCLE");
@@ -380,7 +380,7 @@ public class ModuleBuilderTest {
      */
     @Test
     public void moduleCall_selfReference_throwsCycle() {
-        CstNode cstA = CstParser.parse("module a (x : y) $a(x : y) end module");
+        CstNode cstA = CstParser.parse("module a (x : y) a(x : y) end module");
         try {
             Conversion.convert(cstA, java.util.List.of());
             fail("Attendu ConversionException MODULE_CALL_CYCLE");
@@ -401,7 +401,7 @@ public class ModuleBuilderTest {
     @Test
     public void moduleCall_calledHasNoColon_throwsClearArityError() {
         CstNode cstFa = CstParser.parse("module fa (a, b, s) s = a + b end module");
-        CstNode cstTop = CstParser.parse("module top (a, b : s) $fa(a, b : s) end module");
+        CstNode cstTop = CstParser.parse("module top (a, b : s) fa(a, b : s) end module");
         try {
             Conversion.convert(cstTop, java.util.List.of(cstFa));
             fail("Attendu ConversionException MODULE_ARITY_MISMATCH");
@@ -420,7 +420,7 @@ public class ModuleBuilderTest {
     public void twoCalls_sameOutputSignal_throwsDuplicateLhs() {
         CstNode cstFa = CstParser.parse("module fa (a, b : s) s = a + b end module");
         CstNode cstTop = CstParser.parse(
-            "module top (x, y : s) $fa(x, y : s) $fa(y, x : s) end module");
+            "module top (x, y : s) fa(x, y : s) fa(y, x : s) end module");
         try {
             Conversion.convert(cstTop, java.util.List.of(cstFa));
             fail("Attendu ConversionException DUPLICATE_LHS");
@@ -437,7 +437,7 @@ public class ModuleBuilderTest {
     public void callOutputAndAssignment_sameSignal_throwsDuplicateLhs() {
         CstNode cstFa = CstParser.parse("module fa (a, b : s) s = a + b end module");
         CstNode cstTop = CstParser.parse(
-            "module top (x, y : s) $fa(x, y : s) s = x end module");
+            "module top (x, y : s) fa(x, y : s) s = x end module");
         try {
             Conversion.convert(cstTop, java.util.List.of(cstFa));
             fail("Attendu ConversionException DUPLICATE_LHS");
@@ -452,7 +452,7 @@ public class ModuleBuilderTest {
     @Test
     public void moduleCall_unknownModule_reportsCallSiteOffset() {
         CstNode cstTop = CstParser.parse(
-            "module top (a, b : s) $missing(a, b : s) end module");
+            "module top (a, b : s) missing(a, b : s) end module");
         try {
             Conversion.convert(cstTop, java.util.List.of());
             fail("Attendu ConversionException MODULE_NOT_FOUND");

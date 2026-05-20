@@ -35,11 +35,14 @@ public class ModuleCallBuilderTest {
      */
     private static CstNode parseModuleCall(String src) {
         CstNode root = CstParser.parse(src);
-        return root
+        CstNode inst = root
             .first(NonTerminal.Module).orElseThrow(() -> new AssertionError("Pas de Module dans le CST"))
             .first(NonTerminal.Instance_Plus).orElseThrow(() -> new AssertionError("Pas de Instance_Plus"))
-            .first(NonTerminal.Instance).orElseThrow(() -> new AssertionError("Pas de Instance"))
-            .first(NonTerminal.ModuleCall).orElseThrow(() -> new AssertionError("Pas de ModuleCall"));
+            .first(NonTerminal.Instance).orElseThrow(() -> new AssertionError("Pas de Instance"));
+        // Instance → Identifiant Operation (Operation → ModuleCall | ...) OU Dollar Identifiant ModuleCall.
+        return inst.first(NonTerminal.ModuleCall)
+            .or(() -> inst.first(NonTerminal.Operation).flatMap(op -> op.first(NonTerminal.ModuleCall)))
+            .orElseThrow(() -> new AssertionError("Pas de ModuleCall"));
     }
 
     // -----------------------------------------------------------------------
@@ -69,13 +72,13 @@ public class ModuleCallBuilderTest {
     // -----------------------------------------------------------------------
 
     /**
-     * $fa(x, y, z : s, c) → DE=[x,y,z], DS=[s,c].
+     * fa(x, y, z : s, c) → DE=[x,y,z], DS=[s,c].
      * Vérification du découpage et de l'ordre.
      */
     @Test
     public void deDs_splitOnColon_correctOrder() {
-        // module top (x, y, z, s, c) $fa(x, y, z : s, c) end module
-        String src = "module top (x, y, z, s, c) $fa(x, y, z : s, c) end module";
+        // module top (x, y, z, s, c) fa(x, y, z : s, c) end module
+        String src = "module top (x, y, z, s, c) fa(x, y, z : s, c) end module";
         CstNode mc = parseModuleCall(src);
         Module fa = faModule();
 
@@ -96,7 +99,7 @@ public class ModuleCallBuilderTest {
      */
     @Test
     public void build_moduleReferenceIsCallled() {
-        String src = "module top (x, y, z, s, c) $fa(x, y, z : s, c) end module";
+        String src = "module top (x, y, z, s, c) fa(x, y, z : s, c) end module";
         CstNode mc = parseModuleCall(src);
         Module fa = faModule();
 
@@ -114,7 +117,7 @@ public class ModuleCallBuilderTest {
      */
     @Test
     public void scalarDescriptor_nbSignauxIsOne() {
-        String src = "module top (x, y, z, s, c) $fa(x, y, z : s, c) end module";
+        String src = "module top (x, y, z, s, c) fa(x, y, z : s, c) end module";
         CstNode mc = parseModuleCall(src);
         AppelModule am = ModuleCallBuilder.build(mc, faModule());
 
@@ -129,8 +132,8 @@ public class ModuleCallBuilderTest {
      */
     @Test
     public void vectorDescriptor_correctNbSignaux() {
-        // module top (a[3..0], b[3..0], s[3..0]) $add4(a[3..0], b[3..0] : s[3..0]) end module
-        String src = "module top (a[3..0], b[3..0], s[3..0]) $add4(a[3..0], b[3..0] : s[3..0]) end module";
+        // module top (a[3..0], b[3..0], s[3..0]) add4(a[3..0], b[3..0] : s[3..0]) end module
+        String src = "module top (a[3..0], b[3..0], s[3..0]) add4(a[3..0], b[3..0] : s[3..0]) end module";
         CstNode mc = parseModuleCall(src);
         AppelModule am = ModuleCallBuilder.build(mc, add4Module());
 
@@ -156,14 +159,14 @@ public class ModuleCallBuilderTest {
      */
     @Test
     public void literalArg_throwsInvalidArg() {
-        // module top (x) $fa(.1, .0, .0 : s, c) end module
+        // module top (x) fa(.1, .0, .0 : s, c) end module
         // Utiliser un module à 1 entrée et 1 sortie pour simplifier
         Module simple = new Module("simple",
             List.of(),
             List.of(new Descripteur("a")),
             List.of(new Descripteur("s")),
             List.of());
-        String src = "module top (x) $simple(.1 : s) end module";
+        String src = "module top (x) simple(.1 : s) end module";
         CstNode mc = parseModuleCall(src);
 
         try {
@@ -189,7 +192,7 @@ public class ModuleCallBuilderTest {
             List.of(new Descripteur("a", 0, 1)),
             List.of(new Descripteur("s")),
             List.of());
-        String src = "module top (x, y, s) $simple2(x & y : s) end module";
+        String src = "module top (x, y, s) simple2(x & y : s) end module";
         CstNode mc = parseModuleCall(src);
 
         try {
@@ -209,8 +212,8 @@ public class ModuleCallBuilderTest {
      */
     @Test
     public void zeroColon_throwsBadSeparators() {
-        // $fa(x, y, z) → pas de ':'
-        String src = "module top (x, y, z) $fa(x, y, z) end module";
+        // fa(x, y, z) → pas de ':'
+        String src = "module top (x, y, z) fa(x, y, z) end module";
         CstNode mc = parseModuleCall(src);
 
         try {
@@ -230,8 +233,8 @@ public class ModuleCallBuilderTest {
      */
     @Test
     public void twoColons_throwsBadSeparators() {
-        // $fa(x : y : z) → deux ':'
-        String src = "module top (x, y, z) $fa(x : y : z) end module";
+        // fa(x : y : z) → deux ':'
+        String src = "module top (x, y, z) fa(x : y : z) end module";
         CstNode mc = parseModuleCall(src);
 
         try {
@@ -252,7 +255,7 @@ public class ModuleCallBuilderTest {
     @Test
     public void tooFewInputs_throwsArityMismatch() {
         // fa attend 3 entrées, on n'en fournit que 2
-        String src = "module top (x, y, s, c) $fa(x, y : s, c) end module";
+        String src = "module top (x, y, s, c) fa(x, y : s, c) end module";
         CstNode mc = parseModuleCall(src);
 
         try {
@@ -269,7 +272,7 @@ public class ModuleCallBuilderTest {
     @Test
     public void tooFewOutputs_throwsArityMismatch() {
         // fa attend 2 sorties, on n'en fournit qu'une
-        String src = "module top (x, y, z, s) $fa(x, y, z : s) end module";
+        String src = "module top (x, y, z, s) fa(x, y, z : s) end module";
         CstNode mc = parseModuleCall(src);
 
         try {
@@ -287,7 +290,7 @@ public class ModuleCallBuilderTest {
     @Test
     public void wrongVectorWidth_throwsArityMismatch() {
         // add4 attend a[3..0] (4 bits) mais on fournit a[1..0] (2 bits)
-        String src = "module top (a[1..0], b[3..0], s[3..0]) $add4(a[1..0], b[3..0] : s[3..0]) end module";
+        String src = "module top (a[1..0], b[3..0], s[3..0]) add4(a[1..0], b[3..0] : s[3..0]) end module";
         CstNode mc = parseModuleCall(src);
 
         try {
@@ -303,7 +306,7 @@ public class ModuleCallBuilderTest {
     // -----------------------------------------------------------------------
 
     /**
-     * Module trivial (1 entrée, 1 sortie) : $buf(x : y) → DE=[x], DS=[y].
+     * Module trivial (1 entrée, 1 sortie) : buf(x : y) → DE=[x], DS=[y].
      */
     @Test
     public void minimal_oneInputOneOutput() {
@@ -312,7 +315,7 @@ public class ModuleCallBuilderTest {
             List.of(new Descripteur("a")),
             List.of(new Descripteur("b")),
             List.of());
-        String src = "module top (x, y) $buf(x : y) end module";
+        String src = "module top (x, y) buf(x : y) end module";
         CstNode mc = parseModuleCall(src);
         AppelModule am = ModuleCallBuilder.build(mc, buf);
 

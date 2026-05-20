@@ -181,7 +181,7 @@ public class ConversionIntegrationTest {
     // ------------------------------------------------------------------
     // Test Task 6 : appel de sous-module multi-fichiers
     //   fa  : module fa  (a, b : s)    s = a + b end module
-    //   top : module top (a, b : s)    $fa(a, b : s) end module
+    //   top : module top (a, b : s)    fa(a, b : s) end module
     //
     // Verifie :
     //   - top.Nom = "top" ; top.Plan vide ; top.Branchements.size() = 1
@@ -194,7 +194,7 @@ public class ConversionIntegrationTest {
     @Test
     public void subModuleCall_multiFile_wiresAppelModule() {
         String srcFa  = "module fa (a, b : s) s = a + b end module";
-        String srcTop = "module top (a, b : s) $fa(a, b : s) end module";
+        String srcTop = "module top (a, b : s) fa(a, b : s) end module";
 
         CstNode faCst  = CstParser.parse(srcFa);
         CstNode topCst = CstParser.parse(srcTop);
