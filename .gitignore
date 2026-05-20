@@ -18,3 +18,18 @@ local.properties
 src-gen/
 *.xml
 *.zip
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+
+# JavaFX SDK (téléchargée localement, par plateforme)
+javafx-sdk-*/
+
+# Listes de sources générées
+sources.txt
+
