@@ -142,7 +142,8 @@ public class StructEntree {
 	 * @param e l'état dans lequel on souhaite que le signal soit modifié.
 	 */
 	public void setValeur(int i, Etat e)  {
+		Etat ei = getConnecteur(i).getValeur();
 		T.set(i,e);
-		calculer(D.get(i));
+		if (ei.getValeur() != e.getValeur()) calculer(D.get(i));
 	}
 }
