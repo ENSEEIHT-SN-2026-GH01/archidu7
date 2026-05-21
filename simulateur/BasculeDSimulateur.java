@@ -5,73 +5,9 @@ import java.util.*;
 
 public class BasculeDSimulateur implements Simulateur{	
 
-	public class BasculeD extends Composant {
+	
 
-		private boolean montant;
-
-		public BasculeD(Connecteur en, Connecteur clock, Connecteur signal, Connecteur reset) {
-			super(4,2);
-			super.brancherEntree(en,1);
-			super.brancherEntree(clock,2);
-			super.brancherEntree(signal,3);
-			super.brancherEntree(reset,4);
-			super.brancherSortie(new Lien("Q"),1);
-			super.brancherSortie(new Lien("/Q"),2);
-			this.montant = true;
-		}
-
-		@Override
-		public void calculer() {
-			if (super.getEntree(4) == Etat.UP) {
-				super.setSortie(1,Etat.DW);
-				super.getConnecteurSortie(1).getComposant().calculer();
-				super.setSortie(2,Etat.UP);
-				super.getConnecteurSortie(2).getComposant().calculer();
-			} else {
-				if (super.getEntree(2) == Etat.UP && super.getEntree(1) == Etat.UP && this.montant) {
-					super.setSortie(1,super.getEntree(3));
-					super.getConnecteurSortie(1).getComposant().calculer();
-					super.setSortie(2,Etat.E(super.getEntree(3).getValeur() * -1));
-					super.getConnecteurSortie(2).getComposant().calculer();
-					this.montant = false;
-				} else if (super.getEntree(2) == Etat.DW) this.montant = true;
-			}
-		}
-
-		public String getNom() {
-			return "BasculeD";
-		}
-	}
-
-	public class BouttonEvenement extends BouttonEntree {
-
-		private Connecteur Con;
-		private Composant Com;
-
-		public BouttonEvenement(Connecteur Con, Composant Com) {
-			super(null,0);
-			this.Con = Con;
-			this.Com = Com;
-		}
-
-		public BouttonEvenement(Connecteur Con) {
-			super(null,0);
-			this.Con = Con;
-			this.Com = null;
-		}
-
-		@Override
-		public void set(Etat e) {
-			this.Con.setValeur(e);
-			if (this.Com != null) this.Com.calculer();
-		}
-
-		@Override
-		public String getNom(){
-			return this.Con.getNom();
-		}
-	}
-
+	
 	private List<BouttonEvenement> EntreesG;
 	private List<Connecteur> SortiesG;
 	private BasculeD bas;
