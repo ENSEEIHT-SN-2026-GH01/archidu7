@@ -237,7 +237,11 @@ public final class ModuleBuilder {
                     ConversionException.Reason.MALFORMED_CST,
                     "Identifiant de nom de module n'est pas CstLeaf");
             }
-            String calledName = idLeaf.lexem().getText();
+            // Convention groupe : '$' marque une primitive (cf. BuiltinModules).
+            // On préfixe pour que le Module virtuel renvoyé ait un Nom commençant
+            // par '$' — c'est ce que FileSimulateur teste pour dispatcher vers
+            // SimulateurInterne au lieu d'instancier un FileSimulateur récursif.
+            String calledName = "$" + idLeaf.lexem().getText();
             CstNode moduleCallNode = inst.first(NonTerminal.ModuleCall).orElseThrow(() ->
                 new ConversionException(inst.startOffset(), "Instance",
                     ConversionException.Reason.MALFORMED_CST,
@@ -381,7 +385,17 @@ public final class ModuleBuilder {
     private static List<Erwan> handleModuleCall(CstNode moduleCallNode, String calledName,
             ModuleResolver resolver, List<AppelModule> branchements,
             Set<String> lhsSeen, int callOffset) {
-        Module called = resolver.resolve(calledName, callOffset);
+        Module called;
+        if (calledName.startsWith("$")) {
+            called = BuiltinModules.get(calledName);
+            if (called == null) {
+                throw new ConversionException(callOffset, "Builtin",
+                    ConversionException.Reason.BUILTIN_NOT_FOUND,
+                    "Primitive interne inconnue : " + calledName);
+            }
+        } else {
+            called = resolver.resolve(calledName, callOffset);
+        }
         AppelModule am = ModuleCallBuilder.build(moduleCallNode, called);
         // Déduplication : les sorties de l'appel pilotent des signaux du circuit
         // appelant. Descripteur.Noms() produit les mêmes clés que lhsBits

@@ -28,4 +28,17 @@ public enum Etat {
 				return "~";
 		}
 	}
+
+	public static Etat E(int i){
+		switch(i) {
+			case 1:
+				return UP;
+			case 0:
+				return ND;
+			case -1:
+				return DW;
+			default:
+				throw new RuntimeException("valeur non authorisée pour état");
+		}
+	}
 }

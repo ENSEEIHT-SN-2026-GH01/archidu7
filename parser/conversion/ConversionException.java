@@ -10,6 +10,7 @@ public class ConversionException extends RuntimeException {
         DUPLICATE_LHS,
         MALFORMED_CST,
         MODULE_NOT_FOUND,
+        BUILTIN_NOT_FOUND,
         MODULE_CALL_CYCLE,
         MODULE_CALL_INVALID_ARG,
         MODULE_BAD_SEPARATORS,
