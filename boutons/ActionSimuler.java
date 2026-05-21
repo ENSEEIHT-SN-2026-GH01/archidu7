@@ -63,7 +63,6 @@ public class ActionSimuler implements EventHandler<ActionEvent>{
     }
 
     private void gestionExceptionCompilation(RuntimeException e){
-        //TODO
-        System.out.println(e.getMessage());
+        editeur.afficherErreur(e.getMessage());
     }
 }

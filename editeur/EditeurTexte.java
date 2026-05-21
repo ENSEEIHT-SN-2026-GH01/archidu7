@@ -5,26 +5,29 @@ import javafx.beans.value.ChangeListener;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import editeur.autocompletion.*;
+import javafx.event.EventHandler;
 
 public class EditeurTexte extends StackPane{
 
     private final int fontSize = 16;
-    EditeurTexteInvisible deriere;
-    TextMultiColoriable devant;
-    Pane contenneurDevant;
-    Pane superContenneurDevant;
-    Rectangle clip = new Rectangle(0,0,Double.MAX_VALUE, Double.MAX_VALUE);
+    private EditeurTexteInvisible deriere;
+    private TextMultiColoriable devant;
+    private Pane contenneurDevant;
+    private Pane superContenneurDevant;
+    private Rectangle clip = new Rectangle(0,0,Double.MAX_VALUE, Double.MAX_VALUE);
+    private BandeauErreur bandeauErreur = new BandeauErreur();
 
     public EditeurTexte(){
         deriere = new EditeurTexteInvisible(fontSize);
         devant = new TextMultiColoriable(fontSize);
         contenneurDevant = new Pane(devant);
-        superContenneurDevant = new Pane(contenneurDevant);
+        superContenneurDevant = new Pane(contenneurDevant, bandeauErreur);
 
         /*transformation sur le texte coloriable plaçé au dessus */
         devant.setTranslateX((fontSize / 2) + 2);
@@ -59,12 +62,6 @@ public class EditeurTexte extends StackPane{
                     clip.setHeight(bounds.getHeight());
                 });
                 sp.localToSceneTransformProperty().addListener((obs, oldVal, newVal) -> {
-                    // Le clip est appliqué à superContenneurDevant : il faut
-                    // donc convertir les bounds du viewport (qui sont en local
-                    // à sp) en local à superContenneurDevant. Sans ça, dès que
-                    // l'éditeur n'est plus en haut de la scène (présence du
-                    // bandeau d'onglets), la 1ère ligne de la couche colorée
-                    // est clippée hors zone visible.
                     Bounds bounds = superContenneurDevant.sceneToLocal(sp.localToScene(sp.getViewportBounds()));
                     clip.setX(bounds.getMinX());
                     clip.setY(bounds.getMinY());
@@ -109,5 +106,19 @@ public class EditeurTexte extends StackPane{
      */
     public void addListener(ChangeListener<String> ecouteur){
         deriere.textProperty().addListener(ecouteur);
+    }
+
+    /**Affiche une erreur par dessus l'éditeur.
+     * 
+     * @param err L'erreur.
+     */
+    public void afficherErreur(String err){
+        bandeauErreur.showErreur(err);
+        deriere.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent evt){
+                bandeauErreur.setVisible(false);
+                deriere.setOnMouseClicked(null);
+            }
+        });
     }
 }
