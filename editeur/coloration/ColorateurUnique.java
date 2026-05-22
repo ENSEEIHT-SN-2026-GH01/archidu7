@@ -20,7 +20,7 @@ public class ColorateurUnique implements ColorateurToken{
     private static Color choixCouleur(Lexem<Token> tok){
         switch (tok.getToken()) {
             case Identifiant:
-                return Color.CYAN;
+                return Color.rgb(20, 20, 100);
             case NaturalInteger, PointPoint:
                 return Color.ORANGE;
             case BitField:

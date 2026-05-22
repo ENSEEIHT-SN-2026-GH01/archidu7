@@ -1,16 +1,9 @@
 package editeur.autocompletion;
 
 import java.util.function.UnaryOperator;
-import editeur.*;
 import javafx.scene.control.TextFormatter.Change;
 
 public class AutoCompleteur implements UnaryOperator<Change>{
-
-    private TextDecoupable devant;
-
-    public AutoCompleteur(TextDecoupable devant){
-        this.devant = devant;
-    }
 
     @Override
     public Change apply(Change change) {
@@ -36,6 +29,6 @@ public class AutoCompleteur implements UnaryOperator<Change>{
             change.setText(txt);
         }
 
-        return EditeurBaseFormatter.base(change, devant);
+        return change;
     }  
 }

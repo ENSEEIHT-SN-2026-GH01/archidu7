@@ -39,7 +39,7 @@ public abstract class TextDecoupable extends TextFlow{
      */
     public void setText(String txt){
         getChildren().clear();
-        morceaux = new CelluleTexte(0, txt.length() + 1, txt, 0, getChildren(), font);
+        morceaux = new CelluleTexte(0, txt.length() - 1, txt, 0, getChildren(), font);
         cache = morceaux;
     }
 

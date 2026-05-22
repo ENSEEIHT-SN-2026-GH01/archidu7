@@ -37,7 +37,10 @@ public class EditeurTexte extends StackPane{
         superContenneurDevant.setMouseTransparent(true);
 
         /*transmition du texte de l'arrière vers l'avant */
-        deriere.setTextFormatter(new AutoCompletionFormatter(devant));
+        deriere.textProperty().addListener((obs, oldText, newText) -> {
+            devant.setText(newText);
+        });
+        deriere.setTextFormatter(new AutoCompletionFormatter());
 
         /*lien entre le scrolling de devant et derrière */
         Platform.runLater(() -> {
