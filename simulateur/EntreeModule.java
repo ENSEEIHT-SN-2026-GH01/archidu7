@@ -3,7 +3,7 @@ import java.util.*;
 
 public class EntreeModule extends Composant {
 
-	private BouttonEntree B;
+	public BouttonEntree B;
 
 	public EntreeModule(Connecteur s)  {
 		super(1,0);

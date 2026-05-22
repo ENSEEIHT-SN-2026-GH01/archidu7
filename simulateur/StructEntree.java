@@ -40,11 +40,13 @@ public class StructEntree {
 	 * @return Le StructEntree, comme prévu.
 	 */
 	public StructEntree(String nom, TableauConnecteur T)  {
-		this.nom = nom;
-		this.T = T;
-		this.D = new HashMap<>();
-		for (int i = 1; i <= T.getTaille(); i++) {
-			initialiserListe(i);
+		if (nom != null && T != null) {
+			this.nom = nom;
+			this.T = T;
+			this.D = new HashMap<>();
+			for (int i = 1; i <= T.getTaille(); i++) {
+				initialiserListe(i);
+			}
 		}
 	}
 
@@ -54,7 +56,7 @@ public class StructEntree {
 		List<Composant> Suivant = new ArrayList<>();
 		List<Composant> Calcul = new ArrayList<>();
 		Map<Composant,Integer> DicoCompo = new HashMap<>();
-		C.getComposant().ajouter(Suivant);
+		if(C.getComposant() != null) C.getComposant().ajouter(Suivant);
 		DicoCompo.put(C.getComposant(),1);
 		//int iteration = 0;
 		while (!Suivant.isEmpty() /*&& iteration < 10*/) {
@@ -142,7 +144,8 @@ public class StructEntree {
 	 * @param e l'état dans lequel on souhaite que le signal soit modifié.
 	 */
 	public void setValeur(int i, Etat e)  {
+		Etat ei = getConnecteur(i).getValeur();
 		T.set(i,e);
-		calculer(D.get(i));
+		if (ei.getValeur() != e.getValeur()) calculer(D.get(i));
 	}
 }

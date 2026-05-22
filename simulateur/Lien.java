@@ -25,6 +25,13 @@ public class Lien implements Connecteur {
 		for (ConnecteurListener connecteurListener : listeners) {
 			connecteurListener.signalModifie(b);
 		}
+		if ((b.getValeur() == 1) && this.composantSuivant != null && this.composantSuivant instanceof EntreeModule) {
+			EntreeModule E = (EntreeModule) this.composantSuivant;
+			if(E.B instanceof BouttonEvenement){
+				BouttonEvenement B = (BouttonEvenement) E.B;
+				B.sauv();
+			}
+		}
 	}
 
 	public Etat getValeur() {
