@@ -23,9 +23,10 @@ public class EntreeSimulateur extends ToggleButton{
      * @param corps Connexion à la simulation.
      */
     public EntreeSimulateur(BouttonEntree corps){
-        vue = new ImageView(imageUndef);
+        vue = new ImageView(imageOff);
         this.corps = corps;
-        
+        corps.set(Etat.DW);
+
         setGraphic(vue);
 
         /*Gestion du changement d'état. */
