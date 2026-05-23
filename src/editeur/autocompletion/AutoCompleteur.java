@@ -43,12 +43,13 @@ public class AutoCompleteur implements UnaryOperator<Change> {
         }
 
         if (change.getText().length() > 0) {
-            int pos = change.getCaretPosition() - change.getText().length();
-            int pos_debut = Dictionary.getIndexDebutMot(textEditor.getText(), pos);
-            String mot = textEditor.getText().substring(pos_debut, pos) + change.getText();
-
-            possible = dictionary.getClosest(mot);
-            textEditor.menu.showMenuAtCaret(possible);
+            try {
+                int pos = change.getCaretPosition() - change.getText().length();
+                int pos_debut = Dictionary.getIndexDebutMot(textEditor.getText(), pos);
+                String mot = textEditor.getText().substring(pos_debut, pos) + change.getText();
+                possible = dictionary.getClosest(mot);
+                textEditor.menu.showMenuAtCaret(possible);
+            } catch (RuntimeException e){}
         }
 
         return change;
