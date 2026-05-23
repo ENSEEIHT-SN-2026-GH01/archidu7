@@ -25,7 +25,6 @@ Projet Long 1SN — ENSEEIHT. **Prérequis : JDK 25.**
 
 - **Rapport final** : [`livrables/rapport-final.pdf`](livrables/rapport-final.pdf) — vue d'ensemble + diagrammes de classes (parser, simulation, éditeur, interface).
 - **Rapports individuels** : [`livrables/`](livrables/) (`rapportN-<login>.pdf`).
-- **Répartition des tâches** : [`docs/organisation/REPARTION_TACHES.md`](docs/organisation/REPARTION_TACHES.md).
 
 ## Lancer l'application
 
