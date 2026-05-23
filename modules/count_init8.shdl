@@ -1,0 +1,19 @@
+module count_init8(rst, clk, count, init, e[7..0] : c[7..0]) 
+   D[0] = /c[0]*count*/init+ init*e[0]*/count
+   D[1] = (c[0]*/c[1] + c[1]*/c[0])*count*/init + init*e[1]*/count
+   complet2 = c[0]*c[1]
+   D[2] = (complet2*/c[2] + /complet2*c[2])*count*/init + init*e[2]*/count
+   complet3 = complet2*c[2]
+   D[3] = (complet3*/c[3] + /complet3*c[3])*count*/init + init*e[3]*/count
+   complet4 = complet3*c[3]
+   D[4] = (complet4*/c[4] + /complet4*c[4])*count*/init + init*e[4]*/count
+   complet5 = complet4*c[4]
+   D[5] = (complet5*/c[5] + /complet5*c[5])*count*/init + init*e[5]*/count
+   complet6 = complet5*c[5]
+   D[6] = (complet6*/c[6] + /complet6*c[6])*count*/init + init*e[6]*/count
+   complet7 = complet6*c[6]
+   D[7] = (complet7*/c[7] + /complet7*c[7])*count*/init + init*e[7]*/count
+
+   c[7..0] := D[7..0] on clk reset when rst
+
+end module

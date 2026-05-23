@@ -1,0 +1,9 @@
+//init 
+set rst 1
+set rst 0
+//test
+set clk 1
+set clk 0
+set clk 1
+set clk 0
+check c 10
