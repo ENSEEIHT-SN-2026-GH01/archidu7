@@ -23,7 +23,7 @@ public class VecteurSortieSimulateur extends FlowPane{
         getChildren().add(texte);
 
         /*Ajout de chaques bits. */
-        for (int j = 1; j <= sim.nbSlotSortie(numero); j++){
+        for (int j = sim.nbSlotSortie(numero); j>=1; j--){
             getChildren().add(new SortieSimulateur(sim.getSorties(numero, j)));
         }
     }

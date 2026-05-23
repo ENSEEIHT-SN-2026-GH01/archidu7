@@ -21,7 +21,7 @@ public class VecteurEntreeSimulateur extends FlowPane{
         getChildren().add(texte);
 
         /*Ajout de chaques bits. */
-        for (int j = 1; j <= composant.nbSlotEntree(numero); j++){
+        for (int j = composant.nbSlotEntree(numero); j >= 1; j--){
             getChildren().add(new EntreeSimulateur(composant.getEntrees(numero, j)));
         }
     }

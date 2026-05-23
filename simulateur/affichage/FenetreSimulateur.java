@@ -4,9 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import simulateur.Simulateur;
+import simulateur.scriptTest.ActionChargerTestScript;
 import simulateur.scriptTest.SimulationTestEchecException;
 import simulateur.scriptTest.SimulationTestException;
 
@@ -25,6 +27,9 @@ public class FenetreSimulateur extends Scene{
     public FenetreSimulateur(Simulateur sim){
         VBox vecteurs = new VBox();
         super(vecteurs);
+        Button test = new Button("lancer un test");
+        test.setOnAction(new ActionChargerTestScript(this));
+        vecteurs.getChildren().add(test);
 
         /*entrees */
         for (int i = 1; i<=sim.nbEntree(); i++){
