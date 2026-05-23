@@ -5,7 +5,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import simulateur.*;
 
-//TODO:ajout de l'état indeterminé.
 /**Led correspondant à un bit d'une sortie. */
 public class SortieSimulateur extends Label{
     
@@ -14,7 +13,8 @@ public class SortieSimulateur extends Label{
     public static final Image imageOn = new Image("assets/sortie_on.png", 48, 48, true, false);
 
     private Connecteur sortie;
-    public ImageView vue;
+    private ImageView vue;
+    public Etat etat = Etat.ND;
 
     /**Cree la led connecté à un connecteur de sortie.
      * 
@@ -35,16 +35,19 @@ public class SortieSimulateur extends Label{
     /**Allume la led. */
     public void setOn(){
         vue.setImage(imageOn);
+        etat = Etat.UP;
     }
 
     /**Etteint la led. */
     public void setOff(){
         vue.setImage(imageOff);
+        etat = Etat.DW;
     }
 
     /**Mets la led en undef. */
     public void setNd(){
         vue.setImage(imageUndef);
+        etat = Etat.ND;
     }
 
     /**Listeneur qui change l'affichage de la led lorsque l'état du signal change. */
