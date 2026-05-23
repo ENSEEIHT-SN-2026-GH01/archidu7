@@ -45,6 +45,7 @@ public class Erwan implements Branchement {
 	public List<Erwan> Entrees;
 
 	public String Nom;
+	public boolean affiche = false;
 
 	/** Dans le cas d'un vecteur, représente l'index du signal.
 	 * vaut null si le signal ne fait pas parti d'un vecteur. */
@@ -400,6 +401,22 @@ public class Erwan implements Branchement {
 	 */
 	public static List<Erwan> APPELMODULE(String NomModule, List<String> NomEntrees, List<String> NomSorties){
 		return null ; //TODO A Faire
+	}
+
+	@Override
+	public String toString(){
+		if (affiche) return "";
+		String res = Op + " -> " + Nom + ":\n";
+		if(this.Entrees != null){
+			for (Erwan erwan : Entrees) {
+				res += erwan.Nom + "   |   ";
+			}
+			res += "\n\n";
+
+			res += Entrees.toString();
+		}
+		affiche = true;
+		return res;
 	}
 }
 

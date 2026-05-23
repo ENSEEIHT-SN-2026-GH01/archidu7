@@ -18,13 +18,24 @@ public class Lien implements Connecteur {
 		listeners = new ArrayList<>();
 	}
 
-	public void setValeur(Etat b) {
+	public void setValeur(Etat b, Propageur prop) {
+		//System.out.println("recalcule de :" + nom + "val: " + etat + "->" + b);
+		boolean changed = (b != etat);
 		etat = b;
 
 		/*notifier les listeners */
 		for (ConnecteurListener connecteurListener : listeners) {
 			connecteurListener.signalModifie(b);
 		}
+		if ((b.getValeur() == 1) && this.composantSuivant != null && this.composantSuivant instanceof EntreeModule) {
+			EntreeModule E = (EntreeModule) this.composantSuivant;
+			if(E.B instanceof BouttonEvenement){
+				BouttonEvenement B = (BouttonEvenement) E.B;
+				B.sauv();
+			}
+		}
+
+		if (changed && composantSuivant != null) composantSuivant.calculer(prop);
 	}
 
 	public Etat getValeur() {

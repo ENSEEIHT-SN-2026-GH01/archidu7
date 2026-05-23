@@ -29,7 +29,6 @@ public class GestionnaireModules {
 
     public static Collection<CstNode> getAllBut(String pasLui){
         //on en enlève un
-        System.out.println("pas lui|"+pasLui+"|");
         CstNode non = arbresCalculees.get(pasLui);
         arbresCalculees.remove(pasLui);
 

@@ -16,16 +16,16 @@ public class Not extends Composant {
 		super.brancherSortie(r,1);
 	}
 
-	public void calculer()  {
+	public void calculer(Propageur prop)  {
 		switch (super.getEntree(1)) {
 			case Etat.UP:
-				super.setSortie(1,Etat.DW);
+				propager(Etat.DW, prop);
 				break;
 			case Etat.ND:
-				super.setSortie(1,Etat.ND);
+				propager(Etat.ND, prop);
 				break;
 			case Etat.DW:
-				super.setSortie(1,Etat.UP);
+				propager(Etat.UP, prop);
 				break;
 			default:
 				break;

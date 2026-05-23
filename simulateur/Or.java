@@ -22,18 +22,16 @@ public class Or extends Composant {
 		super(Entrees,Sortie);
 	}
 
-	public void calculer()  {
-		boolean fini = false;
-		int i = 1;
-		Etat e = Etat.DW;
-		while (!fini) {
-			if (super.getEntree(i).getValeur() > e.getValeur()) e = super.getEntree(i);
-			fini = (i >= super.getNbEntree()) || (e.getValeur() == 1);
-			i++;
+	public void calculer(Propageur prop)  {
+		Etat e = Etat.ND;
+		if (super.getEntree(1) == Etat.UP || super.getEntree(2) == Etat.UP){
+			e = Etat.UP;
+		} 
+		else if (super.getEntree(1) == Etat.DW && super.getEntree(2) == Etat.DW){
+			e = Etat.DW;
 		}
-		super.setSortie(1,e);
-
-        }
+		propager(e, prop);
+    }
 
 	public void ajouter(Connecteur c)  {
 		/*

@@ -22,25 +22,25 @@ public class FileSimulateur implements Simulateur{
 		this(M.Plan);
 		List<Connecteur> SignauxParModule = new ArrayList<>();
 		//Vérification des appels Modules
-                if (M.Branchements != null) {
-                        ModulesAppeles = new ArrayList<>();
-                        for (AppelModule A : M.Branchements) {
-                                //Vérification des formats entrées et sorties
-                                if (A.DE.size() != A.module.Entrees.size()) throw new RuntimeException("Pas le bon nombre d'entrées durant l'appel du module" + A.module.Nom);
-                                if (A.DS.size() != A.module.Sorties.size()) throw new RuntimeException("Pas le bon nombre de sortie lors de l'appel du module " + A.module.Nom);
-                                //Il reste encore la vérification du nombre de signaux par entrée/sortie TODO.
-                                for (int curs = 0; curs < A.DE.size(); curs ++) {
-                                        Descripteur De1 = A.DE.get(curs);
-                                        Descripteur De2 = A.module.Entrees.get(curs);
-                                        if ((De1.nbSignaux() != De2.nbSignaux())) throw new RuntimeException("pas le bon nombre de signaux pour l'entree :" + De2.Nom() + ", du module :" + A.module.Nom);
-                                }
-                                for (int curs = 0; curs < A.DS.size(); curs ++) {
-                                        Descripteur De1 = A.DS.get(curs);
-                                        Descripteur De2 = A.module.Sorties.get(curs);
-                                        if (De1.nbSignaux() != De2.nbSignaux()) throw new RuntimeException("pas le bon nombre de signaux pour la sortie :" + De2.Nom() + ", du module : " + A.module.Nom);
-                                }
-                                //On s'est assuré de la bonne formation de l'appel.
-                        }
+        if (M.Branchements != null) {
+            ModulesAppeles = new ArrayList<>();
+            for (AppelModule A : M.Branchements) {
+                //Vérification des formats entrées et sorties
+                if (A.DE.size() != A.module.Entrees.size()) throw new RuntimeException("Pas le bon nombre d'entrées durant l'appel du module" + A.module.Nom);
+                if (A.DS.size() != A.module.Sorties.size()) throw new RuntimeException("Pas le bon nombre de sortie lors de l'appel du module " + A.module.Nom);
+                //Il reste encore la vérification du nombre de signaux par entrée/sortie TODO.
+                for (int curs = 0; curs < A.DE.size(); curs ++) {
+                    Descripteur De1 = A.DE.get(curs);
+                    Descripteur De2 = A.module.Entrees.get(curs);
+                    if ((De1.nbSignaux() != De2.nbSignaux())) throw new RuntimeException("pas le bon nombre de signaux pour l'entree :" + De2.Nom() + ", du module :" + A.module.Nom);
+                }
+                for (int curs = 0; curs < A.DS.size(); curs ++) {
+                    Descripteur De1 = A.DS.get(curs);
+                    Descripteur De2 = A.module.Sorties.get(curs);
+                    if (De1.nbSignaux() != De2.nbSignaux()) throw new RuntimeException("pas le bon nombre de signaux pour la sortie :" + De2.Nom() + ", du module : " + A.module.Nom);
+                }
+                //On s'est assuré de la bonne formation de l'appel.
+            }
 			//On s'occupe des sorties de notre module qui sont des entrées pour les modules appelés.
 			//SignauxParModule = new ArrayList<>(); //Signaux générées par des modules, pas encores existants, pour des modules
 			for (AppelModule A : M.Branchements) {
@@ -57,7 +57,7 @@ public class FileSimulateur implements Simulateur{
 						else CS = Dico.getConnecteurE(signal).getSignal(Dico);
 						BouttonEntree CE = Smodule.getEntrees(curs+1,curs2+1);
 						Composant CA = new EntreeModule(CS,CE);
-						System.out.println("\n <>>> Nouveau Branchement : " + CS.getNom() + " de " + M.Nom + " avec " + CE.getNom() + "\n");
+						//System.out.println("\n <>>> Nouveau Branchement : " + CS.getNom() + " de " + M.Nom + " avec " + CE.getNom() + "\n");
 						//Verifier et retirer de SortieG au cas où 
 						//Permet de verifier à la fin les signaux générés por riens.
 						//TODO
@@ -76,11 +76,11 @@ public class FileSimulateur implements Simulateur{
 						curs2 ++;
 					}
 				}
-				//TODO TODO C'est ici le patch
+
 				for (int curs = 0; curs < A.DS.size(); curs++){
-                                	for (Erwan E : A.DS.get(curs).Erwans()) {
-                                        	System.out.println("\nSortie enregistrée : "+ Dico.getConnecteurE(E).getNom() +".\n");
-                                	}
+                    for (Erwan E : A.DS.get(curs).Erwans()) {
+						Dico.getConnecteurE(E).getNom();
+                	}
 				}
 
 			}
@@ -120,7 +120,7 @@ public class FileSimulateur implements Simulateur{
                 curseurSortie += 1;
             }
             SortieUtilisateur.add(new StructSortie(DE.Nom(),T));
-			System.out.println("\nModule : " + M.Nom + "\nSortie ajouté pour l'utilisateur : " + DE.Nom() + " avec " + DE.nbSignaux() + ".\n");
+			//System.out.println("\nModule : " + M.Nom + "\nSortie ajouté pour l'utilisateur : " + DE.Nom() + " avec " + DE.nbSignaux() + ".\n");
         }
         SortieModule = SortiesG;
 		SortiesG = SortieUtilisateur;
@@ -139,7 +139,7 @@ public class FileSimulateur implements Simulateur{
 					int curs2 = 0;
 					for (Erwan signal : DE.Erwans()) {
 						Connecteur CE = null;
-						if (!Dico.existe(signal.Nom())) System.out.println("Entrée jamais lue ! : " + signal.Nom());
+						if (!Dico.existe(signal.Nom()));
 						else {
 							CE = Dico.getConnecteurE(signal);
 							if (CE.getOrigine() != null) throw new RuntimeException("Ce signal est lu et généré ! :" + signal.Nom());
@@ -202,22 +202,11 @@ public class FileSimulateur implements Simulateur{
 				curseurEntree += 1;
 			}
 			EntreeUtilisateur.add(new StructEntree(DE.Nom(),T));
-			System.out.println("\nModule : " + M.Nom + "\nEntree ajouté pour l'utilisateur : " + DE.Nom() + " avec " + DE.nbSignaux() + ".\n");
+			//System.out.println("\nModule : " + M.Nom + "\nEntree ajouté pour l'utilisateur : " + DE.Nom() + " avec " + DE.nbSignaux() + ".\n");
 		}
 		entreeModule = EntreesG;
 		EntreesG = EntreeUtilisateur;
 
-		//TODO Appel module !!! TODO
-		System.out.print("Il reste ces entree reposant sur des modules : ");
-		for (StructEntree SE : entreeModule ){
-			System.out.print(SE.getNom() + ", ");
-		}
-		System.out.println();
-		System.out.print("Il reste ces sorties à fournir à des modules : ");
-                for (StructSortie SS : SortieModule ){
-                        System.out.print(SS.getNom() + ", ");
-                }
-                System.out.println();
 		/*
 		for (AppelModule A : M.Branchements) {
 			if(A.DE.size() != A.module.Entrees.size()) throw new RuntimeException("Erreur dans un appel module !\n Pb dans le nb d'entrées !");

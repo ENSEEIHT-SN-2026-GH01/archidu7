@@ -9,14 +9,11 @@ public class Constante extends Composant {
 		super(0,1);
 		this.Val = b ? Etat.UP : Etat.DW;
 		super.brancherSortie(c,1);
-		this.calculer();
 	}
 
-	public void calculer()  {
-                for (int i = 1; i <= super.getNbSortie(); i++) {
-                        super.setSortie(i,this.Val);
-                }
-        }
+	public void calculer(Propageur prop)  {
+        propager(Val, prop);
+    }
 
 	/*
 	public void ajouter(Connecteur c)  {

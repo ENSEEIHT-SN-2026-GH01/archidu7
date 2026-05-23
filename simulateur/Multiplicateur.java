@@ -21,11 +21,9 @@ public class Multiplicateur extends Composant {
 		super.brancherSortie(c2,2);
 	}
 
-	public void calculer()  {
-                for (int i = 1; i <= super.getNbSortie(); i++) {
-                        super.setSortie(i,super.getEntree(1));
-                }
-        }
+	public void calculer(Propageur prop)  {
+        propager(getEntree(1), prop);
+    }
 
 	public void ajouter(Connecteur c)  {
 		/*
