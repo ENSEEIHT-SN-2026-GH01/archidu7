@@ -1,0 +1,98 @@
+@startuml simulation-classes
+!pragma layout smetana
+skinparam classAttributeIconSize 0
+skinparam classFontSize 11
+skinparam defaultFontName Sans
+skinparam linetype ortho
+hide empty members
+
+package "simulateur (facade)" {
+  interface Simulateur {
+    +nbEntree(): int
+    +nbSorties(): int
+    +getEntrees(i, j): BouttonEntree
+    +getSorties(i, j): Connecteur
+  }
+  class FileSimulateur {
+    -Dico: DicoConnecteur
+    -EntreesG: List<StructEntree>
+    -SortiesG: List<StructSortie>
+    -construction(plan: List<Erwan>)
+  }
+  class StructEntree {
+    -T: TableauConnecteur
+    +setValeur(i, e: Etat)
+  }
+  class StructSortie {
+    -T: TableauConnecteur
+    +getValeur(i): Etat
+  }
+}
+
+class Module <<parser>>
+
+package "circuit" {
+  abstract class Composant {
+    #entrees: TableauConnecteur
+    #sorties: TableauConnecteur
+    +calculer(p: Propageur)
+    +propager(e: Etat, p: Propageur)
+  }
+  class And
+  class Or
+  class Not
+  class BasculeD
+  class Constante
+  class EntreeModule
+
+  interface Connecteur {
+    +setValeur(e: Etat, p: Propageur)
+    +getValeur(): Etat
+  }
+  class Lien
+  class LienVecteur
+
+  class TableauConnecteur
+  class DicoConnecteur {
+    -dico: Map<String,Connecteur>
+  }
+  enum Etat {
+    UP
+    ND
+    DW
+  }
+  class Propageur {
+    +propagerSuivant()
+  }
+}
+
+package "appel" {
+  class GestionnaireModules
+}
+
+Simulateur <|.. FileSimulateur
+FileSimulateur *-- DicoConnecteur
+FileSimulateur o-- "*" StructEntree
+FileSimulateur o-- "*" StructSortie
+FileSimulateur ..> Module : consomme
+FileSimulateur ..> GestionnaireModules : résout sous-modules
+
+Composant <|-- And
+Composant <|-- Or
+Composant <|-- Not
+Composant <|-- BasculeD
+Composant <|-- Constante
+Composant <|-- EntreeModule
+Composant *-- "2" TableauConnecteur : entrees/sorties
+
+Connecteur <|.. Lien
+Lien <|-- LienVecteur
+TableauConnecteur o-- "*" Connecteur
+DicoConnecteur o-- "*" Connecteur
+
+Lien --> Etat : transporte
+Lien ..> Composant : déclenche calculer()
+Composant ..> Propageur : empile sorties
+Propageur o-- "*" Connecteur : file de propagation
+
+@enduml

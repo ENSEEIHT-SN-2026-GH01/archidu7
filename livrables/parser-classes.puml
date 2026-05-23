@@ -1,0 +1,89 @@
+@startuml parser-classes
+!pragma layout smetana
+skinparam classAttributeIconSize 0
+skinparam classFontSize 11
+skinparam defaultFontName Sans
+skinparam linetype ortho
+hide empty members
+
+package "lexer" {
+  class Lexer {
+    +tokenize(src: String): List<Lexem<Token>>
+  }
+  class "Lexem<T>" as Lexem {
+    +getToken(): T
+    +offset: int
+  }
+  enum Token
+}
+
+package "ll1.grammar" {
+  class Grammar
+  class Production
+  class NonTerminal
+  class Terminal
+  class TableBuilder {
+    +build(g: Grammar): ParsingTable
+  }
+}
+
+package "ll1.tabledriven" {
+  class ParsingTable {
+    -entries: Map<TableKey,Production>
+    +lookup(nt, t): Optional<Production>
+  }
+  class CstParser {
+    +parse(src: String): CstNode
+  }
+  class ParsingException
+}
+
+package "ll1.tabledriven.cst" <<sealed>> {
+  interface CstNode <<sealed>>
+  class CstLeaf <<record>>
+  class CstInternal <<record>>
+}
+
+package "conversion" {
+  class Conversion {
+    +convert(cst: CstNode): Module
+    +convert(main, library): Module
+  }
+  class ModuleBuilder
+  class ExpressionBuilder
+  class ModuleCallBuilder
+  class ConversionException
+}
+
+package "simulateur" {
+  class Module
+}
+
+Lexer ..> Lexem : produit
+Lexem o-- Token
+
+Grammar *-- Production
+Production o-- NonTerminal
+Production o-- Terminal
+TableBuilder ..> Grammar
+TableBuilder ..> ParsingTable
+
+CstParser ..> Lexer : tokenise via
+CstParser ..> ParsingTable
+CstParser ..> CstNode : produit
+CstParser ..> ParsingException : throws
+
+CstNode <|.. CstLeaf
+CstNode <|.. CstInternal
+CstInternal o-- "*" CstNode
+CstLeaf o-- Terminal
+CstInternal o-- NonTerminal
+
+Conversion ..> CstNode : consomme
+Conversion ..> Module : produit
+Conversion ..> ConversionException : throws
+Conversion *-- ModuleBuilder
+ModuleBuilder *-- ExpressionBuilder
+ModuleBuilder *-- ModuleCallBuilder
+
+@enduml
