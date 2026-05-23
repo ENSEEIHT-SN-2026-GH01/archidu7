@@ -1,6 +1,0 @@
-module count2Interne(en, rst, clk: D[1..0], c[1..0])   
-   D[0] = /c[0] 
-   D[1] = (c[0]*/c[1] + c[1]*/c[0])   
-   $BasculeD(en, clk, D[1], rst : c[1], z)
-   $BasculeD(en, clk, D[0], rst : c[0], x)
-end module

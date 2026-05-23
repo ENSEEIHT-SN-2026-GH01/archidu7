@@ -18,3 +18,10 @@ local.properties
 src-gen/
 *.xml
 *.zip
+
+# Build cross-OS (deps fetchées par la CI, jamais commitées)
+lib/
+dist/
+javafx-sdk-*/
+javafx.zip
+bin/

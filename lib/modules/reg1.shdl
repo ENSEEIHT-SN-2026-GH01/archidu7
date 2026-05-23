@@ -1,3 +1,0 @@
-module reg1(a, clk, rst:b)
-  b := a on clk reset when rst
-end module
