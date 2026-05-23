@@ -37,16 +37,16 @@ public class BoutonsPrincipale extends ButtonBar {
         String styleSecondaire = 
             "-fx-background-color: transparent; " +
             "-fx-border-color: #cbd5e1; " + 
-            "-fx-border-radius: 4px; " +
-            "-fx-text-fill: #334155; " + 
+            "-fx-border-radius: 4px; " + 
             "-fx-padding: 5px 13px; " + 
             "-fx-cursor: hand;";
 
         btnNouveau.setStyle(styleSecondaire);
         btnSauvegarder.setStyle(styleSecondaire);
 
-        // Espacement entre les boutons
-        this.setStyle("-fx-padding: 10px;");
+        btnNouveau.setMinWidth(Button.USE_PREF_SIZE);
+        btnSauvegarder.setMinWidth(Button.USE_PREF_SIZE);
+        btnSimuler.setMinWidth(Button.USE_PREF_SIZE);
 
         getButtons().addAll(btnNouveau, btnSauvegarder, btnSimuler);
     }

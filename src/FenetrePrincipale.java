@@ -15,42 +15,40 @@ public class FenetrePrincipale extends Scene {
     
     private GestionnaireColorateur colorateur;
     private Lexer lexer;
+    private BorderPane outils;
+    private ListeModulePrincipale environnement;
+    private EditeurTexte editeur;
+    private BoutonsPrincipale boutons;
 
     public FenetrePrincipale() { 
 
         super(new BorderPane(), 1000, 600);
         BorderPane root = (BorderPane) this.getRoot();
 
-        EditeurTexte editeur = new EditeurTexte();
-        //suppression de la bordure et du focus
-        editeur.setStyle(
-            "-fx-focus-color: transparent; " +
-            "-fx-faint-focus-color: transparent; " +
-            "-fx-background-insets: 0; " + 
-            "-fx-border-color: transparent;"
-        );
+        this.editeur = new EditeurTexte();
 
         FileStorage stockage = new TextFileStorage(); 
 
-        BoutonsPrincipale boutons = new BoutonsPrincipale(editeur, stockage);
+        this.boutons = new BoutonsPrincipale(editeur, stockage);
         boutons.setStyle("-fx-background-color: transparent;"); //on espace un peu les bouton
 
-        ListeModulePrincipale environnement = new ListeModulePrincipale(editeur, stockage);
-        // Style pour l'environnement
-        environnement.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 0 1px 0 0;");
+        this.environnement = new ListeModulePrincipale(editeur, stockage);
         
         MenuPrincipale menu = new MenuPrincipale();
         menu.setStyle("-fx-background-color: transparent; -fx-font-size: 14px;");
 
-        BorderPane outils = new BorderPane();
+        menu.getModeSombre().setOnAction(event -> {
+            boolean estSombre = menu.getModeSombre().isSelected();
+            appliquerTheme(estSombre); 
+        });
+
+        this.outils = new BorderPane();
         outils.setLeft(menu);
         outils.setRight(boutons);
 
         BorderPane.setAlignment(menu, javafx.geometry.Pos.CENTER_LEFT);
         BorderPane.setAlignment(boutons, javafx.geometry.Pos.CENTER_RIGHT);
 
-        outils.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1px 0; -fx-padding: 4px 10px;"); //délimitation de l'en tête par rapport à la zone de code
- 
         root.setCenter(editeur);
         root.setTop(outils);
         root.setLeft(environnement);
@@ -62,12 +60,48 @@ public class FenetrePrincipale extends Scene {
         espaceDeTravail.setDividerPositions(0.2f);
         espaceDeTravail.setStyle("-fx-background-color: transparent; -fx-padding: 0;");
         root.setCenter(espaceDeTravail);
-        editeur.addListener(new EditeurListener());
+        this.editeur.addListener(new EditeurListener());
+
+        this.appliquerTheme(false);
     }
 
     public class EditeurListener implements ChangeListener<String>{
         public void changed(ObservableValue<? extends String> unused, String old, String nouvelle){
             colorateur.gerrerAll(lexer.tokenize(nouvelle));
+        }
+    }
+
+    public void appliquerTheme(boolean sombre) {
+        BorderPane root = (BorderPane) this.getRoot();
+        // THEME SOMBRE
+        if(sombre) {
+            root.setStyle("-fx-base: #252526; -fx-background: #252526;");
+        //bandeau supérieur
+            this.outils.setStyle("-fx-background-color: #2d2d2d; -fx-border-color: #404040; -fx-border-width: 0 0 1px 0; -fx-padding: 4px 10px;");
+            //bandeau de gauche
+            this.environnement.setStyle("-fx-background-color: #252526; -fx-border-color: #404040; -fx-border-width: 0 1px 0 0;");
+            //éditeur
+            this.editeur.setStyle(
+                    "-fx-control-inner-background: #1e1e1e; " + 
+                    "-fx-text-fill: #d4d4d4; " + // Texte en gris clair
+                    "-fx-focus-color: transparent; " +
+                    "-fx-faint-focus-color: transparent; " +
+                    "-fx-background-insets: 0;"
+                );
+        }
+        // THEME CLAIR
+        else {
+            root.setStyle("-fx-base: #f8fafc; -fx-background: #f8fafc;");
+            
+            this.outils.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1px 0; -fx-padding: 4px 10px;");
+            this.environnement.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 0 1px 0 0;");
+            this.editeur.setStyle(
+                "-fx-control-inner-background: white; " + 
+                "-fx-text-fill: black; " + 
+                "-fx-focus-color: transparent; " +
+                "-fx-faint-focus-color: transparent; " +
+                "-fx-background-insets: 0;"
+            );
         }
     }
 }
