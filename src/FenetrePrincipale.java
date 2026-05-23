@@ -9,6 +9,7 @@ import parser.lexer.Lexer;
 import sauvegarde.FileStorage;
 import sauvegarde.TextFileStorage;
 import boutons.BoutonsPrincipale;
+import javafx.scene.control.SplitPane;
 
 public class FenetrePrincipale extends Scene {
     
@@ -56,6 +57,11 @@ public class FenetrePrincipale extends Scene {
 
         colorateur = new GestionnaireColorateur(editeur);
         lexer = new Lexer();
+        SplitPane espaceDeTravail = new SplitPane();
+        espaceDeTravail.getItems().addAll(environnement, editeur);
+        espaceDeTravail.setDividerPositions(0.2f);
+        espaceDeTravail.setStyle("-fx-background-color: transparent; -fx-padding: 0;");
+        root.setCenter(espaceDeTravail);
         editeur.addListener(new EditeurListener());
     }
 
