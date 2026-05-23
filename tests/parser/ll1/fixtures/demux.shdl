@@ -1,0 +1,1 @@
+module demux (a, sel) o0 = a * /sel o1 = a * sel end module

@@ -25,3 +25,7 @@ dist/
 javafx-sdk-*/
 javafx.zip
 bin/
+
+# Exception : jars de test (JUnit/Hamcrest) versionnés
+!tests/lib/
+!tests/lib/*.jar

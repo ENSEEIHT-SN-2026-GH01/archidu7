@@ -11,7 +11,7 @@ TEST_BINARY_FOLDER = $(TEST_FOLDER)/bin
 
 ASSET_FOLDER = $(SOURCE_FOLDER)/assets
 BIN_ASSET_FOLDER = $(BINARY_FOLDER)/assets
-JUNIT = $(TEST_FOLDER)/lib/junit4.jar
+JUNIT = $(TEST_FOLDER)/lib/junit-4.13.2.jar:$(TEST_FOLDER)/lib/hamcrest-core-1.3.jar
 
 EXEC = archidu7.jar
 
@@ -19,7 +19,7 @@ EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 
 BUILD_CLASSPATH = $(subst $(SPACE),,$(foreach PATH,$(shell find lib -name "*"),$(ROOT)/$(PATH):))$(SOURCE_FOLDER)
-TEST_CLASSPATH = $(ROOT)/$(EXEC):$(JUNIT)
+TEST_CLASSPATH = $(BUILD_CLASSPATH):$(JUNIT)
 
 MANIFEST_FILE = $(SOURCE_FOLDER)/META-INF/MANIFEST.MF
 
@@ -36,12 +36,13 @@ $(EXEC) : $(SRC)
 
 	@jar --create --file=$(EXEC) --manifest $(MANIFEST_FILE) -C $(BINARY_FOLDER) .
 
-test: build $(TEST_SRC)
+test: build
 	@mkdir -p $(TEST_BINARY_FOLDER)
 
-	@cd $(TEST_FOLDER) && javac -d $(TEST_BINARY_FOLDER) -cp $(TEST_CLASSPATH) $(TEST_SRC)
+	@javac -d $(TEST_BINARY_FOLDER) -cp "$(TEST_CLASSPATH)" $(SRC) $(TEST_SRC)
 
-	@cd $(TEST_BINARY_FOLDER) && java -cp $(TEST_CLASSPATH):$(TEST_BINARY_FOLDER) -ea org.junit.runner.JUnitCore $(subst .java,,$(subst /,.,$(subst $(TEST_FOLDER)/,,$(TEST_SRC))))
+	@java -cp "$(TEST_BINARY_FOLDER):$(TEST_CLASSPATH)" -ea org.junit.runner.JUnitCore \
+		$(shell find $(TEST_FOLDER) -name "*Test.java" | sed 's#$(ROOT)/##; s#/#.#g; s#\.java$$##')
 
 clean:
 	@rm -fr $(BINARY_FOLDER)

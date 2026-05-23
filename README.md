@@ -52,6 +52,21 @@ cd src; javac -d ../bin -cp "../lib/*;." App.java; cd ..
 jar --create --file=archidu7.jar --manifest src/META-INF/MANIFEST.MF -C bin .
 ```
 
+## Tests
+
+La suite de tests JUnit vit dans [`tests/`](tests/) (séparée du code, comme
+souhaité), avec JUnit 4.13.2 + Hamcrest dans `tests/lib/`. Lancer :
+
+```sh
+make test
+```
+
+267 tests couvrent le parser (lexer, grammaire LL(1), CST), la conversion
+(combinatoire, vecteurs, appels de sous-modules) et la simulation. Quelques
+tests sont marqués `@Ignore` : ils proviennent de la branche
+`test/bascule-d-integration` et ciblent des évolutions de la conversion/du
+séquentiel non encore intégrées sur `main` (à réconcilier).
+
 ## Modules
 
 L'app lit le dossier `modules/` du répertoire de travail. Lancée depuis la
