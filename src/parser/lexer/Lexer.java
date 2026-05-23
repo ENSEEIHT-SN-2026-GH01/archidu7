@@ -10,19 +10,20 @@ import java.util.*;
  */
 public class Lexer {
   private AutomateDeterministe<Token> a;
+  public static final Lexer LEXER = new Lexer();
 
   /**
    * Construit l'automate à partir des règles de la grammaire
    */
-  public Lexer() {
+  private Lexer() {
     List<Pair<Regex, Lexem<Token>>> l = new LinkedList<>();
-    
+
     // les règles lues
     l.add(Pair.pair(Builder.parseRegex("\\("), new Lexem<Token>(Token.LeftPar)));
     l.add(Pair.pair(Builder.parseRegex("\\["), new Lexem<Token>(Token.LeftSquareBrack)));
     l.add(Pair.pair(Builder.parseRegex("\\]"), new Lexem<Token>(Token.RightSquareBrack)));
     l.add(Pair.pair(Builder.parseRegex("\\)"), new Lexem<Token>(Token.RightPar)));
-    l.add(Pair.pair(Builder.parseRegex("module" ), new Lexem<Token>(Token.ModuleKW)));
+    l.add(Pair.pair(Builder.parseRegex("module"), new Lexem<Token>(Token.ModuleKW)));
     l.add(Pair.pair(Builder.parseRegex("end"), new Lexem<Token>(Token.EndKW)));
     l.add(Pair.pair(Builder.parseRegex("output"), new Lexem<Token>(Token.OutputKW)));
     l.add(Pair.pair(Builder.parseRegex("enabled"), new Lexem<Token>(Token.EnabledKW)));
@@ -51,7 +52,8 @@ public class Lexer {
     l.add(Pair.pair(Builder.parseRegex("[\\r\\n]"), new Lexem<Token>(Token.lineTerminator, true)));
     l.add(Pair.pair(Builder.parseRegex("((//)|#)(~[\\r\\n])*"), new Lexem<Token>(Token.Comment)));
 
-    // Lexème Erreur => safe car il ne doit pas etre pris avant les autres => plus petite priorité
+    // Lexème Erreur => safe car il ne doit pas etre pris avant les autres => plus
+    // petite priorité
     Lexem<Token> error = new Lexem<Token>(Token.Error);
     error.setSafe(0);
     l.add(Pair.pair(Builder.parseRegex("."), error));
@@ -62,7 +64,9 @@ public class Lexer {
 
   /**
    * Exécute le lexer sur la chaîne de caractères {@code s}
-   * @param s la chaîne a tokenizer
+   * 
+   * @param s
+   *            la chaîne a tokenizer
    * @return la liste de lexemes résultante
    */
   public List<Lexem<Token>> tokenize(String s) {

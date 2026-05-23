@@ -24,16 +24,18 @@ import java.util.Optional;
 /**
  * Driver de parsing LL(1) table-driven pour SHDL.
  *
- * <p>Produit un {@link CstNode} (arbre de syntaxe concrete) depuis une source
+ * <p>
+ * Produit un {@link CstNode} (arbre de syntaxe concrete) depuis une source
  * textuelle. Utilise directement le lexer d Erwan ({@link Lexer}).
  */
 public final class CstParser {
 
     // Table et axiome : calcules une seule fois (la grammaire est statique)
     private static final ParsingTable TABLE = TableBuilder.build(Grammar.SHDL);
-    private static final NonTerminal  AXIOM = Grammar.SHDL.getAxiom();
+    private static final NonTerminal AXIOM = Grammar.SHDL.getAxiom();
 
-    private CstParser() {}
+    private CstParser() {
+    }
 
     // -----------------------------------------------------------------------
     // API publique
@@ -42,12 +44,16 @@ public final class CstParser {
     /**
      * Tokenise {@code source} via le lexer d Erwan puis parse.
      *
-     * <p>Les trivia (whitespace, lineTerminator, commentaires) sont filtres.
+     * <p>
+     * Les trivia (whitespace, lineTerminator, commentaires) sont filtres.
      * Les lexemes {@link Token#Error} levent une {@link ParsingException}.
      * Un lexeme EOF sentinelle est ajoute en fin de liste.
      *
-     * @throws NullPointerException si {@code source} est null
-     * @throws ParsingException si la source n'est pas syntaxiquement correcte
+     * @throws NullPointerException
+     *                                  si {@code source} est null
+     * @throws ParsingException
+     *                                  si la source n'est pas syntaxiquement
+     *                                  correcte
      */
     public static CstNode parse(String source) {
         Objects.requireNonNull(source, "source");
@@ -60,7 +66,7 @@ public final class CstParser {
      * Les {@link Token#Error} levent une {@link ParsingException}.
      */
     static List<Lexem<Token>> tokenize(String source) {
-        List<Lexem<Token>> raw = new Lexer().tokenize(source);
+        List<Lexem<Token>> raw = Lexer.LEXER.tokenize(source);
         List<Lexem<Token>> filtered = new ArrayList<>(raw.size() + 1);
         for (Lexem<Token> lex : raw) {
             Token t = lex.getToken();
@@ -93,19 +99,21 @@ public final class CstParser {
 
     /** Cadre de construction d'un CstInternal en cours. */
     static final class Frame {
-        final NonTerminal nt;           // null pour le rootFrame collecteur
-        final Production  production;   // null pour le rootFrame
-        final int         expectedChildren;
+        final NonTerminal nt; // null pour le rootFrame collecteur
+        final Production production; // null pour le rootFrame
+        final int expectedChildren;
         final List<CstNode> children;
 
         Frame(NonTerminal nt, Production production, int expectedChildren, List<CstNode> children) {
-            this.nt               = nt;
-            this.production       = production;
+            this.nt = nt;
+            this.production = production;
             this.expectedChildren = expectedChildren;
-            this.children         = children;
+            this.children = children;
         }
 
-        boolean isComplete() { return children.size() >= expectedChildren; }
+        boolean isComplete() {
+            return children.size() >= expectedChildren;
+        }
     }
 
     /** Moteur de parsing : une instance par appel a {@link #parse}. */
@@ -135,7 +143,7 @@ public final class CstParser {
             // Boucle principale
             // ----------------------------------------------------------------
             while (!stack.isEmpty()) {
-                Symbol top     = stack.pop();
+                Symbol top = stack.pop();
                 Lexem<Token> current = tokens.get(cursor);
 
                 if (top.isTerminal()) {
@@ -178,7 +186,8 @@ public final class CstParser {
                         CstInternal epsilonNode = CstInternal.epsilon(nt, prod, current.getIndexDepart());
                         attach(frames, epsilonNode);
                     } else {
-                        // Production non-epsilon : ouvrir un frame et empiler les symboles en ordre inverse
+                        // Production non-epsilon : ouvrir un frame et empiler les symboles en ordre
+                        // inverse
                         List<Symbol> body = prod.getBody();
                         frames.push(new Frame(nt, prod, body.size(), new ArrayList<>()));
                         for (int i = body.size() - 1; i >= 0; i--) {
@@ -218,15 +227,20 @@ public final class CstParser {
             frames.peek().children.add(node);
         }
 
-        /** Retourne le NonTerminal du frame courant (innermost) pour le contexte d'erreur, ou null. */
+        /**
+         * Retourne le NonTerminal du frame courant (innermost) pour le contexte
+         * d'erreur, ou null.
+         */
         private static NonTerminal frameContext(Deque<Frame> frames) {
-            if (frames.isEmpty()) return null;
+            if (frames.isEmpty())
+                return null;
             Frame top = frames.peek();
             return top.nt; // null pour rootFrame, c'est acceptable
         }
 
         /**
-         * Construit un chemin lisible de non-terminaux depuis la racine vers le frame courant.
+         * Construit un chemin lisible de non-terminaux depuis la racine vers le frame
+         * courant.
          * Ex. "Module > Instance > Operation".
          * Retourne null si la pile ne contient que le rootFrame.
          */
@@ -235,14 +249,18 @@ public final class CstParser {
             // On veut afficher du root vers le top => inverser
             List<String> names = new ArrayList<>();
             for (Frame f : frames) {
-                // iteration en ordre LIFO : f va de innermost a outermost (rootFrame en dernier)
-                if (f.nt != null) names.add(f.nt.name());
+                // iteration en ordre LIFO : f va de innermost a outermost (rootFrame en
+                // dernier)
+                if (f.nt != null)
+                    names.add(f.nt.name());
             }
-            if (names.isEmpty()) return null;
+            if (names.isEmpty())
+                return null;
             // inverser pour avoir root -> ... -> innermost
             StringBuilder sb = new StringBuilder();
             for (int i = names.size() - 1; i >= 0; i--) {
-                if (sb.length() > 0) sb.append(" > ");
+                if (sb.length() > 0)
+                    sb.append(" > ");
                 sb.append(names.get(i));
             }
             return sb.toString();
