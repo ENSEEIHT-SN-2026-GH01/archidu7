@@ -49,8 +49,9 @@ public class BandeauOnglet extends HBox {
      * vienne réécrire le buffer pendant un switch. */
     private class EditeurChangeListener implements ChangeListener<String> {
         public void changed(ObservableValue<? extends String> obs, String old, String nouv) {
-            if (ignorerEdits || actif == null) return;
-            actif.buffer = nouv;
+            if (actif == null) return;
+            actif.buffer = nouv;          // toujours synchroniser le buffer sur l'éditeur
+            if (ignorerEdits) return;     // mais ne pas marquer « modifié » lors d'un load/switch programmatique
             if (!actif.modifie) {
                 actif.modifie = true;
                 actif.rafraichirStyle(true);
