@@ -55,7 +55,7 @@ public class FenetrePrincipale extends Scene {
 
         root.setTop(outils);
         root.setCenter(espaceDeTravail);
-        
+
         colorateur = new GestionnaireColorateur(editeur);
         lexer = new Lexer();
         GestionnaireModules.lexer = lexer;
@@ -87,5 +87,7 @@ public class FenetrePrincipale extends Scene {
             this.environnement.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 0 1px 0 0;");
             this.editeur.setStyle("-fx-control-inner-background: white; -fx-text-fill: black; -fx-prompt-text-fill: gray; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-insets: 0;");
         }
+        //on applique le thème aux onglets
+        this.onglets.setModeSombre(sombre);
     }
 }

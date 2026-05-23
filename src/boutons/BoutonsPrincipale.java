@@ -1,7 +1,8 @@
 package boutons;
 
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
+import javafx.scene.layout.HBox;
+import javafx.geometry.Pos;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -12,7 +13,7 @@ import sauvegarde.FileStorage;
 /**
  * Barre de boutons principale de l'application.
  */
-public class BoutonsPrincipale extends ButtonBar {
+public class BoutonsPrincipale extends HBox {
 
     /**
      * Construire la barre de boutons principales.
@@ -20,7 +21,10 @@ public class BoutonsPrincipale extends ButtonBar {
      * @param stockage L'interface de sauvegarde.
      */
     public BoutonsPrincipale(EditeurTexte editeur, FileStorage stockage) {
-        super();
+        super(15); // espacement de 15 pixels entre les boutons
+
+        this.setAlignment(Pos.CENTER_RIGHT); 
+        this.setStyle("-fx-background-color: transparent; -fx-padding: 10px;");
 
         Button btnNouveau = new BoutonNouveau(editeur, stockage);
         Button btnCharger = new BoutonCharger(stockage);
@@ -34,7 +38,7 @@ public class BoutonsPrincipale extends ButtonBar {
         
         btnSimuler.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 4px; -fx-padding: 5px 20px; -fx-cursor: hand;");
 
-        getButtons().addAll(btnNouveau, btnCharger, btnSauvegarder, btnSimuler);
+        getChildren().addAll(btnNouveau, btnCharger, btnSauvegarder, btnSimuler);
     }
 
     /**

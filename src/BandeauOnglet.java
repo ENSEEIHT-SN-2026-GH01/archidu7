@@ -25,6 +25,7 @@ public class BandeauOnglet extends HBox {
     private Onglet actif = null;
     private final Label vide;
     private boolean ignorerEdits = false;
+    private boolean modeSombre = false;
 
     public BandeauOnglet(FileStorage storage, EditeurTexte editeur) {
         super(4); // permet de mettre un petit espace entre les onglets
@@ -151,6 +152,18 @@ public class BandeauOnglet extends HBox {
         return idx >= 0 ? chemin.substring(idx + 1) : chemin;
     }
 
+    public void setModeSombre(boolean sombre) {
+        this.modeSombre = sombre;
+        if (sombre) {
+            setStyle("-fx-background-color: #181818; -fx-border-color: #404040; -fx-border-width: 0 0 1 0;");
+            vide.setStyle("-fx-text-fill: #888; -fx-font-style: italic;");
+        } else {
+            setStyle("-fx-background-color: #e8e8e8; -fx-border-color: #bbb; -fx-border-width: 0 0 1 0;");
+            vide.setStyle("-fx-text-fill: #888; -fx-font-style: italic;");
+        }
+        rebuild();
+    }
+
     private class Onglet extends HBox {
         final String chemin;
         String buffer = "";
@@ -176,24 +189,39 @@ public class BandeauOnglet extends HBox {
         }
 
         void rafraichirStyle(boolean estActif) {
-            String fond = estActif ? "#ffffff" : "#d0d0d0";
+            String fond, bordure, texteCouleur, boutonFermerCouleur;
+
+            if (modeSombre) {
+                fond = estActif ? "#1e1e1e" : "#252526";
+                bordure = "#404040";
+                texteCouleur = estActif ? "#d4d4d4" : "#888888";
+                boutonFermerCouleur = estActif ? "#aaaaaa" : "#666666";
+            } else {
+                fond = estActif ? "#ffffff" : "#d0d0d0";
+                bordure = "#999";
+                texteCouleur = "black";
+                boutonFermerCouleur = "#666";
+            }
+
             String labelStyle = estActif
-                ? "-fx-background-color: transparent; -fx-cursor: hand; -fx-font-weight: bold;"
-                : "-fx-background-color: transparent; -fx-cursor: hand;";
+                ? "-fx-background-color: transparent; -fx-cursor: hand; -fx-font-weight: bold; -fx-text-fill: " + texteCouleur + ";"
+                : "-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: " + texteCouleur + ";";
+                
             setStyle(
                 "-fx-background-color: " + fond + ";"
-                + "-fx-border-color: #999;"
+                + "-fx-border-color: " + bordure + ";"
                 + "-fx-border-width: 1 1 0 1;"
                 + "-fx-background-radius: 4 4 0 0;"
                 + "-fx-border-radius: 4 4 0 0;"
             );
             label.setStyle(labelStyle);
+            
             if (modifie) {
                 fermer.setText("●");
                 fermer.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-font-size: 14;");
             } else {
                 fermer.setText("✕");
-                fermer.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: #666;");
+                fermer.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: " + boutonFermerCouleur + ";");
             }
         }
     }
