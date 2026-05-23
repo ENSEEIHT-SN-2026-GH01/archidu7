@@ -35,7 +35,7 @@ public class Transitions<Node, Label> {
     Transitions<Node, Label> result = new Transitions<>();
 
     this.forEach((transition) -> {
-      result.add(transition.first, transition.middle, transition.last);
+      result.add(transition.first(), transition.middle(), transition.last());
     });
 
     return result;
@@ -51,7 +51,7 @@ public class Transitions<Node, Label> {
     }
   }
 
-  public Set<Node> delta(Node depart, Label etiquette){
+  public Set<Node> delta(Node depart, Label etiquette) {
     return transitions.getOrDefault(depart, new HashMap<>()).getOrDefault(etiquette, new HashSet<>());
   }
 
@@ -62,7 +62,7 @@ public class Transitions<Node, Label> {
     for (var transition : transitions.entrySet()) {
       for (var flecheEtat : transition.getValue().entrySet()) {
         for (Node destination : flecheEtat.getValue()) {
-          res = res.concat("[("+ transition.getKey() +", '" + flecheEtat.getKey() + "') -> " + destination + "]\n");
+          res = res.concat("[(" + transition.getKey() + ", '" + flecheEtat.getKey() + "') -> " + destination + "]\n");
         }
       }
     }

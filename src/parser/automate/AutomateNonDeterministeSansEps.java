@@ -15,7 +15,7 @@ public class AutomateNonDeterministeSansEps<T> implements Automate<T> {
     return new AutomateNonDeterministeSansEps<T>(AutomateNonDeterministe.fromList(l));
   }
 
-  private AutomateNonDeterministeSansEps(AutomateNonDeterministe<T> super_){
+  private AutomateNonDeterministeSansEps(AutomateNonDeterministe<T> super_) {
 
     entryPoints = super_.getEntryPoints();
     etatsTerminaux = super_.getEtatsTerminaux();
@@ -39,35 +39,28 @@ public class AutomateNonDeterministeSansEps<T> implements Automate<T> {
      * - supprimer les eps => une file pour les stocker ?
      */
     superDelta.forEach((transition) -> {
-      int depart = transition.first;
-      OptionalInt etiquette = transition.middle;
-      int arrivee = transition.last;
-
-      if (etiquette.isEmpty()) {
-        deltaEntrant.forEach((transitionEntrante) -> {
-          int departEntrant = transitionEntrante.first;
-          OptionalInt etiquetteEntrante = transitionEntrante.middle;
-          int arriveeEntrant = transitionEntrante.last;
-
-          if (arriveeEntrant == depart) {
-            if (etiquetteEntrante.isEmpty()) {
-              superDelta.add(departEntrant, etiquetteEntrante, arrivee);
-            } else {
-              delta.add(departEntrant, etiquetteEntrante.getAsInt(), arrivee);
+      if (transition instanceof Triplet(Integer depart, OptionalInt etiquette, Integer arrivee)) {
+        if (etiquette.isEmpty()) {
+          deltaEntrant.forEach((transitionEntrante) -> {
+            if (transitionEntrante instanceof Triplet(Integer departEntrant, OptionalInt etiquetteEntrante, Integer arriveeEntrant)) {
+              if (arriveeEntrant == depart) {
+                if (etiquetteEntrante.isEmpty()) {
+                  superDelta.add(departEntrant, etiquetteEntrante, arrivee);
+                } else {
+                  delta.add(departEntrant, etiquetteEntrante.getAsInt(), arrivee);
+                }
+              }
             }
-          }
-        });
+          });
+        }
       }
     });
 
     // rajouter les transitions de base
     superDelta.forEach((transition) -> {
-      int depart = transition.first;
-      OptionalInt etiquette = transition.middle;
-      int arrivee = transition.last;
-
-      if (!etiquette.isEmpty()){
-        delta.add(depart, etiquette.getAsInt(), arrivee);
+      OptionalInt etiquette = transition.middle();
+      if (!etiquette.isEmpty()) {
+        delta.add(transition.first(), etiquette.getAsInt(), transition.last());
       }
     });
 
@@ -83,7 +76,7 @@ public class AutomateNonDeterministeSansEps<T> implements Automate<T> {
     return entryPoints;
   }
 
-  public Map<Integer, T> getEtatsTerminaux(){
+  public Map<Integer, T> getEtatsTerminaux() {
     return etatsTerminaux;
   }
 
@@ -94,7 +87,8 @@ public class AutomateNonDeterministeSansEps<T> implements Automate<T> {
 
   @Override
   public String toString() {
-    return "Automate non déterministe sans epsilon-transitions:\n\tInitiaux: " + entryPoints + "\n\tFinaux: " + etatsTerminaux + "\n\tTransitions: \n" + delta;
+    return "Automate non déterministe sans epsilon-transitions:\n\tInitiaux: " + entryPoints + "\n\tFinaux: "
+        + etatsTerminaux + "\n\tTransitions: \n" + delta;
   }
 
 }

@@ -5,6 +5,7 @@ import java.util.*;
 import parser.lexer.Lexem;
 import parser.regex.*;
 import util.Pair;
+import util.Triplet;
 
 public class AutomateNonDeterministe<T> implements Automate<T> {
 
@@ -20,7 +21,7 @@ public class AutomateNonDeterministe<T> implements Automate<T> {
     parseRegex(r, pair(1, 2));
   }
 
-  protected static <T> AutomateNonDeterministe<T> fromList(List<Pair<Regex, T>> l){
+  protected static <T> AutomateNonDeterministe<T> fromList(List<Pair<Regex, T>> l) {
     List<AutomateNonDeterministe<T>> listeAutomates = new LinkedList<>();
     l.forEach((pair) -> {
       listeAutomates.add(new AutomateNonDeterministe<T>(pair.fst(), pair.snd()));
@@ -29,22 +30,21 @@ public class AutomateNonDeterministe<T> implements Automate<T> {
     return ouAutomates(listeAutomates);
   }
 
-  private static Transitions<Integer, OptionalInt> transitionsOffsetted(Transitions<Integer, OptionalInt> transitions, int offset){
-    
+  private static Transitions<Integer, OptionalInt> transitionsOffsetted(Transitions<Integer, OptionalInt> transitions,
+      int offset) {
+
     Transitions<Integer, OptionalInt> res = new Transitions<>();
 
     transitions.forEach((triplet) -> {
-      int depart = triplet.first;
-      OptionalInt etiquette = triplet.middle;
-      int arrivee = triplet.last;
-      
-      res.add(depart + offset, etiquette, arrivee + offset);
+      if (triplet instanceof Triplet(Integer depart, OptionalInt etiquette, Integer arrivee)) {
+        res.add(depart + offset, etiquette, arrivee + offset);
+      }
     });
 
     return res;
   }
 
-  private void offsetTransitions(int offset){
+  private void offsetTransitions(int offset) {
     delta = transitionsOffsetted(delta, offset);
     Set<Integer> newEntryPoint = new HashSet<>();
     Map<Integer, T> newEtatsTerminaux = new HashMap<>();
@@ -59,17 +59,17 @@ public class AutomateNonDeterministe<T> implements Automate<T> {
     });
     etatsTerminaux = newEtatsTerminaux;
 
-    nextId += offset+1;
+    nextId += offset + 1;
   }
 
-  private static <T> AutomateNonDeterministe<T> ouAutomates(List<AutomateNonDeterministe<T>> l){
+  private static <T> AutomateNonDeterministe<T> ouAutomates(List<AutomateNonDeterministe<T>> l) {
     AutomateNonDeterministe<T> res = l.getFirst();
     l.remove(0);
 
     l.forEach((automate) -> {
       automate.offsetTransitions(res.getMaxId());
       automate.getDelta().forEach((transition) -> {
-        res.addTransition(transition.first, transition.middle, transition.last);
+        res.addTransition(transition.first(), transition.middle(), transition.last());
       });
 
       res.entryPoints.addAll(automate.getEntryPoints());
@@ -103,11 +103,11 @@ public class AutomateNonDeterministe<T> implements Automate<T> {
       for (int i = ra.getLeft(); i <= ra.getRight(); i++) {
         parseRegex(new Litteral((char) i), p);
       }
-    } else if (r instanceof Joker){
+    } else if (r instanceof Joker) {
       for (int i = 0; i <= 255; i++) {
         parseRegex(new Litteral((char) i), p);
       }
-    } else if (r instanceof Not not){
+    } else if (r instanceof Not not) {
       List<Boolean> arr = new LinkedList<>();
       for (int i = 0; i <= 255; i++) {
         arr.add(true);
@@ -115,14 +115,14 @@ public class AutomateNonDeterministe<T> implements Automate<T> {
       arr = new ArrayList<>(arr);
       collapseNot(arr, not.getInsideRegex());
       for (int i = 0; i <= 255; i++) {
-        if (arr.get(i)){
+        if (arr.get(i)) {
           parseRegex(new Litteral((char) i), p);
         }
       }
     }
   }
 
-  private void collapseNot(List<Boolean> l, Regex r){
+  private void collapseNot(List<Boolean> l, Regex r) {
     if (r instanceof Litteral lit) {
       l.set(lit.getCharacter(), false);
     } else if (r instanceof Or o) {
@@ -160,12 +160,13 @@ public class AutomateNonDeterministe<T> implements Automate<T> {
     throw new NotExecutableError();
   }
 
-  protected int getMaxId(){
-    return nextId-1;
+  protected int getMaxId() {
+    return nextId - 1;
   }
 
   @Override
   public String toString() {
-    return "Automate non déterministe:\n\tInitiaux: " + entryPoints + "\n\tFinaux: " + etatsTerminaux + "\n\tTransitions: \n" + delta;
+    return "Automate non déterministe:\n\tInitiaux: " + entryPoints + "\n\tFinaux: " + etatsTerminaux
+        + "\n\tTransitions: \n" + delta;
   }
 }

@@ -3,21 +3,14 @@ package util;
 /**
  * A class representing a couple of values
  */
-public class Pair<A, B> {
-  private A a;
-  private B b;
-
-  public Pair(A arg0, B arg1) {
-    this.a = arg0;
-    this.b = arg1;
-  }
+public record Pair<A, B>(A fst, B snd) {
 
   public A fst() {
-    return a;
+    return fst;
   }
 
   public B snd() {
-    return b;
+    return snd;
   }
 
   public static <A, B> Pair<A, B> pair(A a, B b) {
@@ -26,7 +19,7 @@ public class Pair<A, B> {
 
   @Override
   public String toString() {
-    return "(" + a + ", " + b + ")";
+    return "(" + fst + ", " + snd + ")";
   }
 
 }

@@ -16,11 +16,13 @@ import simulateur.appel.GestionnaireModules;
 public class Dictionary {
   private Set<String> storage;
   private FileStorage fileStorage;
-  private EditeurTexte texte;
+  private EditeurTexte textEditor;
 
-  public Dictionary(EditeurTexte texte) {
+  public final static String VALID = "abcdefghijklmnopqrstuvwxyz_0123456789";
+
+  public Dictionary(EditeurTexte textEditor) {
     fileStorage = new TextFileStorage();
-    this.texte = texte;
+    this.textEditor = textEditor;
 
     updateStorage();
   }
@@ -51,7 +53,7 @@ public class Dictionary {
     }
 
     // récupération de tous les noms de variables de la zone de texte
-    List<Lexem<Token>> toks = Lexer.LEXER.tokenize(texte.getText());
+    List<Lexem<Token>> toks = Lexer.LEXER.tokenize(textEditor.getText());
     for (Lexem<Token> lexem : toks) {
       if (lexem.getToken() == Token.Identifiant) {
         storage.add(lexem.getText());
@@ -63,6 +65,7 @@ public class Dictionary {
 
   private void ajouterMotsClefs() {
     storage.add("module");
+    storage.add("end");
     storage.add("output");
     storage.add("enabled");
     storage.add("when");
@@ -95,5 +98,13 @@ public class Dictionary {
     });
 
     return res;
+  }
+
+  public static int getIndexDebutMot(String text, int pos) {
+    while (pos > 0 && VALID.contains("" + text.charAt(pos - 1))) {
+      pos--;
+    }
+
+    return pos;
   }
 }

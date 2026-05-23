@@ -14,9 +14,8 @@ public class AutomateDeterministe<T> implements Automate<T> {
   private int start = 1;
   private int nextID = 2;
 
-
   public static <T> AutomateDeterministe<T> fromList(List<Pair<Regex, Lexem<T>>> l) {
-      return new AutomateDeterministe<T>(AutomateNonDeterministeSansEps.fromList(l));
+    return new AutomateDeterministe<T>(AutomateNonDeterministeSansEps.fromList(l));
   }
 
   private AutomateDeterministe(AutomateNonDeterministeSansEps<Lexem<T>> super_) {
@@ -46,83 +45,87 @@ public class AutomateDeterministe<T> implements Automate<T> {
     seen.add(startNode);
     todo.add(startNode);
 
-
     Map<Integer, Set<Integer>> letters = new HashMap<>();
 
     // precalculate for all letters the next of any state
     superDelta.forEach((transition) -> {
-      int depart = transition.first;
-      int etiquette = transition.middle;
-      letters.putIfAbsent(depart, new HashSet<>());
-      letters.get(depart).add(etiquette);
+      if (transition instanceof Triplet(Integer depart, Integer etiquette, Integer _)) {
+        letters.putIfAbsent(depart, new HashSet<>());
+        letters.get(depart).add(etiquette);
+      }
+
     });
 
     while (!todo.isEmpty()) {
       Set<Integer> node = todo.pop();
       Set<Integer> next = new HashSet<>();
-      
+
       // get all the letters that are used from this node
       node.forEach((state) -> {
         next.addAll(letters.getOrDefault(state, new HashSet<>()));
       });
-      
+
       // add all the next nodes as all the nodes reachable from the current node with
       // the precedent letter collection
 
       next.forEach((letter) -> {
         Set<Integer> nextNode = new HashSet<>();
-        
+
         // get the all the reachable nodes with this letter
         node.forEach((state) -> {
           nextNode.addAll(superDelta.delta(state, letter));
         });
-        
+
         // if no one is reachable, do nothing
         if (nextNode.isEmpty()) {
           return;
         }
-        
+
         // if not already seen, add it to the table and to todo
-        if (!seen.contains(nextNode)){
+        if (!seen.contains(nextNode)) {
           seen.add(nextNode);
           todo.add(nextNode);
-          
+
           linTable.put(nextNode, nextID);
           delinTable.put(nextID, nextNode);
           nextID++;
-          
+
           // add it to the final states if possible
           nextNode.forEach((currNode) -> {
 
             // si l'etat dans currNode est final
-            if (super_.getEtatsTerminaux().containsKey(currNode)){
+            if (super_.getEtatsTerminaux().containsKey(currNode)) {
 
               // si l'état actuel est déjà terminal et que celui-ci n'est pas safe
-              if (etatsTerminaux.containsKey(linTable.get(nextNode)) && !etatsTerminaux.get(linTable.get(nextNode)).isSafe()){
+              if (etatsTerminaux.containsKey(linTable.get(nextNode))
+                  && !etatsTerminaux.get(linTable.get(nextNode)).isSafe()) {
 
                 // si l'état touvé est terminal et safe
-                if (super_.getEtatsTerminaux().get(currNode).isSafe()){
+                if (super_.getEtatsTerminaux().get(currNode).isSafe()) {
                   return; // rien a faire
                 }
 
                 throw new NonDeterministicException("The grammar given is non deterministic since "
-                  + etatsTerminaux.get(linTable.get(nextNode)).getToken()
-                  + " and "
-                  + super_.getEtatsTerminaux().get(currNode).getToken()
-                  + " are colliding");
+                    + etatsTerminaux.get(linTable.get(nextNode)).getToken()
+                    + " and "
+                    + super_.getEtatsTerminaux().get(currNode).getToken()
+                    + " are colliding");
               }
 
               // either the ending state is new or the previous one registered is safe
-              if (!super_.getEtatsTerminaux().get(currNode).isSafe() || !etatsTerminaux.containsKey(linTable.get(nextNode)) ||
-                etatsTerminaux.get(linTable.get(nextNode)).getSafePriority() < super_.getEtatsTerminaux().get(currNode).getSafePriority()){
-                // changement du lexème terminal que si la nouvelle priorité est plus grande ou si le nouveau lexème est non safe
+              if (!super_.getEtatsTerminaux().get(currNode).isSafe()
+                  || !etatsTerminaux.containsKey(linTable.get(nextNode)) ||
+                  etatsTerminaux.get(linTable.get(nextNode)).getSafePriority() < super_.getEtatsTerminaux()
+                      .get(currNode).getSafePriority()) {
+                // changement du lexème terminal que si la nouvelle priorité est plus grande ou
+                // si le nouveau lexème est non safe
                 etatsTerminaux.put(linTable.get(nextNode), super_.getEtatsTerminaux().get(currNode));
               }
             }
           });
-            
+
         }
-          
+
         // add the transition
         delta.add(linTable.get(node), letter, linTable.get(nextNode));
       });
@@ -137,25 +140,25 @@ public class AutomateDeterministe<T> implements Automate<T> {
     int lastIndexTerminal = -1;
 
     // Tant que l'on peut continuer a trouver des terminaux plus longs
-    while (index < t.length() && delta.deltaD(currState, (int)t.charAt(index)).isPresent()){
+    while (index < t.length() && delta.deltaD(currState, (int) t.charAt(index)).isPresent()) {
       // on met à jour l'etat courrant
-      currState = delta.deltaD(currState, (int)t.charAt(index)).get();
+      currState = delta.deltaD(currState, (int) t.charAt(index)).get();
 
       // s'il est final, on met à jour le dernier final rencontré
-      if (etatsTerminaux.containsKey(currState)){
+      if (etatsTerminaux.containsKey(currState)) {
         lastIndexTerminal = index;
         lastTerminal = etatsTerminaux.get(currState);
       }
-      index ++;
+      index++;
 
     }
 
     // Si aucun final rencontré, erreur de syntaxe
-    if (lastIndexTerminal == -1){
+    if (lastIndexTerminal == -1) {
       throw new LexingException("Erreur de syntaxe, lexème non reconnu", index);
     }
 
-    return Pair.pair(lastTerminal, lastIndexTerminal+1);
+    return Pair.pair(lastTerminal, lastIndexTerminal + 1);
   }
 
   @Override
@@ -163,7 +166,7 @@ public class AutomateDeterministe<T> implements Automate<T> {
     List<Lexem<T>> lexemes = new LinkedList<>();
     int index = 0;
 
-    while (index < t.length()){
+    while (index < t.length()) {
       Pair<Lexem<T>, Integer> p = exec1(t.substring(index));
       Lexem<T> lexem = new Lexem<T>(p.fst());
       lexem.storeMatched(index, t.substring(index, index + p.snd()));
@@ -175,6 +178,7 @@ public class AutomateDeterministe<T> implements Automate<T> {
 
   @Override
   public String toString() {
-    return "Automate déterministe:\n\tInitiaux: " + start + "\n\tFinaux: " + etatsTerminaux + "\n\tTransitions: \n" + delta;
+    return "Automate déterministe:\n\tInitiaux: " + start + "\n\tFinaux: " + etatsTerminaux + "\n\tTransitions: \n"
+        + delta;
   }
 }

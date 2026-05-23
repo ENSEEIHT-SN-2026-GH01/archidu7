@@ -1,9 +1,6 @@
 package util;
 
-public class Triplet<S, T, U> {
-  public S first;
-  public T middle;
-  public U last;
+public record Triplet<S, T, U>(S first, T middle, U last) {
 
   public Triplet(S first, T middle, U last) {
     this.first = first;
@@ -17,6 +14,6 @@ public class Triplet<S, T, U> {
 
   @Override
   public String toString() {
-    return "("+ first +", "+ middle +", "+ last +")";
+    return "(" + first + ", " + middle + ", " + last + ")";
   }
 }

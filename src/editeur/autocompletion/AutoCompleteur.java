@@ -42,18 +42,14 @@ public class AutoCompleteur implements UnaryOperator<Change> {
 
         }
 
-        int pos = change.getCaretPosition() - 1; // position is incorrect since it includes the size of what is being
-                                                 // added. correct this TODO
-        String mot = "";
-        System.out.println(pos);
-        while (pos > 0 && textEditor.getText().charAt(pos) != ' ') {
-            mot = mot + textEditor.getText().charAt(pos);
-            pos--;
-            System.out.println(pos);
-        }
+        if (change.getText().length() > 0) {
+            int pos = change.getCaretPosition() - change.getText().length();
+            int pos_debut = Dictionary.getIndexDebutMot(textEditor.getText(), pos);
+            String mot = textEditor.getText().substring(pos_debut, pos) + change.getText();
 
-        possible = dictionary.getClosest(mot);
-        textEditor.menu.showMenuAtCaret(possible);
+            possible = dictionary.getClosest(mot);
+            textEditor.menu.showMenuAtCaret(possible);
+        }
 
         return change;
     }
