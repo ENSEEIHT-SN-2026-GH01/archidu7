@@ -123,6 +123,25 @@ recolore d'un coup.
 4. **CI** : push → build vert sur `ubuntu-latest`, `macos-latest`,
    `windows-latest` ; artefacts téléchargés et inspectés.
 
+## Notes d'implémentation (écarts constatés)
+
+Affinements décidés au moment de coder, conformes au principe « rien d'inutile » :
+
+- **`coloration/*` (`ColorateurToken`, `ColorateurUnique`, `Palette`), `ActionSimuler`,
+  `BoutonNouveau`, `BoutonSimuler`** : finalement **non modifiés**. Diffs purement
+  cosmétiques (imports, javadoc, newline finale) — fonctionnellement identiques à
+  notre version. La coloration d'apparence-build est déjà basée sur `Palette`.
+- **`EditeurTexte`** : apparence-build avait déjà `alignerPasDeLigne()` (correctif
+  d'alignement). Seul ajout : `rafraichirThemeEditeur()` (7 lignes).
+- **`BandeauOnglet`** : apparence-build avait déjà `setModeSombre()` + le correctif
+  de synchro du buffer. Notre version n'apporte que les couleurs/forme d'onglets.
+- **`FichierModuleBouton`** : ajout de la classe CSS `module`.
+- **Modules redimensionnables (ajout demandé après coup)** : `ListeModulePrincipale`
+  repasse en `setFitToWidth(true)` + `liste.setFillWidth(true)` et
+  `FichierModuleBouton` en `setMaxWidth(MAX_VALUE)`. Les boutons de modules
+  grandissent donc avec le panneau quand on déplace le curseur du `SplitPane`
+  (réactivité d'apparence-build conservée, combinée à notre style `.module`).
+
 ## Critères de succès
 
 - apparence-build s'affiche avec notre thème (clair + sombre dédié CSS) sur les 3 OS.

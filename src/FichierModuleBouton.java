@@ -23,8 +23,8 @@ public class FichierModuleBouton extends Button {
 
         super(nomFichier.substring(0, tailleNom));
         setPrefSize(moduleBoutonLargeur, moduleBoutonHauteur);
-
-        this.setMaxWidth(Double.MAX_VALUE);
+        setMaxWidth(Double.MAX_VALUE);             // grandit avec le panneau quand on déplace le curseur
+        getStyleClass().add("module");
 
         cheminFichier = "/modules/" + nomFichier;
 

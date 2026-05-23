@@ -34,7 +34,7 @@ public class BandeauOnglet extends HBox {
 
         setPadding(new Insets(4, 8, 0, 8));
         setAlignment(Pos.BOTTOM_LEFT);
-        setStyle("-fx-background-color: #e8e8e8; -fx-border-color: #bbb; -fx-border-width: 0 0 1 0;");
+        appliquerStyleBandeau();
 
         vide = new Label("(aucun module d'ouvert)");
         vide.setStyle("-fx-text-fill: #888; -fx-font-style: italic;");
@@ -43,6 +43,24 @@ public class BandeauOnglet extends HBox {
         editeur.addListener(new EditeurChangeListener());
         storage.addListener(new StorageChangeListener());
         rebuild();
+    }
+
+    /* Style du bandeau lui-même (fond + trait du bas), selon le mode clair/sombre.
+       Les onglets sont stylés en inline (pas en CSS) : on gère donc le thème ici
+       plutôt que via la feuille de style de l'interface. */
+    private void appliquerStyleBandeau(){
+        if (modeSombre)
+            setStyle("-fx-background-color: #2b2b2b; -fx-border-color: #444; -fx-border-width: 0 0 1 0;");
+        else
+            setStyle("-fx-background-color: #e8e8e8; -fx-border-color: #bbb; -fx-border-width: 0 0 1 0;");
+    }
+
+    /* Bascule le bandeau d'onglets en thème clair/sombre. Appelée par la fenêtre
+       principale lors du changement de thème. */
+    public void setModeSombre(boolean sombre){
+        this.modeSombre = sombre;
+        appliquerStyleBandeau();
+        rebuild(); // ré-applique le style de chaque onglet (rafraichirStyle lit modeSombre)
     }
 
     /* L'utilisateur tape dans l'éditeur : on garde le buffer de l'onglet
@@ -153,18 +171,6 @@ public class BandeauOnglet extends HBox {
         return idx >= 0 ? chemin.substring(idx + 1) : chemin;
     }
 
-    public void setModeSombre(boolean sombre) {
-        this.modeSombre = sombre;
-        if (sombre) {
-            setStyle("-fx-background-color: #181818; -fx-border-color: #404040; -fx-border-width: 0 0 1 0;");
-            vide.setStyle("-fx-text-fill: #888; -fx-font-style: italic;");
-        } else {
-            setStyle("-fx-background-color: #e8e8e8; -fx-border-color: #bbb; -fx-border-width: 0 0 1 0;");
-            vide.setStyle("-fx-text-fill: #888; -fx-font-style: italic;");
-        }
-        rebuild();
-    }
-
     private class Onglet extends HBox {
         final String chemin;
         String buffer = "";
@@ -190,28 +196,34 @@ public class BandeauOnglet extends HBox {
         }
 
         void rafraichirStyle(boolean estActif) {
-            String fond, bordure, texteCouleur, boutonFermerCouleur;
-
+            String fond, bord, texte, croix;
             if (modeSombre) {
-                fond = estActif ? "#1e1e1e" : "#252526";
-                bordure = "#404040";
-                texteCouleur = estActif ? "#d4d4d4" : "#888888";
-                boutonFermerCouleur = estActif ? "#aaaaaa" : "#666666";
+                fond  = estActif ? "#1e1e1e" : "#3a3a3a";
+                bord  = "#555";
+                texte = "#e0e0e0";
+                croix = "#aaaaaa";
             } else {
-                fond = estActif ? "#ffffff" : "#d0d0d0";
-                bordure = "#999";
-                texteCouleur = "black";
-                boutonFermerCouleur = "#666";
+                fond  = estActif ? "#ffffff" : "#d0d0d0";
+                bord  = "#999";
+                texte = "#000000";
+                croix = "#666666";
             }
-             String labelStyle = estActif ? "-fx-background-color: transparent; -fx-cursor: hand; -fx-font-weight: bold; -fx-text-fill: " + texteCouleur + ";"
-                : "-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: " + texteCouleur + ";";
+            String labelBase = "-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: " + texte + ";";
+            String labelStyle = estActif ? labelBase + " -fx-font-weight: bold;" : labelBase;
+            setStyle(
+                "-fx-background-color: " + fond + ";"
+                + "-fx-border-color: " + bord + ";"
+                + "-fx-border-width: 1 1 0 1;"
+                + "-fx-background-radius: 4 4 0 0;"
+                + "-fx-border-radius: 4 4 0 0;"
+            );
             label.setStyle(labelStyle);
             if (modifie) {
                 fermer.setText("●");
                 fermer.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-font-size: 14;");
             } else {
                 fermer.setText("✕");
-                fermer.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: #666;");
+                fermer.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: " + croix + ";");
             }
         }
     }

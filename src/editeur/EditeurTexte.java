@@ -142,6 +142,13 @@ public class EditeurTexte extends StackPane{
         devant.colorier(debut, fin, couleur);
     }
 
+    /**Réapplique la couleur du texte estompé du calque de saisie selon le mode
+     * clair/sombre courant (Palette). La coloration syntaxique, elle, est
+     * recalculée par le GestionnaireColorateur. */
+    public void rafraichirThemeEditeur(){
+        deriere.appliquerTheme();
+    }
+
     /**Renvoie tous le texte de l'éditeur.
      *
      * @return  

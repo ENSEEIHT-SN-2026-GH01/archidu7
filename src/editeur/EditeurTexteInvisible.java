@@ -1,6 +1,7 @@
 package editeur;
 import javafx.scene.control.TextArea;
 import javafx.scene.text.Font;
+import editeur.coloration.Palette;
 
 /**
  * Composant personnalisé représentant la zone d'édition de code.
@@ -31,5 +32,15 @@ public class EditeurTexteInvisible extends TextArea {
         //this.setWrapText(false);
 
         getStyleClass().add("editeur-invisible");
+
+        // Couleur du texte de saisie estompé : gérée en Java (pas en CSS) pour
+        // suivre le mode clair/sombre via Palette, comme la coloration syntaxique.
+        appliquerTheme();
+    }
+
+    /** (Ré)applique la couleur du texte estompé selon le mode clair/sombre courant. */
+    public void appliquerTheme(){
+        String couleur = Palette.estModeSombre ? "rgba(255,255,255,0.32)" : "rgba(0,0,0,0.3)";
+        setStyle("-fx-text-fill: " + couleur + ";");
     }
 }

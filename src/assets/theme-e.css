@@ -1,44 +1,76 @@
 /* =========================================================================
-   theme-e.css — thème « E × DA Arthur » (agencement B2 : bandeau cuivre)
-   Palette extraite des 6 assets PNG d'Arthur. Pour retoucher l'interface,
-   modifier UNIQUEMENT les valeurs ci-dessous : tout le reste suit.
+   theme-e.css — thème de l'interface SHDL.
+
+   Deux responsabilités séparées :
+   - Le CHROME de l'interface (bandeau, boutons, modules, panneau, fond de
+     l'éditeur) est piloté ici, par les variables de rôle ci-dessous.
+   - La COLORATION SYNTAXIQUE du texte de l'éditeur n'est PAS gérée en CSS :
+     elle se fait en Java (editeur.coloration.*, via Palette). On ne trouve donc
+     plus de règles « .editeur .kw » ici.
+
+   Mode sombre : la classe « sombre » est ajoutée sur la racine (.root) et
+   surcharge les mêmes variables (bloc « .root.sombre » plus bas). Comme toutes
+   les règles ne référencent que ces variables, tout le chrome se recolore d'un
+   coup. Pour retoucher l'apparence, modifier UNIQUEMENT les valeurs : le reste suit.
    ========================================================================= */
+
+/* ---- Palette claire (par défaut) : neutre gris/blanc + accent bleu ---- */
 .root {
-    -couleur-contour:        #000000;
-    -couleur-bandeau:        #924722;
-    -couleur-bandeau-clair:  #b65a2d;
-    -couleur-fond:           #f2e8cf;
-    -couleur-parchemin:      #e8d9b0;
-    -couleur-creme-clair:    #fbf6e6;
-    -couleur-jaune:          #f6ff7e;
-    -couleur-jaune-clair:    #f9ffa2;
-    -couleur-jaune-ombre:    #616435;
-    -couleur-teal:           #88bfb8;
-    -couleur-teal-clair:     #9ad6ce;
-    -couleur-teal-ombre:     #719f99;
-    -couleur-encre:          #241408; /* texte sombre sur fond clair */
-    -couleur-encre-douce:    #5a3a1e; /* texte cuivre adouci */
-    -couleur-module-bord:    #c2a878; /* biseau bas/droite des modules */
-    -couleur-gris:           #646464;
-    -couleur-blanc:          #ffffff; /* biseau clair haut/gauche */
-    -couleur-rouge:          #c0392b; /* erreurs de syntaxe */
-    -couleur-teal-fonce:     #1a3330; /* texte sur module actif */
-    -couleur-teal-tres-clair:#c4e8e2; /* biseau clair du module actif */
+    -contour:        #3a3a3a; /* côté sombre des biseaux + cadre de la fenêtre */
+    -biseau:         #ffffff; /* côté clair des biseaux (haut/gauche) */
+    -bordure:        #c0c0c0; /* biseau bas/droite des modules, séparateurs */
+    -fond:           #ececec; /* fond de la fenêtre */
+    -surface:        #ffffff; /* éditeur, boutons, items de module */
+    -surface-2:      #f5f5f5; /* panneau des modules */
+    -bandeau:        #e0e0e0; /* barre d'outils */
+    -bandeau-survol: #cfcfcf; /* survol des menus */
+    -texte:          #1e1e1e; /* texte principal */
+    -texte-doux:     #404040; /* libellés boutons/modules */
+    -accent:         #2b6cb0; /* accent (module actif) */
+    -accent-clair:   #5a93cf;
+    -accent-ombre:   #1f4f82;
+    -accent-texte:   #ffffff; /* texte sur fond accent */
+    -simuler:        #2f9e44; /* bouton Simuler */
+    -simuler-clair:  #5fc77a;
+    -simuler-ombre:  #1e6b2e;
+    -simuler-texte:  #ffffff;
+}
+
+/* ---- Palette sombre : surcharge des mêmes variables ---- */
+.root.sombre {
+    -contour:        #0a0a0a;
+    -biseau:         #5a5a5a;
+    -bordure:        #3a3a3a;
+    -fond:           #1e1e1e;
+    -surface:        #252526;
+    -surface-2:      #2d2d30;
+    -bandeau:        #333333;
+    -bandeau-survol: #3f3f46;
+    -texte:          #e0e0e0;
+    -texte-doux:     #cccccc;
+    -accent:         #4a9eea;
+    -accent-clair:   #6fb3f0;
+    -accent-ombre:   #2b6cb0;
+    -accent-texte:   #08233f;
+    -simuler:        #3fb95a;
+    -simuler-clair:  #63d27e;
+    -simuler-ombre:  #1e6b2e;
+    -simuler-texte:  #08230f;
 }
 
 /* ---- Racine : BorderPane principal ---- */
 .racine {
-    -fx-background-color: -couleur-fond;
-    -fx-border-color: -couleur-contour;
+    -fx-background-color: -fond;
+    -fx-border-color: -contour;
     -fx-border-width: 4;
     -fx-font-family: "monospace";
 }
 
-/* ---- Bandeau cuivre : VBox(menu + boutons) ----
-   Reflet clair cuivré en haut + trait noir en bas (biseau métal). */
+/* ---- Bandeau d'outils : VBox(menu + boutons) ----
+   Reflet clair en haut + trait sombre en bas (biseau). */
 .bandeau {
-    -fx-background-color: -couleur-bandeau;
-    -fx-border-color: -couleur-bandeau-clair transparent -couleur-contour transparent;
+    -fx-background-color: -bandeau;
+    -fx-border-color: -biseau transparent -contour transparent;
     -fx-border-width: 2 0 3 0;
     -fx-padding: 12 18 14 14; /* haut/droite/bas/gauche : marge autour des boutons */
     -fx-spacing: 6;           /* respiration entre la rangée menu et la rangée boutons */
@@ -48,68 +80,66 @@
 .bandeau-menu {
     -fx-background-color: transparent;
 }
-.bandeau-menu .label { -fx-text-fill: -couleur-creme-clair; }
+.bandeau-menu .label { -fx-text-fill: -texte; }
 .bandeau-menu .menu:hover,
 .bandeau-menu .menu:showing {
-    -fx-background-color: -couleur-bandeau-clair;
+    -fx-background-color: -bandeau-survol;
 }
 
-/* ---- Boutons clairs posés sur le bandeau (Nouveau / Sauvegarder) ----
+/* ---- Boutons posés sur le bandeau (Nouveau / Sauvegarder) ----
    -fx-background-insets: 0 annule le débord -1px hérité de Modena qui
    laissait un liseré de couleur-bouton sous la bordure basse.
    Relief : biseau épais (clair haut/gauche, sombre bas/droite) + ombre
    portée dure et décalée. */
 .bouton {
-    -fx-background-color: -couleur-fond;
+    -fx-background-color: -surface;
     -fx-background-insets: 0;
     -fx-background-radius: 0;
-    -fx-text-fill: -couleur-encre-douce;
+    -fx-text-fill: -texte-doux;
     -fx-font-weight: bold;
     -fx-font-size: 14px;
-    -fx-border-color: -couleur-blanc -couleur-contour -couleur-contour -couleur-blanc; /* haut/droite/bas/gauche */
-    -fx-border-width: 3 4 5 3;
-    -fx-padding: 11 24 11 24;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 0, 0, 5, 7);
+    -fx-border-color: -bordure;
+    -fx-border-width: 1;
+    -fx-padding: 9 22 9 22;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 3, 0, 1, 1);
 }
 .bouton:hover {
-    -fx-translate-y: -2;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 0, 0, 7, 10);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 1, 2);
 }
 .bouton:pressed {
-    -fx-translate-y: 5;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 0, 0, 1, 1);
+    -fx-translate-y: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 1, 0, 0, 1);
 }
 
-/* ---- Bouton Simuler : jaune ---- */
+/* ---- Bouton Simuler : accent vert ---- */
 .bouton-simuler {
-    -fx-background-color: -couleur-jaune;
+    -fx-background-color: -simuler;
     -fx-background-insets: 0;
     -fx-background-radius: 0;
-    -fx-text-fill: -couleur-encre;
+    -fx-text-fill: -simuler-texte;
     -fx-font-weight: bold;
     -fx-font-size: 14px;
-    -fx-border-color: -couleur-jaune-clair -couleur-jaune-ombre -couleur-jaune-ombre -couleur-jaune-clair;
-    -fx-border-width: 3 4 5 3;
-    -fx-padding: 11 24 11 24;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 0, 0, 5, 7);
+    -fx-border-color: -simuler-ombre;
+    -fx-border-width: 1;
+    -fx-padding: 9 22 9 22;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 3, 0, 1, 1);
 }
 .bouton-simuler:hover {
-    -fx-translate-y: -2;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 0, 0, 7, 10);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 1, 2);
 }
 .bouton-simuler:pressed {
-    -fx-translate-y: 5;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 0, 0, 1, 1);
+    -fx-translate-y: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 1, 0, 0, 1);
 }
 
-/* ---- Panneau modules : ScrollPane parchemin ---- */
+/* ---- Panneau modules : ScrollPane ---- */
 .panneau {
-    -fx-background-color: -couleur-parchemin;
-    -fx-border-color: transparent -couleur-contour transparent transparent;
+    -fx-background-color: -surface-2;
+    -fx-border-color: transparent -contour transparent transparent;
     -fx-border-width: 0 3 0 0;
 }
-.panneau > .viewport { -fx-background-color: -couleur-parchemin; }
-.panneau .content   { -fx-background-color: -couleur-parchemin; }
+.panneau > .viewport { -fx-background-color: -surface-2; }
+.panneau .content   { -fx-background-color: -surface-2; }
 
 /* VBox contenant les boutons de modules.
    - spacing : espace vertical pour que l'ombre basse de chaque module soit
@@ -125,12 +155,12 @@
    Même relief que les boutons du haut : biseau épais + ombre dure.
    -fx-background-insets: 0 annule le liseré -1px de Modena. */
 .module {
-    -fx-background-color: -couleur-creme-clair;
+    -fx-background-color: -surface;
     -fx-background-insets: 0;
     -fx-background-radius: 0;
-    -fx-text-fill: -couleur-encre-douce;
+    -fx-text-fill: -texte-doux;
     -fx-font-weight: bold;
-    -fx-border-color: -couleur-blanc -couleur-module-bord -couleur-module-bord -couleur-blanc;
+    -fx-border-color: -biseau -bordure -bordure -biseau;
     -fx-border-width: 3 4 6 3;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 0, 0, 4, 6);
 }
@@ -142,22 +172,38 @@
     -fx-translate-y: 4;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 0, 0, 1, 1);
 }
-/* module actif : vert d'eau (accent) */
+/* module actif : accent */
 .module-actif {
-    -fx-background-color: -couleur-teal-clair;
-    -fx-text-fill: -couleur-teal-fonce;
-    -fx-border-color: -couleur-teal-tres-clair -couleur-teal-ombre -couleur-teal-ombre -couleur-teal-tres-clair;
+    -fx-background-color: -accent;
+    -fx-text-fill: -accent-texte;
+    -fx-border-color: -accent-clair -accent-ombre -accent-ombre -accent-clair;
 }
 
-/* ---- Zone éditeur : StackPane crème clair, effet creux ---- */
+/* ---- Gouttière des numéros de ligne (NumeroteurLigne) ----
+   Stylée ici (et plus en inline Java) pour suivre le thème via les variables
+   de rôle : la classe « sombre » sur la racine la recolore automatiquement. */
+.numeroteur {
+    -fx-background-color: -surface-2;
+    -fx-padding: 5;
+    -fx-border-color: -bordure;
+    -fx-border-width: 0 1 0 0;
+}
+.numeroteur .label {
+    -fx-text-fill: -texte-doux;
+    -fx-font-family: "monospace";
+    -fx-font-size: 14;
+}
+
+/* ---- Zone éditeur : StackPane, effet creux ----
+   Seul le FOND est ici ; la couleur du texte (saisie estompée et coloration
+   syntaxique) est gérée en Java. */
 .editeur {
-    -fx-background-color: -couleur-creme-clair;
+    -fx-background-color: -surface;
     -fx-effect: innershadow(gaussian, rgba(0,0,0,0.2), 7, 0, 3, 3);
 }
-/* TextArea du calque invisible : conserve le texte arrière estompé.
-   Remplace le setStyle inline retiré d'EditeurTexteInvisible.java.
-   Toutes les sous-régions de la TextArea sont rendues transparentes
-   pour laisser apparaître le fond crème de .editeur. */
+/* TextArea du calque de saisie : fond transparent pour laisser voir le fond
+   de .editeur. La couleur du texte estompé est posée en Java (appliquerTheme).
+   La sélection est rendue invisible (le texte visible est le calque coloré). */
 .editeur-invisible,
 .editeur-invisible .content,
 .editeur-invisible .scroll-pane,
@@ -165,28 +211,8 @@
     -fx-background-color: transparent;
 }
 .editeur-invisible {
-    -fx-text-fill: rgba(0, 0, 0, 0.3);
     -fx-highlight-text-fill: transparent;
 }
-
-/* ---- Coloration syntaxique de l'éditeur ----
-   Les nœuds Text portent la styleClass "text" + une classe sémantique.
-   Un Text se colore avec -fx-fill (et non -fx-text-fill). */
-.editeur .text        { -fx-fill: -couleur-encre; }
-.editeur .txt-defaut  { -fx-fill: -couleur-encre; }
-.editeur .kw  { -fx-fill: -couleur-bandeau; -fx-font-weight: bold; }
-.editeur .sg  { -fx-fill: -couleur-teal-ombre; }
-.editeur .cm  { -fx-fill: -couleur-gris; }
-.editeur .num { -fx-fill: -couleur-jaune-ombre; }
-.editeur .bit { -fx-fill: -couleur-teal; }
-.editeur .op  { -fx-fill: -couleur-encre-douce; }
-.editeur .err { -fx-fill: -couleur-rouge; }
-.editeur .par-1 { -fx-fill: -couleur-bandeau; }
-.editeur .par-2 { -fx-fill: -couleur-teal-ombre; }
-.editeur .par-3 { -fx-fill: -couleur-jaune-ombre; }
-.editeur .par-4 { -fx-fill: -couleur-bandeau-clair; }
-.editeur .par-5 { -fx-fill: -couleur-teal; }
-.editeur .par-x { -fx-fill: -couleur-rouge; }
 
 /* ---- Interrupteurs (entrées) : cadre + ombre autour du PNG ---- */
 .interrupteur {
@@ -203,23 +229,4 @@
 .sortie {
     -fx-padding: 2;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 0, 0, 2, 3);
-}
-
-/* ---- Zone de simulation intégrée (bottom du BorderPane) ---- */
-.panneau-simulation {
-    -fx-background-color: -couleur-parchemin;
-    -fx-border-color: -couleur-contour transparent transparent transparent;
-    -fx-border-width: 3 0 0 0;
-    -fx-padding: 10;
-}
-.panneau-simulation .text { -fx-fill: -couleur-encre; }
-
-/* espacement des vecteurs à l'intérieur de la zone défilante */
-.contenu-simulation { -fx-spacing: 6; }
-
-/* le ScrollPane et son viewport restent transparents pour laisser
-   apparaître le fond parchemin du panneau */
-.simulation-scroll,
-.simulation-scroll > .viewport {
-    -fx-background-color: transparent;
 }

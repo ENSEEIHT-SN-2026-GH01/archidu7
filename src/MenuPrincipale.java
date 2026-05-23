@@ -25,6 +25,7 @@ public class MenuPrincipale extends MenuBar {
         simulation.getItems().addAll(new MenuHorlogeVitesse(), new MenuTailleSprite());
 
         this.getMenus().addAll(fichier, affichage, simulation);
+        getStyleClass().add("bandeau-menu");
     }
 
     public CheckMenuItem getModeSombre() {

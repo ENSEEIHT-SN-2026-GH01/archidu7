@@ -18,18 +18,16 @@ public class ListeModulePrincipale extends ScrollPane {
 
     public ListeModulePrincipale(EditeurTexte editeur, FileStorage sauveur, BandeauOnglet bandeau) {
         super();
-        this.setStyle("-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;");
-
-        //Force le contenu à s'adapter à la largeur quand on redimensionne
-        this.setFitToWidth(true);
-
         this.editeur = editeur;
         this.sauveur = sauveur;
         this.bandeau = bandeau;
         liste = new VBox();
-        liste.setFillWidth(true);
+        liste.setFillWidth(true);                 // les modules occupent toute la largeur du VBox
+        liste.getStyleClass().add("liste-modules");
         setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        setFitToWidth(true);                       // le contenu suit la largeur du panneau (redimensionnable)
         setContent(liste);
+        getStyleClass().add("panneau");
         modules = new ArrayList<FichierModuleBouton>();
 
         //chargement de l'environnement

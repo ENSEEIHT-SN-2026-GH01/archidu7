@@ -39,13 +39,13 @@ public class FenetrePrincipale extends Scene {
         this.environnement = new ListeModulePrincipale(editeur, stockage, this.onglets);
 
         this.menu = new MenuPrincipale(editeur, stockage);
-        this.menu.setStyle("-fx-background-color: transparent; -fx-font-size: 14px;");
         this.menu.getModeSombre().setOnAction(event -> {
             boolean estSombre = this.menu.getModeSombre().isSelected();
             appliquerTheme(estSombre);
         });
 
         this.outils = new VBox(this.menu, boutons, this.onglets);
+        this.outils.getStyleClass().add("bandeau");
 
         //ajuster la largeur du paneau de gauche
         SplitPane espaceDeTravail = new SplitPane();
@@ -65,6 +65,9 @@ public class FenetrePrincipale extends Scene {
         root.setTop(outils);
         root.setCenter(espaceDeTravail);
 
+        root.getStyleClass().add("racine");
+        getStylesheets().add(getClass().getResource("/assets/theme-e.css").toExternalForm());
+
         colorateur = new GestionnaireColorateur(editeur);
         lexer = new Lexer();
         GestionnaireModules.lexer = lexer;
@@ -79,37 +82,22 @@ public class FenetrePrincipale extends Scene {
         }
     }
 
+    /** Bascule clair/sombre. Le chrome (bandeau, panneau modules, éditeur,
+     *  numéros de ligne) suit la classe « sombre » posée sur la racine, via le
+     *  CSS. La coloration du code et le texte estompé, gérés en Java, sont
+     *  réappliqués via Palette. */
     public void appliquerTheme(boolean sombre) {
         BorderPane root = (BorderPane) this.getRoot();
 
-        // THEME SOMBRE
-        if(sombre) {
-            root.setStyle("-fx-base: #252526; -fx-background: #252526; -fx-selection-bar: #404040;");
-            this.outils.setStyle("-fx-background-color: #2d2d2d; -fx-border-color: #404040; -fx-border-width: 0 0 1px 0;");
-            this.environnement.setStyle("-fx-background-color: #252526; -fx-border-color: #404040; -fx-border-width: 0 1px 0 0;");
-            this.editeur.setStyle("-fx-control-inner-background: #1e1e1e; -fx-text-fill: #d4d4d4; -fx-prompt-text-fill: #6b6b6b; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-insets: 0;");
-        } 
-        // THEME CLAIR
-        else {
-            root.setStyle("-fx-base: #f8fafc; -fx-background: #f8fafc; -fx-selection-bar: #e2e8f0;");
-            this.outils.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1px 0;");
-            this.environnement.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 0 1px 0 0;");
-            this.editeur.setStyle("-fx-control-inner-background: white; -fx-text-fill: black; -fx-prompt-text-fill: gray; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-insets: 0;");
-        }
-        //on applique le thème aux onglets
-        this.onglets.setModeSombre(sombre);
+        if (sombre) root.getStyleClass().add("sombre");
+        else        root.getStyleClass().remove("sombre");
 
-        // mise à jour de la pallette de couleurs
         Palette.estModeSombre = sombre;
+        this.editeur.rafraichirThemeEditeur();
+        this.onglets.setModeSombre(sombre);
 
         if (colorateur != null) {
             colorateur.colorierAll();
-        }
-
-        this.onglets.setModeSombre(sombre);
-
-        if (this.numeroteurLigne != null) {
-            this.numeroteurLigne.appliquerTheme(sombre);
         }
     }
 }
