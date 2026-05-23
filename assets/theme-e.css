@@ -211,6 +211,15 @@
     -fx-border-color: -couleur-contour transparent transparent transparent;
     -fx-border-width: 3 0 0 0;
     -fx-padding: 10;
-    -fx-spacing: 6;
 }
 .panneau-simulation .text { -fx-fill: -couleur-encre; }
+
+/* espacement des vecteurs à l'intérieur de la zone défilante */
+.contenu-simulation { -fx-spacing: 6; }
+
+/* le ScrollPane et son viewport restent transparents pour laisser
+   apparaître le fond parchemin du panneau */
+.simulation-scroll,
+.simulation-scroll > .viewport {
+    -fx-background-color: transparent;
+}

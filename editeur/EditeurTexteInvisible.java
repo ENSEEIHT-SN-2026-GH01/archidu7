@@ -16,9 +16,14 @@ public class EditeurTexteInvisible extends TextArea {
         this.setPromptText("Saisissez votre code SHDL ici...");
 
         // 3. Configuration de la police d'écriture
-        // L'utilisation d'une police à chasse fixe (Monospaced) est fondamentale 
-        // pour l'alignement visuel dans un éditeur de code.
-        this.setFont(Font.font("Monospaced", fontSize));
+        // Police à chasse fixe : on utilise EXACTEMENT le même nom que la couche
+        // colorée (TextDecoupable -> "monospace") pour que les deux couches
+        // résolvent vers la même police physique sur une machine donnée.
+        // "Monospaced" (logique JavaFX) et "monospace" (générique fontconfig)
+        // peuvent résoudre vers des polices DIFFÉRENTES sous Linux ("Monospaced"
+        // -> Noto Sans proportionnelle), d'où un désalignement cumulatif des deux
+        // couches qui s'aggrave ligne par ligne (effet fantôme).
+        this.setFont(Font.font("monospace", fontSize));
 
         // 4. Désactivation du retour à la ligne automatique
         // En programmation, on préfère généralement avoir une barre de défilement 
