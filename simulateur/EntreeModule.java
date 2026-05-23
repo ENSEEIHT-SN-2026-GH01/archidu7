@@ -25,11 +25,11 @@ public class EntreeModule extends Composant {
 		return B;
 	}
 
-	public void calculer()  {
+	public void calculer(Propageur prop)  {
 		if (B != null) {
 			B.set(super.getEntree(1));
 		}
-        }
+    }
 /*
 	public void ajouter(Connecteur c)  {
 		TableauConnecteur Tc = super.getE();

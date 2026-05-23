@@ -1,5 +1,7 @@
 package simulateur;
 
+import util.Pair;
+
 public class BouttonEvenement extends BouttonEntree {
 
 		private Connecteur Con;
@@ -19,8 +21,12 @@ public class BouttonEvenement extends BouttonEntree {
 
 		@Override
 		public void set(Etat e) {
-			this.Con.setValeur(e);
-			if (this.Com != null) this.Com.calculer();
+			Propageur prop = new Propageur();
+			prop.add(new Pair<Connecteur,Etat>(Con, e));
+			if (this.Com != null) this.Com.calculer(prop);
+			while (!prop.isEmpty()) {
+				prop.propagerSuivant();
+			}
 		}
 
 		public void sauv() {

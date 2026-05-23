@@ -1,5 +1,7 @@
 package simulateur;
 
+import util.Pair;
+
 public class TableauConnecteur {
 
 	private Connecteur[] connecteurs;
@@ -39,10 +41,11 @@ public class TableauConnecteur {
 		return getConnecteur(i).getValeur();
 	}
 
-	public void set(int i, Etat b)  {
+	public void set(int i, Etat b, Propageur prop)  {
 		if (i <= 0) throw new ErreurIndex(this.connecteurs.length,i," L'index est trop petit ! ");
-                if (i > connecteurs.length) throw new ErreurIndex(this.connecteurs.length,i," L'index est trop grand ! ");
-		getConnecteur(i).setValeur(b);
+        if (i > connecteurs.length) throw new ErreurIndex(this.connecteurs.length,i," L'index est trop grand ! ");
+		prop.add(new Pair<Connecteur,Etat>(getConnecteur(i), b));
+		prop.propagerSuivant();
 	}
 
 	public int debrancher(Connecteur c)  {

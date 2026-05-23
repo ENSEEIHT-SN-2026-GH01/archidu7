@@ -2,6 +2,8 @@ package simulateur;
 
 import java.util.*;
 
+import util.Pair;
+
 /** Represente et fait le calcul d'un composant logique.
  * <p> Ce composant à un nombre d'entrées et de sorties variable.
  * Il s'agit d'une classe abstraite devrant être sppécialisée en fonction du calcul logique effectué.
@@ -12,7 +14,7 @@ import java.util.*;
  */
  public abstract class Composant implements Structure {
 
-	private TableauConnecteur entrees, sorties;
+	protected TableauConnecteur entrees, sorties;
 
 	private Structure pere;
 /*
@@ -63,6 +65,10 @@ import java.util.*;
 
 	protected Etat getEntree(int i)  {
 		return entrees.get(i);
+	}
+
+	protected Etat getSortie(int i){
+		return sorties.get(i);
 	}
 
 	/** Recuperer le nombre d'entrées d'un Composant.
@@ -138,8 +144,13 @@ import java.util.*;
 		return i;
         }
 
-	protected void setSortie(int i, Etat b)  {
-		sorties.set(i,b);
+	public void propager(Etat e, Propageur prop){
+		for(int i = 1; i <= getNbSortie(); i++){
+			if (getSortie(i) != e){
+				prop.add(new Pair<Connecteur,Etat>(sorties.getConnecteur(i), e));
+			}
+		}
+		prop.propagerSuivant();
 	}
 
 	/** Recuperer le nombre de sorties d'un Composant.
@@ -151,7 +162,7 @@ import java.util.*;
 	
 	/** Fonction logique entre les entrées et sorties.
 	 */
-	public abstract void calculer()  ;
+	public abstract void calculer(Propageur prop);
 
 	/** Plus tard !.
 	 * @return Plus tard !.

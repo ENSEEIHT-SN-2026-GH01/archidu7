@@ -1,5 +1,7 @@
 package simulateur;
 
+import util.Pair;
+
 public class BasculeD extends Composant {
 
 		private boolean montant;
@@ -18,21 +20,18 @@ public class BasculeD extends Composant {
 		}
 
 		@Override
-		public void calculer() {
+		public void calculer(Propageur prop) {
 			if (super.getEntree(4) == Etat.UP) {
-				super.setSortie(1,Etat.DW);
-				super.getConnecteurSortie(1).getComposant().calculer();
-				super.setSortie(2,Etat.UP);
-				super.getConnecteurSortie(2).getComposant().calculer();
+				prop.add(new Pair<Connecteur,Etat>(sorties.getConnecteur(1), Etat.DW));
+				prop.add(new Pair<Connecteur,Etat>(sorties.getConnecteur(2), Etat.UP));
 			} else {
 				if (super.getEntree(2) == Etat.UP && super.getEntree(1) == Etat.UP && this.montant) {
-					super.setSortie(1,this.etat);
-					super.getConnecteurSortie(1).getComposant().calculer();
-					super.setSortie(2,Etat.E(this.etat.getValeur() * -1));
-					super.getConnecteurSortie(2).getComposant().calculer();
+					prop.add(new Pair<Connecteur,Etat>(sorties.getConnecteur(1), etat));
+					prop.add(new Pair<Connecteur,Etat>(sorties.getConnecteur(2), Etat.E(this.etat.getValeur() * -1)));
 					this.montant = false;
 				} else if (super.getEntree(2) == Etat.DW) this.montant = true;
 			}
+			prop.propagerSuivant();
 		}
 
 		public String getNom() {

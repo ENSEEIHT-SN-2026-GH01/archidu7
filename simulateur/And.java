@@ -47,18 +47,16 @@ public class And extends Composant {
 	/** Méthode abstarite spécialisée.
 	 * Calcul un ET logique entre les sortie et met le résutat en entrée.
 	 */
-	public void calculer()  {
-		boolean fini = false;
-		int i = 1;
-		Etat e = Etat.UP;
-		while (!fini) { //C'est un algo de min entre les différentes valeurs des entrées.
-			if (super.getEntree(i).getValeur() < e.getValeur()) e = super.getEntree(i);
-			fini = (i >= super.getNbEntree()) || (e.getValeur() == -1);
-			i++;
+	public void calculer(Propageur prop)  {
+		Etat e = Etat.ND;
+		if (super.getEntree(1) == Etat.UP && super.getEntree(2) == Etat.UP){
+			e = Etat.UP;
+		} 
+		else if (super.getEntree(1) == Etat.DW || super.getEntree(2) == Etat.DW){
+			e = Etat.DW;
 		}
-		super.setSortie(1,e);
-
-        }
+		propager(e, prop);
+    }
 
 	/** Ajouter un connecteur en tant qu'entrée.
 	 * Augmente le nombre d'entrée !.

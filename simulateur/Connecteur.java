@@ -10,7 +10,7 @@ public interface Connecteur {
 	/** Etablir la valeu transportée dans le connecteur.
 	 * @param b la nouvelle valeur.
 	 */
-	public void setValeur(Etat b); 
+	public void setValeur(Etat b, Propageur prop); 
 
 	/** Récuperer la valeur dans le connecteur.
 	 * @return la valeur stockée dans le connecteur.

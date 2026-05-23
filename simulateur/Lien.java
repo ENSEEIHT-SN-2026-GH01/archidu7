@@ -18,7 +18,9 @@ public class Lien implements Connecteur {
 		listeners = new ArrayList<>();
 	}
 
-	public void setValeur(Etat b) {
+	public void setValeur(Etat b, Propageur prop) {
+		//System.out.println("recalcule de :" + nom + "val: " + etat + "->" + b);
+		boolean changed = (b != etat);
 		etat = b;
 
 		/*notifier les listeners */
@@ -32,6 +34,8 @@ public class Lien implements Connecteur {
 				B.sauv();
 			}
 		}
+
+		if (changed && composantSuivant != null) composantSuivant.calculer(prop);
 	}
 
 	public Etat getValeur() {
