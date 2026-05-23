@@ -14,6 +14,7 @@ public class MenuPrincipale extends MenuBar {
         Menu affichage = new Menu("affichage");
 
         modeSombre = new CheckMenuItem("Mode sombre");
+        modeSombre.setStyle("-fx-padding: 5px 15px;");
         affichage.getItems().add(modeSombre);
 
         this.getMenus().addAll(fichier, edition, affichage);

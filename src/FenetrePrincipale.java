@@ -19,6 +19,7 @@ public class FenetrePrincipale extends Scene {
     private ListeModulePrincipale environnement;
     private EditeurTexte editeur;
     private BoutonsPrincipale boutons;
+    private MenuPrincipale menu;
 
     public FenetrePrincipale() { 
 
@@ -34,20 +35,20 @@ public class FenetrePrincipale extends Scene {
 
         this.environnement = new ListeModulePrincipale(editeur, stockage);
         
-        MenuPrincipale menu = new MenuPrincipale();
-        menu.setStyle("-fx-background-color: transparent; -fx-font-size: 14px;");
+        this.menu = new MenuPrincipale();
+        this.menu.setStyle("-fx-background-color: transparent; -fx-font-size: 14px;");
 
-        menu.getModeSombre().setOnAction(event -> {
-            boolean estSombre = menu.getModeSombre().isSelected();
+        this.menu.getModeSombre().setOnAction(event -> {
+            boolean estSombre = this.menu.getModeSombre().isSelected();
             appliquerTheme(estSombre); 
         });
 
         this.outils = new BorderPane();
-        outils.setLeft(menu);
-        outils.setRight(boutons);
+        outils.setLeft(this.menu);
+        outils.setRight(this.boutons);
 
-        BorderPane.setAlignment(menu, javafx.geometry.Pos.CENTER_LEFT);
-        BorderPane.setAlignment(boutons, javafx.geometry.Pos.CENTER_RIGHT);
+        BorderPane.setAlignment(this.menu, javafx.geometry.Pos.CENTER_LEFT);
+        BorderPane.setAlignment(this.boutons, javafx.geometry.Pos.CENTER_RIGHT);
 
         root.setCenter(editeur);
         root.setTop(outils);
@@ -75,7 +76,7 @@ public class FenetrePrincipale extends Scene {
         BorderPane root = (BorderPane) this.getRoot();
         // THEME SOMBRE
         if(sombre) {
-            root.setStyle("-fx-base: #252526; -fx-background: #252526;");
+            root.setStyle("-fx-base: #252526; -fx-background: #252526; -fx-selection-bar: #404040;");
         //bandeau supérieur
             this.outils.setStyle("-fx-background-color: #2d2d2d; -fx-border-color: #404040; -fx-border-width: 0 0 1px 0; -fx-padding: 4px 10px;");
             //bandeau de gauche
@@ -88,11 +89,11 @@ public class FenetrePrincipale extends Scene {
                     "-fx-faint-focus-color: transparent; " +
                     "-fx-background-insets: 0;"
                 );
-        }
+        }        
         // THEME CLAIR
         else {
-            root.setStyle("-fx-base: #f8fafc; -fx-background: #f8fafc;");
-            
+            root.setStyle("-fx-base: #f8fafc; -fx-background: #f8fafc; -fx-selection-bar: #e2e8f0;");
+
             this.outils.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1px 0; -fx-padding: 4px 10px;");
             this.environnement.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 0 1px 0 0;");
             this.editeur.setStyle(
