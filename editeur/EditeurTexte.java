@@ -101,7 +101,8 @@ public class EditeurTexte extends StackPane{
 
         // pas réellement rendu par devant : lu via la géométrie du curseur du
         // TextFlow (caretShape) — seule mesure fiable ici, les hauteurs de mise en
-        // page (getHeight / bounds) étant faussées par les marges. On injecte
+        // page (getHeight / bounds) étant faussées par les marges. getCaretShape
+        // remplace caretShape, déprécié depuis JavaFX 25. On injecte
         // temporairement 11 lignes pour disposer de deux repères verticaux.
         final int nb = 11;
         String texteCourant = deriere.getText();
@@ -110,8 +111,8 @@ public class EditeurTexte extends StackPane{
         deriere.setText(echantillon.toString());
         applyCss();
         layout();
-        double y0 = caretY(devant.caretShape(0, true));            // début ligne 0
-        double yN = caretY(devant.caretShape(3 * (nb - 1), true)); // début ligne 10
+        double y0 = caretY(devant.getCaretShape(0, true));            // début ligne 0
+        double yN = caretY(devant.getCaretShape(3 * (nb - 1), true)); // début ligne 10
         deriere.setText(texteCourant); // restaure l'état
 
         if (Double.isNaN(y0) || Double.isNaN(yN)) return;
