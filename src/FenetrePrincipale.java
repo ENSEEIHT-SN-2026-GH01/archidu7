@@ -1,4 +1,5 @@
 import editeur.EditeurTexte;
+import editeur.NumeroteurLigne;
 import editeur.coloration.GestionnaireColorateur;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -12,6 +13,7 @@ import sauvegarde.TextFileStorage;
 import simulateur.appel.GestionnaireModules;
 import boutons.BoutonsPrincipale;
 import editeur.coloration.Palette;
+import javafx.scene.layout.BorderPane;
 
 public class FenetrePrincipale extends Scene {
     
@@ -23,6 +25,7 @@ public class FenetrePrincipale extends Scene {
     private EditeurTexte editeur;
     private MenuPrincipale menu;
     private BandeauOnglet onglets;
+    private NumeroteurLigne numeroteurLigne;
 
     public FenetrePrincipale() { 
 
@@ -47,8 +50,13 @@ public class FenetrePrincipale extends Scene {
 
         //ajuster la largeur du paneau de gauche
         SplitPane espaceDeTravail = new SplitPane();
-        espaceDeTravail.getItems().addAll(environnement, editeur);
+        BorderPane zoneEditeur = new BorderPane();
+        this.numeroteurLigne = new NumeroteurLigne(editeur);
+        zoneEditeur.setLeft(this.numeroteurLigne);
+        zoneEditeur.setCenter(editeur);
+        espaceDeTravail.getItems().addAll(environnement, zoneEditeur);
         espaceDeTravail.setDividerPositions(0.2f);
+
         SplitPane.setResizableWithParent(editeur, true);
         espaceDeTravail.setStyle("-fx-background-color: transparent; -fx-padding: 0;");
 
@@ -100,5 +108,9 @@ public class FenetrePrincipale extends Scene {
         }
 
         this.onglets.setModeSombre(sombre);
+
+        if (this.numeroteurLigne != null) {
+            this.numeroteurLigne.appliquerTheme(sombre);
+        }
     }
 }
