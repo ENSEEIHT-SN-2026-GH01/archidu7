@@ -20,25 +20,25 @@ public class ColorateurUnique implements ColorateurToken{
     private static Color choixCouleur(Lexem<Token> tok){
         switch (tok.getToken()) {
             case Identifiant:
-                return Color.rgb(20, 20, 100);
+                return Palette.adapter(Color.rgb(20, 20, 100), Color.rgb(150, 150, 255));
             case NaturalInteger, PointPoint:
-                return Color.ORANGE;
+                return Palette.adapter(Color.ORANGE, Color.LIGHTGOLDENRODYELLOW);
             case BitField:
-                return Color.LIGHTGREEN;
+                return Palette.adapter(Color.BLUE, Color.CORNFLOWERBLUE);
 
             case ModuleKW,EndKW,OutputKW,EnabledKW,WhenKW,OnKW,ResetKW,SetKW:
-                return Color.BLUE;
+                return Palette.adapter(Color.BLUE, Color.CORNFLOWERBLUE);
 
             case ConcatOp,Colon,OrOp,Star,NotOp,AssignOp,MemAssignOp,Comma,Semicolon,Dollar:
-                 return Color.DARKGRAY;
+                 return Palette.adapter(Color.DARKGRAY, Color.LIGHTGRAY);
 
             case Error:
                 return Color.RED;
 
             case Comment:
-                return Color.GREEN;
+                return Palette.adapter(Color.GREEN, Color.LIGHTGREEN);
             default:
-                return Color.DARKBLUE;
+                return Palette.adapter(Color.DARKBLUE, Color.SKYBLUE);
         }
     }
 

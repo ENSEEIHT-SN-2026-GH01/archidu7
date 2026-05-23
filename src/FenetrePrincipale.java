@@ -11,6 +11,7 @@ import sauvegarde.FileStorage;
 import sauvegarde.TextFileStorage;
 import simulateur.appel.GestionnaireModules;
 import boutons.BoutonsPrincipale;
+import editeur.coloration.Palette;
 
 public class FenetrePrincipale extends Scene {
     
@@ -88,6 +89,15 @@ public class FenetrePrincipale extends Scene {
             this.editeur.setStyle("-fx-control-inner-background: white; -fx-text-fill: black; -fx-prompt-text-fill: gray; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-insets: 0;");
         }
         //on applique le thème aux onglets
+        this.onglets.setModeSombre(sombre);
+
+        // mise à jour de la pallette de couleurs
+        Palette.estModeSombre = sombre;
+
+        if (colorateur != null) {
+            colorateur.colorierAll();
+        }
+
         this.onglets.setModeSombre(sombre);
     }
 }

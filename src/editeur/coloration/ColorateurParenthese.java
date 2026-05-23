@@ -19,15 +19,15 @@ public class ColorateurParenthese implements ColorateurToken{
     private static Color choixCouleur(int profondeur){
         switch (profondeur) {
             case 1:
-                return Color.PURPLE;
+                return Palette.adapter(Color.PURPLE, Color.PLUM);
             case 2:
-                return Color.BLUE;
+                return Palette.adapter(Color.BLUE, Color.LIGHTSKYBLUE);
             case 3:
-                return Color.YELLOW;
+                return Palette.adapter(Color.YELLOW, Color.LIGHTYELLOW);
             case 4:
-                return Color.DARKGREEN;
+                return Palette.adapter(Color.DARKGREEN, Color.LIMEGREEN);
             case 5:
-                return Color.ORANGE;
+                return Palette.adapter(Color.ORANGE, Color.LIGHTSALMON);
             default:
                 return Color.RED;
         }
