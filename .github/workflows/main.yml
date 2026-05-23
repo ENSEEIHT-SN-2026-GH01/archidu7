@@ -79,6 +79,14 @@ jobs:
         echo 'java -jar archidu7.jar' >> dist/run.sh
         chmod +x dist/run.sh
 
+        # L'app démarre sur un environnement vierge (app/modules vide, créé au
+        # runtime). On fournit à part un dossier d'exemples que l'utilisateur
+        # peut ouvrir via « charger » (sélecteur de dossier de travail).
+        mkdir -p dist/exemples/modules
+        cp src/modules/*.shdl dist/exemples/modules/
+        # Scripts de test (.txt) chargeables depuis la fenêtre de simulation.
+        cp modules/*.txt dist/exemples/modules/
+
     # 2. COMPILE & PACKAGE PROJECT (WINDOWS)
     - name: Compile Project with PowerShell (Windows)
       if: matrix.os == 'windows-latest'
@@ -107,6 +115,13 @@ jobs:
         Copy-Item -Path "lib/*.dll" -Destination "dist/app/lib/" -ErrorAction SilentlyContinue
         
         Set-Content -Path "dist/run.bat" -Value "@echo off`r`ncd /d `"%~dp0\app`"`r`njava -jar archidu7.jar"
+
+        # Dossier d'exemples à part (cf. Linux/macOS) : env de départ vierge,
+        # exemples chargeables via « charger ».
+        New-Item -ItemType Directory -Path "dist/exemples/modules" -Force
+        Copy-Item -Path "src/modules/*.shdl" -Destination "dist/exemples/modules/"
+        # Scripts de test (.txt) chargeables depuis la fenêtre de simulation.
+        Copy-Item -Path "modules/*.txt" -Destination "dist/exemples/modules/" -ErrorAction SilentlyContinue
       shell: pwsh
 
     # 3. UPLOAD CLEAN ARTIFACT BUNDLE
