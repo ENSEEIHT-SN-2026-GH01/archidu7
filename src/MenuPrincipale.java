@@ -1,5 +1,4 @@
 import boutons.MenuHorlogeVitesse;
-import boutons.MenuTests;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.CheckMenuItem;
@@ -15,7 +14,6 @@ public class MenuPrincipale extends MenuBar {
         Menu edition = new Menu("edition");
         Menu affichage = new Menu("affichage");
         Menu simulation = new Menu("simulation");
-        Menu tests = new MenuTests();
 
         modeSombre = new CheckMenuItem("Mode sombre");
         modeSombre.setStyle("-fx-padding: 5px 15px;");
@@ -23,7 +21,7 @@ public class MenuPrincipale extends MenuBar {
 
         simulation.getItems().add(new MenuHorlogeVitesse());
 
-        this.getMenus().addAll(fichier, edition, affichage, simulation, tests);
+        this.getMenus().addAll(fichier, edition, affichage, simulation);
     }
 
     public CheckMenuItem getModeSombre() {
