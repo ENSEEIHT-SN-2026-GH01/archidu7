@@ -49,6 +49,7 @@ public class FenetrePrincipale extends Scene {
         SplitPane espaceDeTravail = new SplitPane();
         espaceDeTravail.getItems().addAll(environnement, editeur);
         espaceDeTravail.setDividerPositions(0.2f);
+        SplitPane.setResizableWithParent(editeur, true);
         espaceDeTravail.setStyle("-fx-background-color: transparent; -fx-padding: 0;");
 
         environnement.setMinWidth(150); // On permet de rétrécir la barre de gauche jusqu'à 150 pixels

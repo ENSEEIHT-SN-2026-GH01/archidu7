@@ -12,13 +12,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import editeur.autocompletion.*;
 import javafx.event.EventHandler;
+import javafx.scene.text.TextFlow;
 
 public class EditeurTexte extends StackPane{
 
     private final int fontSize = 16;
     private EditeurTexteInvisible deriere;
     private TextMultiColoriable devant;
-    private Pane contenneurDevant;
+    private TextFlow contenneurDevant;
     private Pane superContenneurDevant;
     private Rectangle clip = new Rectangle(0,0,Double.MAX_VALUE, Double.MAX_VALUE);
     private BandeauErreur bandeauErreur = new BandeauErreur();
@@ -26,7 +27,12 @@ public class EditeurTexte extends StackPane{
     public EditeurTexte(){
         deriere = new EditeurTexteInvisible(fontSize);
         devant = new TextMultiColoriable(fontSize);
-        contenneurDevant = new Pane(devant);
+        contenneurDevant = new TextFlow(devant);
+        contenneurDevant.setPrefWidth(Double.MAX_VALUE);
+
+        contenneurDevant.setMaxWidth(Double.MAX_VALUE);
+        contenneurDevant.setMaxHeight(Double.MAX_VALUE);
+
         superContenneurDevant = new Pane(contenneurDevant, bandeauErreur);
 
         /*transformation sur le texte coloriable plaçé au dessus */

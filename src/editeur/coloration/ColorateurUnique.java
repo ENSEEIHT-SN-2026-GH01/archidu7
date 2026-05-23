@@ -20,9 +20,9 @@ public class ColorateurUnique implements ColorateurToken{
     private static Color choixCouleur(Lexem<Token> tok){
         switch (tok.getToken()) {
             case Identifiant:
-                return Palette.adapter(Color.rgb(20, 20, 100), Color.rgb(150, 150, 255));
+                return Palette.adapter(Color.rgb(20, 20, 100), Color.WHITE);
             case NaturalInteger, PointPoint:
-                return Palette.adapter(Color.ORANGE, Color.LIGHTGOLDENRODYELLOW);
+                return Color.ORANGE;
             case BitField:
                 return Palette.adapter(Color.BLUE, Color.CORNFLOWERBLUE);
 
