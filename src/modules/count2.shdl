@@ -1,0 +1,5 @@
+module count2(rst, clk: D[1..0], c[1..0])  
+   D[0] = /c[0]
+   D[1] = (c[0]*/c[1] + c[1]*/c[0])  
+   c[1..0] := D[1..0] on clk reset when rst 
+end module

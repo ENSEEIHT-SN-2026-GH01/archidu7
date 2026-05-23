@@ -1,0 +1,6 @@
+module ucmp2(a[1..0], b[1..0] : sup, equ)
+   ucmp1(a[1], b[1] : supfort, equfort)
+   ucmp1(a[0], b[0] : supfaible, equfaible)
+   sup = supfort + equfort*supfaible
+   equ = equfort*equfaible
+end module

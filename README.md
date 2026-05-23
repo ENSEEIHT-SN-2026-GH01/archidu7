@@ -1,30 +1,13 @@
-# Simulateur SHDL — Build
+liste des commandes a faire (à partir du dossier racine):
 
-Application JavaFX du simulateur SHDL. Build via Gradle, livrable fat-JAR.
+# build
+rm lib/archidu7.jar
+cd src
+javac -d ../bin -cp "../lib/*;." Launcher.java
+cd ..
+jar --create --file=archidu7.jar --manifest=src/META-INF/MANIFEST.MF -C bin/ .
 
-## Prérequis
-
-- JDK 21 ou plus (le wrapper télécharge Gradle 9.0 et le JDK cible si nécessaire)
-
-## Produire le `.jar`
-
-```bash
-./gradlew shadowJar
-```
-
-Sortie : `build/libs/shdl-simulateur.jar` (~8 MB, JavaFX + assets embarqués).
-
-## Lancer
-
-```bash
-java -jar build/libs/shdl-simulateur.jar
-```
-
-## Notes
-
-- Classe principale : `Launcher` (wrapper sur `TestFenetrePrincipale`, requis car
-  `extends Application` ne peut pas être main d'un fat-JAR).
-- Natives JavaFX incluses : **Linux uniquement**. Pour Windows/macOS, rebuild sur
-  la plateforme cible.
-- Code exclu du build : `parser/ll1/parser/` (références mortes vers
-  `parser.ll1.token`), `tests projet long/`, fichiers `*.legacy`.
+# lancer le projet
+cp archidu7.jar lib/
+cd lib
+java -jar archidu7.jar
