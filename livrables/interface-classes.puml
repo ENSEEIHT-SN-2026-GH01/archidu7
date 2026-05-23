@@ -1,0 +1,88 @@
+@startuml interface-classes
+!pragma layout smetana
+skinparam classAttributeIconSize 0
+skinparam classFontSize 11
+skinparam defaultFontName Sans
+skinparam linetype ortho
+hide empty members
+
+class ArchiDu7 <<Application>> {
+  +start(stage: Stage)
+}
+
+class FenetrePrincipale <<Scene>> {
+  +appliquerTheme(sombre: boolean)
+}
+
+package "barre d'outils" {
+  class MenuPrincipale <<MenuBar>> {
+    +getModeSombre(): CheckMenuItem
+  }
+  class BoutonsPrincipale <<ButtonBar>>
+  class BandeauOnglet <<HBox>> {
+    +ouvrir(chemin)
+    +setModeSombre(sombre)
+  }
+  class MenuFichier <<Menu>>
+}
+
+package "panneau modules" {
+  class ListeModulePrincipale <<ScrollPane>> {
+    +rechargerEnvironnement()
+  }
+  class FichierModuleBouton <<Button>>
+}
+
+package "boutons / actions" {
+  class BoutonSimuler <<Button>>
+  class ActionSimuler <<EventHandler>>
+  class ActionNouveau
+  class ActionSauvegarder
+  class ActionCharger
+}
+
+package "sauvegarde" {
+  interface FileStorage {
+    +save(c: String)
+    +load(chemin): String
+  }
+  class TextFileStorage
+  interface SaveListener {
+    +onSave()
+  }
+}
+
+class EditeurTexte <<éditeur>>
+class FenetreSimulateur <<simulation>>
+
+ArchiDu7 ..> FenetrePrincipale : crée
+
+FenetrePrincipale *-- MenuPrincipale
+FenetrePrincipale *-- BoutonsPrincipale
+FenetrePrincipale *-- BandeauOnglet
+FenetrePrincipale *-- ListeModulePrincipale
+FenetrePrincipale *-- EditeurTexte
+
+MenuPrincipale *-- MenuFichier
+BoutonsPrincipale o-- BoutonSimuler
+ListeModulePrincipale o-- "*" FichierModuleBouton
+
+BoutonSimuler o-- ActionSimuler
+MenuFichier o-- ActionNouveau
+MenuFichier o-- ActionSauvegarder
+MenuFichier o-- ActionCharger
+
+ActionSimuler ..> EditeurTexte : parse le code
+ActionSimuler ..> FenetreSimulateur : ouvre
+ActionNouveau ..> FileStorage
+ActionSauvegarder ..> FileStorage
+ActionCharger ..> FileStorage
+FichierModuleBouton ..> EditeurTexte : charge
+FichierModuleBouton ..> BandeauOnglet : ouvre onglet
+
+FileStorage <|.. TextFileStorage
+TextFileStorage o-- "*" SaveListener : notifie
+BandeauOnglet ..|> SaveListener
+ListeModulePrincipale ..|> SaveListener
+
+@enduml
