@@ -6,6 +6,8 @@ syntaxique), converti en circuit, puis simulé par propagation des signaux dans
 une fenêtre dédiée. L'interface offre un éditeur de code avec coloration
 syntaxique, un panneau de modules et un thème clair/sombre.
 
+![Capture d'écran d'ArchiDu7](docs/archidu7.png)
+
 Projet Long 1SN — ENSEEIHT. **Prérequis : JDK 25.**
 
 ## Arborescence
