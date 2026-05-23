@@ -15,11 +15,14 @@ import simulateur.*;
 /** Bouton qui commande un bit d'une entrée. */
 public class EntreeSimulateur extends ToggleButton {
 
-    public static final Image imageUndef = new Image("assets/interupteur_undef.png", 48, 48, true, false);
-    public static final Image imageOff = new Image("assets/interupteur_off.png", 48, 48, true, false);
-    public static final Image imageOn = new Image("assets/interupteur_on.png", 48, 48, true, false);
-    public static final Image horlogeOff = new Image("assets/horloge_off.png", 48, 48, true, false);
-    public static final Image horlogeOn = new Image("assets/horloge_on.png", 48, 48, true, false);
+    public static final int largeurSpriteBase = 16;
+    public static final int hauteurSpriteBase = 16;
+
+    public static Image imageUndef = new Image("assets/interupteur_undef.png", ConfigurationSimulation.largeurSprite, ConfigurationSimulation.hauteurSprite, true, false);
+    public static Image imageOff = new Image("assets/interupteur_off.png", ConfigurationSimulation.largeurSprite, ConfigurationSimulation.hauteurSprite, true, false);
+    public static Image imageOn = new Image("assets/interupteur_on.png", ConfigurationSimulation.largeurSprite, ConfigurationSimulation.hauteurSprite, true, false);
+    public static Image horlogeOff = new Image("assets/horloge_off.png", ConfigurationSimulation.largeurSprite, ConfigurationSimulation.hauteurSprite, true, false);
+    public static Image horlogeOn = new Image("assets/horloge_on.png", ConfigurationSimulation.largeurSprite, ConfigurationSimulation.hauteurSprite, true, false);
 
     private ImageView vue;
     private BouttonEntree corps;

@@ -13,7 +13,6 @@ import sauvegarde.TextFileStorage;
 import simulateur.appel.GestionnaireModules;
 import boutons.BoutonsPrincipale;
 import editeur.coloration.Palette;
-import javafx.scene.layout.BorderPane;
 
 public class FenetrePrincipale extends Scene {
     
@@ -39,7 +38,7 @@ public class FenetrePrincipale extends Scene {
         this.onglets = new BandeauOnglet(stockage, editeur);
         this.environnement = new ListeModulePrincipale(editeur, stockage, this.onglets);
 
-        this.menu = new MenuPrincipale();
+        this.menu = new MenuPrincipale(editeur, stockage);
         this.menu.setStyle("-fx-background-color: transparent; -fx-font-size: 14px;");
         this.menu.getModeSombre().setOnAction(event -> {
             boolean estSombre = this.menu.getModeSombre().isSelected();

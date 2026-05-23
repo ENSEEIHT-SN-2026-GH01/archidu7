@@ -1,17 +1,20 @@
+import boutons.MenuFichier;
 import boutons.MenuHorlogeVitesse;
+import boutons.MenuTailleSprite;
+import editeur.EditeurTexte;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import sauvegarde.FileStorage;
 import javafx.scene.control.CheckMenuItem;
 
 public class MenuPrincipale extends MenuBar {
 
     private CheckMenuItem modeSombre;
 
-    public MenuPrincipale(){
+    public MenuPrincipale(EditeurTexte edit, FileStorage sauveur){
         super();
 
-        Menu fichier = new Menu("fichier");
-        Menu edition = new Menu("edition");
+        Menu fichier = new MenuFichier(edit, sauveur);
         Menu affichage = new Menu("affichage");
         Menu simulation = new Menu("simulation");
 
@@ -19,9 +22,9 @@ public class MenuPrincipale extends MenuBar {
         modeSombre.setStyle("-fx-padding: 5px 15px;");
         affichage.getItems().add(modeSombre);
 
-        simulation.getItems().add(new MenuHorlogeVitesse());
+        simulation.getItems().addAll(new MenuHorlogeVitesse(), new MenuTailleSprite());
 
-        this.getMenus().addAll(fichier, edition, affichage, simulation);
+        this.getMenus().addAll(fichier, affichage, simulation);
     }
 
     public CheckMenuItem getModeSombre() {

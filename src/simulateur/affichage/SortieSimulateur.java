@@ -8,9 +8,9 @@ import simulateur.*;
 /**Led correspondant à un bit d'une sortie. */
 public class SortieSimulateur extends Label{
     
-    public static final Image imageUndef = new Image("assets/sortie_undef.png", 48, 48, true, false);
-    public static final Image imageOff = new Image("assets/sortie_off.png", 48, 48, true, false);
-    public static final Image imageOn = new Image("assets/sortie_on.png", 48, 48, true, false);
+    public static Image imageUndef = new Image("assets/sortie_undef.png", ConfigurationSimulation.largeurSprite, ConfigurationSimulation.hauteurSprite, true, false);
+    public static Image imageOff = new Image("assets/sortie_off.png", ConfigurationSimulation.largeurSprite, ConfigurationSimulation.hauteurSprite, true, false);
+    public static Image imageOn = new Image("assets/sortie_on.png", ConfigurationSimulation.largeurSprite, ConfigurationSimulation.hauteurSprite, true, false);
 
     private Connecteur sortie;
     private ImageView vue;
