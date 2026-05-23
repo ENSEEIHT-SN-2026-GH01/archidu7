@@ -1,0 +1,43 @@
+@startuml sous-modules-classes
+!pragma layout smetana
+skinparam classAttributeIconSize 0
+skinparam classFontSize 11
+skinparam defaultFontName Sans
+skinparam linetype ortho
+hide empty members
+
+package "parser.conversion" {
+  class Conversion {
+    +convert(main: CstNode, library): Module
+  }
+  class ModuleBuilder {
+    +build(node: CstNode, r: ModuleResolver): Module
+  }
+  class ModuleResolver {
+    +resolve(nom: String): Module
+    +mainName(): String
+  }
+  class ModuleCallBuilder {
+    +build(call: CstNode, called: Module): AppelModule
+  }
+  class BuiltinModules {
+    registre des modules $
+  }
+}
+
+interface CstNode <<cst>>
+class Module <<simulateur>>
+class AppelModule <<erwan>>
+
+Conversion ..> ModuleResolver : indexe la library
+Conversion ..> ModuleBuilder : délègue
+ModuleBuilder ..> ModuleResolver : resolve(nom)
+ModuleBuilder ..> ModuleCallBuilder : un par appel
+ModuleBuilder ..> BuiltinModules : dispatch préfixe $
+ModuleResolver ..> CstNode : indexe les modules
+ModuleResolver ..> Module : module appelé
+ModuleCallBuilder ..> AppelModule : produit
+ModuleBuilder ..> Module : produit
+Module o-- "*" AppelModule : Branchements
+
+@enduml
