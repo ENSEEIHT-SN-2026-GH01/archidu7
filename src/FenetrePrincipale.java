@@ -21,6 +21,14 @@ public class FenetrePrincipale extends Scene {
         BorderPane root = (BorderPane) this.getRoot();
 
         EditeurTexte editeur = new EditeurTexte();
+        //suppression de la bordure et du focus
+        editeur.setStyle(
+            "-fx-focus-color: transparent; " +
+            "-fx-faint-focus-color: transparent; " +
+            "-fx-background-insets: 0; " + 
+            "-fx-border-color: transparent;"
+        );
+
         FileStorage stockage = new TextFileStorage(); 
 
         BoutonsPrincipale boutons = new BoutonsPrincipale(editeur, stockage);
