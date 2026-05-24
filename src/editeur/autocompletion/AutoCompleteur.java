@@ -1,17 +1,28 @@
 package editeur.autocompletion;
 
 import java.util.function.UnaryOperator;
+import java.util.List;
+
+import editeur.EditeurTexte;
 import javafx.scene.control.TextFormatter.Change;
 
-public class AutoCompleteur implements UnaryOperator<Change>{
+public class AutoCompleteur implements UnaryOperator<Change> {
+    private EditeurTexte textEditor;
+    private editeur.autocompletion.Dictionary dictionary;
+
+    public AutoCompleteur(EditeurTexte textEditor) {
+        this.dictionary = new Dictionary(textEditor);
+        this.textEditor = textEditor;
+    }
 
     @Override
     public Change apply(Change change) {
-        if (change.isAdded()){
+        List<String> possible = null;
+        if (change.isAdded()) {
             String txt = change.getText();
 
-            /*parenthèsage auto */
-            if (txt.length() == 1){
+            /* parenthèsage auto */
+            if (txt.length() == 1) {
                 switch (txt.charAt(0)) {
                     case '(':
                         txt = txt.concat(")");
@@ -25,10 +36,23 @@ public class AutoCompleteur implements UnaryOperator<Change>{
                     default:
                         break;
                 }
+
             }
             change.setText(txt);
+
+        }
+
+        if (change.getText().length() > 0) {
+            int pos = change.getCaretPosition() - change.getText().length();
+            int pos_debut = Dictionary.getIndexDebutMot(textEditor.getText(), pos);
+            if (pos_debut < 0 || pos < 0) {
+                return change;
+            }
+            String mot = textEditor.getText().substring(pos_debut, pos) + change.getText();
+            possible = dictionary.getClosest(mot);
+            textEditor.menu.showMenuAtCaret(possible);
         }
 
         return change;
-    }  
+    }
 }

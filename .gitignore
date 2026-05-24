@@ -18,6 +18,7 @@ local.properties
 src-gen/
 *.xml
 *.zip
+.vscode/
 
 # Build cross-OS (deps fetchées par la CI, jamais commitées)
 lib/
