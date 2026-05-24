@@ -29,7 +29,6 @@ public class AppelModule implements Branchement {
 	 * @param module C'est le module appelé.
 	 * @param DE C'est la liste des descripteurs d'entrée, soit des signaux fournit par le circuit au module en entrée.
 	 * @param DS C'est la liste des descripteurs de sortie, soit des signaux générés par le module pour le circuit.
-	 * @return L'AppelModule.
 	 */ 
 	public AppelModule(Module module, List<Descripteur> DE, List<Descripteur> DS) {
 		this.module = module;
